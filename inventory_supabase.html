@@ -23,14 +23,15 @@ header{background:linear-gradient(135deg,#2c2416 0%,#3d3020 60%,#4a3828 100%);co
 .tab:hover:not(.on){color:var(--tx);background:var(--sf2);}
 
 /* ボトムナビ（スマホ専用） */
-.bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;z-index:150;background:var(--sf);border-top:1px solid var(--bd);box-shadow:0 -4px 20px rgba(44,36,22,.10);padding-bottom:env(safe-area-inset-bottom);}
+.bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;z-index:150;background:var(--sf);border-top:1.5px solid var(--bd);box-shadow:0 -2px 12px rgba(44,36,22,.08);padding-bottom:env(safe-area-inset-bottom);}
 .bn-row{display:flex;}
-.bn-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:8px 2px 6px;border:none;background:none;cursor:pointer;font-family:inherit;color:var(--tx2);transition:color .15s;min-height:54px;-webkit-tap-highlight-color:transparent;}
+.bn-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;padding:6px 2px 5px;border:none;background:none;cursor:pointer;font-family:inherit;color:var(--tx2);transition:color .15s;min-height:48px;-webkit-tap-highlight-color:transparent;position:relative;}
 .bn-item.on{color:var(--ac);}
+.bn-item.on::after{content:'';position:absolute;top:0;left:25%;right:25%;height:2px;background:var(--ac);border-radius:0 0 2px 2px;}
+.bn-icon{font-size:18px;line-height:1.1;}
+.bn-label{font-size:9px;font-weight:600;letter-spacing:.02em;white-space:nowrap;opacity:.85;}
+.bn-dot{width:4px;height:4px;border-radius:50%;background:var(--ac);opacity:0;transition:opacity .15s;position:absolute;top:4px;right:calc(50% - 12px);}
 .bn-item.on .bn-dot{opacity:1;}
-.bn-icon{font-size:20px;line-height:1;}
-.bn-label{font-size:9px;font-weight:700;letter-spacing:.03em;white-space:nowrap;}
-.bn-dot{width:4px;height:4px;border-radius:50%;background:var(--ac);opacity:0;transition:opacity .15s;margin-top:1px;}
 
 /* ページグループ（スマホ用タブ切り替え） */
 .bn-more-btn{display:none;}
@@ -38,26 +39,38 @@ header{background:linear-gradient(135deg,#2c2416 0%,#3d3020 60%,#4a3828 100%);co
 @media(max-width:559px){
   .nav-tabs{display:none;}
   .bottom-nav{display:block;}
-  .main{padding:12px 12px 80px;}
-  .fab{bottom:76px;right:14px;width:48px;height:48px;font-size:20px;}
+  .main{padding:10px 10px 78px;}
+  .fab{bottom:64px;right:12px;width:46px;height:46px;font-size:20px;}
   /* タップターゲット拡大 */
   .btn{padding:10px 14px;min-height:40px;}
   .bsm{padding:8px 12px;min-height:36px;}
   .bi{width:36px;height:36px;}
   .qbt{width:36px;height:36px;font-size:18px;}
   input,select,textarea{padding:10px 12px;font-size:16px;}
-  /* カード内余白調整 */
+  /* カード内余白 */
   .cb{padding:12px;}
-  .ch{padding:11px 12px;}
-  /* テーブルスクロール強化 */
-  .tw{-webkit-overflow-scrolling:touch;}
-  /* グリッド調整 */
-  .sg{grid-template-columns:repeat(2,1fr);}
+  .ch{padding:10px 12px;}
+  /* サマリー数字を小さく */
+  .snum{font-size:15px;}
+  .ss{gap:6px;margin-bottom:8px;}
+  /* テーブルをスマホ用カードリストに切替 */
+  .tw{overflow-x:visible;}
+  .tw table{display:none;}
+  .dash-mobile-list{display:block;}
+  /* グリッド */
+  .sg{grid-template-columns:repeat(2,1fr);gap:7px;}
+  .sc{padding:10px;}
+  .sn{font-size:18px;}
+  /* フォーム */
   .fr.c3{grid-template-columns:1fr;}
   /* モーダル */
   .mft{padding:10px 12px;gap:6px;}
   .mft .btn{flex:1;justify-content:center;}
+  /* カードヘッダー */
+  .ct{font-size:13px;}
 }
+/* スマホ用ダッシュカードリスト（デフォルト非表示） */
+.dash-mobile-list{display:none;}
 .main{padding:16px;max-width:920px;margin:0 auto;}
 .pg{display:none;}.pg.on{display:block;}
 .card{background:var(--sf);border-radius:var(--r);border:1px solid var(--bd);box-shadow:var(--sh);margin-bottom:14px;overflow:hidden;}
@@ -369,25 +382,39 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
   <div class="card">
     <div class="ch">
       <span class="ct">🎨 完成品 在庫</span>
-      <span class="ts tm">タップで詳細表示</span>
+      <span class="ts tm">タップで詳細</span>
     </div>
     <div class="tw"><table><thead><tr><th>名前</th><th>在庫</th><th>売価</th><th>原価</th><th>状態</th></tr></thead><tbody id="dProds"></tbody></table></div>
+    <div class="dash-mobile-list" id="dProdsMobile"></div>
   </div>
   <div class="card">
     <div class="ch">
       <span class="ct">🧶 材料 在庫</span>
-      <span class="ts tm">タップで詳細表示</span>
+      <span class="ts tm">タップで詳細</span>
     </div>
     <div class="tw"><table><thead><tr><th>名前</th><th>在庫</th><th>単価</th><th>状態</th></tr></thead><tbody id="dMats"></tbody></table></div>
+    <div class="dash-mobile-list" id="dMatsMobile"></div>
   </div>
   <div class="card">
     <div class="ch"><span class="ct">💴 今月のサマリー</span></div>
     <div class="cb">
       <div class="ss">
-        <div><div class="snum" id="dSales">¥0</div><div style="font-size:11px;color:var(--tx2)">売上</div></div>
-        <div><div class="snum" id="dProfit">¥0</div><div style="font-size:11px;color:var(--tx2)">利益</div></div>
-        <div><div class="snum" id="dCost">¥0</div><div style="font-size:11px;color:var(--tx2)">仕入れ額</div></div>
-        <div><div class="snum" id="dMake">0</div><div style="font-size:11px;color:var(--tx2)">製作数</div></div>
+        <div style="background:var(--ob);border-radius:10px;padding:10px 12px">
+          <div class="snum" id="dSales" style="color:var(--ac)">¥0</div>
+          <div style="font-size:11px;color:var(--tx2);margin-top:2px">売上</div>
+        </div>
+        <div style="background:#edf5f3;border-radius:10px;padding:10px 12px">
+          <div class="snum" id="dProfit" style="color:var(--ac3)">¥0</div>
+          <div style="font-size:11px;color:var(--tx2);margin-top:2px">利益</div>
+        </div>
+        <div style="background:var(--wb);border-radius:10px;padding:10px 12px">
+          <div class="snum" id="dCost" style="color:var(--wn)">¥0</div>
+          <div style="font-size:11px;color:var(--tx2);margin-top:2px">仕入れ額</div>
+        </div>
+        <div style="background:var(--sf2);border-radius:10px;padding:10px 12px">
+          <div class="snum" id="dMake" style="color:var(--tx)">0</div>
+          <div style="font-size:11px;color:var(--tx2);margin-top:2px">製作数</div>
+        </div>
       </div>
     </div>
   </div>
@@ -1026,6 +1053,8 @@ function rDash() {
   function sc(n, l, c) { return '<div class="sc"><span class="sn" style="color:' + (c || 'var(--ac)') + '">' + n + '</span><span class="sl">' + l + '</span></div>'; }
   document.getElementById('sgrid').innerHTML = sc(prods.length, '完成品 種類') + sc(mats.length, '材料 種類') + sc(low.length, '要補充', 'var(--wn)') + sc(ms.length, '今月の販売件数', 'var(--ac3)');
   document.getElementById('alrt').innerHTML = low.length ? '<div class="al"><h4>低在庫アラート（' + low.length + '件）</h4><ul>' + low.map(function(i) { return '<li>' + i.name + '：残り ' + i.stock + (i.unit || '個') + '</li>'; }).join('') + '</ul></div>' : '';
+
+  // テーブル（PC用）
   document.getElementById('dProds').innerHTML = prods.length ? prods.map(function(i) {
     var cost = calcCost(i);
     var st = i.stock === 0 ? '<span class="bak bzr">在庫切れ</span>' : i.stock <= (i.min || 0) ? '<span class="bak bwn">低在庫</span>' : '<span class="bak bok">在庫あり</span>';
@@ -1035,6 +1064,31 @@ function rDash() {
     var st = i.stock === 0 ? '<span class="bak bzr">在庫切れ</span>' : i.stock <= (i.min || 0) ? '<span class="bak bwn">低在庫</span>' : '<span class="bak bok">在庫あり</span>';
     return '<tr style="cursor:pointer" onclick="showDetail(\'' + i.id + '\')"><td class="fw7">' + i.name + '</td><td class="mn fw7">' + i.stock + '<small class="tm"> ' + (i.unit || '個') + '</small></td><td class="mn tm">' + (i.mc ? yen(i.mc) + '/' + i.unit : '—') + '</td><td>' + st + '</td></tr>';
   }).join('') : '<tr><td colspan="4"><div class="empty" style="padding:13px"><p>材料がまだありません</p></div></td></tr>';
+
+  // カードリスト（スマホ用）
+  function mobileCard(i, type) {
+    var cost = type === 'product' ? calcCost(i) : 0;
+    var stColor = i.stock === 0 ? 'var(--wn)' : i.stock <= (i.min || 0) ? '#d97c2a' : 'var(--ac3)';
+    var stLabel = i.stock === 0 ? '<span class="bak bzr">在庫切れ</span>' : i.stock <= (i.min || 0) ? '<span class="bak bwn">低在庫</span>' : '<span class="bak bok">在庫あり</span>';
+    var sub = type === 'product'
+      ? (i.sp ? '<span class="ts tm">売価 ' + yen(i.sp) + '</span>' : '') + (cost ? '<span class="ts tm">原価 ' + yen(cost) + '</span>' : '')
+      : (i.mc ? '<span class="ts tm">単価 ' + yen(i.mc) + '/' + (i.unit||'個') + '</span>' : '');
+    return '<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid var(--bd);cursor:pointer" onclick="showDetail(\'' + i.id + '\')">'
+      + (i.photo ? '<img src="' + i.photo + '" style="width:38px;height:38px;border-radius:7px;object-fit:cover;flex-shrink:0">' : '<div style="width:38px;height:38px;background:var(--sf2);border-radius:7px;border:1px solid var(--bd);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">' + (type==='product'?'🎨':'🧶') + '</div>')
+      + '<div style="flex:1;min-width:0">'
+      + '<div style="font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + i.name + '</div>'
+      + '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:2px">' + sub + '</div>'
+      + '</div>'
+      + '<div style="text-align:right;flex-shrink:0"><div class="mn fw7" style="font-size:15px;color:' + stColor + '">' + i.stock + '<small class="tm" style="font-size:10px"> ' + (i.unit||'個') + '</small></div><div style="margin-top:2px">' + stLabel + '</div></div>'
+      + '</div>';
+  }
+  document.getElementById('dProdsMobile').innerHTML = prods.length
+    ? prods.map(function(i){ return mobileCard(i,'product'); }).join('')
+    : '<div class="empty" style="padding:20px"><div class="ei">🎨</div><p>完成品がまだありません</p></div>';
+  document.getElementById('dMatsMobile').innerHTML = mats.length
+    ? mats.map(function(i){ return mobileCard(i,'material'); }).join('')
+    : '<div class="empty" style="padding:20px"><p>材料がまだありません</p></div>';
+
   document.getElementById('dSales').textContent = yen(ms.reduce(function(a, s) { return a + s.total; }, 0));
   document.getElementById('dProfit').textContent = yen(ms.reduce(function(a, s) { return a + s.profit; }, 0));
   document.getElementById('dCost').textContent = yen(mp.reduce(function(a, p) { return a + p.total; }, 0));
