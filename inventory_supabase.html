@@ -34,11 +34,11 @@ header{background:linear-gradient(135deg,#2c2416 0%,#3d3020 60%,#4a3828 100%);co
 /* ボトムナビ（スマホ専用） */
 .bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;z-index:150;background:var(--sf);border-top:1.5px solid var(--bd);box-shadow:0 -2px 12px rgba(44,36,22,.08);padding-bottom:env(safe-area-inset-bottom);}
 .bn-row{display:flex;}
-.bn-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;padding:6px 2px 5px;border:none;background:none;cursor:pointer;font-family:inherit;color:var(--tx2);transition:color .15s;min-height:48px;-webkit-tap-highlight-color:transparent;position:relative;}
+.bn-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:8px 2px 8px;border:none;background:none;cursor:pointer;font-family:inherit;color:var(--tx2);transition:color .15s;min-height:62px;-webkit-tap-highlight-color:transparent;position:relative;}
 .bn-item.on{color:var(--ac);}
 .bn-item.on::after{content:'';position:absolute;top:0;left:25%;right:25%;height:2px;background:var(--ac);border-radius:0 0 2px 2px;}
-.bn-icon{font-size:18px;line-height:1.1;}
-.bn-label{font-size:9px;font-weight:600;letter-spacing:.02em;white-space:nowrap;opacity:.85;}
+.bn-icon{font-size:22px;line-height:1.1;}
+.bn-label{font-size:10px;font-weight:600;letter-spacing:.02em;white-space:nowrap;opacity:.85;}
 .bn-dot{width:4px;height:4px;border-radius:50%;background:var(--ac);opacity:0;transition:opacity .15s;position:absolute;top:4px;right:calc(50% - 12px);}
 .bn-item.on .bn-dot{opacity:1;}
 
@@ -49,7 +49,7 @@ header{background:linear-gradient(135deg,#2c2416 0%,#3d3020 60%,#4a3828 100%);co
   .nav-tabs{display:none;}
   .bottom-nav{display:block;}
   .main{padding:10px 10px 78px;max-width:100%;overflow-x:hidden;}
-  .fab{bottom:64px;right:12px;width:46px;height:46px;font-size:20px;}
+  .fab{bottom:74px;right:12px;width:46px;height:46px;font-size:20px;}
   /* タップターゲット拡大 */
   .btn{padding:10px 14px;min-height:40px;}
   .bsm{padding:8px 12px;min-height:36px;}
