@@ -844,14 +844,19 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
         </div>
       </div>
       <div class="fr c2">
-        <div><label>販売場所</label><select id="saleLoc">
-          <option value="手元">🏠 手元（直接販売）</option>
-          <option value="委託">🏪 委託</option>
-          <option value="minne">💻 minne</option>
-          <option value="ネットその他">📱 ネットその他</option>
-          <option value="マルシェ">⛺ マルシェ</option>
-          <option value="その他">… その他</option>
-        </select></div>
+        <div><label>販売場所</label>
+          <select id="saleLoc" onchange="toggleSaleLocCustom()">
+            <option value="手元">🏠 手元（直接販売）</option>
+            <option value="委託">🏪 委託</option>
+            <option value="minne">💻 minne</option>
+            <option value="Creema">💻 Creema</option>
+            <option value="ネットその他">📱 ネットその他</option>
+            <option value="マルシェ">⛺ マルシェ</option>
+            <option value="その他">… その他</option>
+            <option value="__custom__">✏️ カスタム入力...</option>
+          </select>
+          <input type="text" id="saleLocCustom" placeholder="販売場所を入力" style="display:none;margin-top:6px">
+        </div>
         <div><label>メモ</label><input type="text" id="saleMemo" placeholder="例：イベント名など"></div>
       </div>
       <div id="salePrev" class="cd"></div>
@@ -2009,7 +2014,25 @@ async function saveAdj() {
 // ══════════════════════════════════════════════
 // SALES
 // ══════════════════════════════════════════════
-function rSales() {
+function toggleSaleLocCustom() {
+  var sel = document.getElementById('saleLoc');
+  var custom = document.getElementById('saleLocCustom');
+  if (sel.value === '__custom__') {
+    custom.style.display = 'block';
+    custom.focus();
+  } else {
+    custom.style.display = 'none';
+    custom.value = '';
+  }
+}
+
+function getSaleLoc() {
+  var sel = document.getElementById('saleLoc');
+  if (sel.value === '__custom__') {
+    return document.getElementById('saleLocCustom').value.trim() || 'その他';
+  }
+  return sel.value;
+}
   var prods = items.filter(function(i) { return i.type === 'product'; });
   document.getElementById('saleItem').innerHTML = prods.length ? prods.map(function(i) { return '<option value="' + i.id + '">' + i.name + '（在庫:' + i.stock + '）</option>'; }).join('') : '<option value="">完成品がありません</option>';
   if (!document.getElementById('saleDate').value) dpSet('saleDate', tod());
@@ -2036,14 +2059,14 @@ async function recSale() {
   if (item.stock < qty && !confirm('在庫(' + item.stock + ')より多い数量です。続けますか？')) return;
   var date = document.getElementById('saleDate').value || tod();
   var memo = document.getElementById('saleMemo').value;
-  var loc = document.getElementById('saleLoc').value;
+  var loc = getSaleLoc();
   var cost = calcCost(item);
   var saleObj = { id: uid(), itemId: item.id, itemName: item.name, qty: qty, price: price, total: price * qty, profit: (price - cost) * qty, date: date, memo: memo, loc: loc };
   sales.push(saleObj); await svSale(saleObj);
   item.stock = Math.max(0, item.stock - qty);
   addH(item.name, -qty, '販売（' + loc + (memo ? '・' + memo : '') + '）', item.stock);
   await svItem(item);
-  document.getElementById('saleQty').value = 1; document.getElementById('salePrice').value = ''; document.getElementById('saleMemo').value = ''; document.getElementById('saleLoc').value = '手元';
+  document.getElementById('saleQty').value = 1; document.getElementById('salePrice').value = ''; document.getElementById('saleMemo').value = ''; document.getElementById('saleLoc').value = '手元'; document.getElementById('saleLocCustom').style.display = 'none'; document.getElementById('saleLocCustom').value = '';
   rSales(); alert('販売を記録しました');
 }
 function renderSaleHist() {
