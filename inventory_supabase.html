@@ -940,19 +940,27 @@ function checkConfig() {
 }
 
 function initSupabase() {
-  sbClient = supabase.createClient(SB_URL, SB_KEY);
+  sbClient = supabase.createClient(SB_URL, SB_KEY, {
+    auth: {
+      detectSessionInUrl: true,
+      persistSession: true,
+      autoRefreshToken: true
+    }
+  });
   sbClient.auth.onAuthStateChange(function(event, session) {
     if (session && session.user) {
       currentUser = session.user;
       accessToken = session.access_token;
       updateUserUI();
+      hideLoginScreens();
       loadAll();
     } else {
       currentUser = null; accessToken = null;
       document.getElementById('userMenu').style.display = 'none';
-      showLogin();
+      if (event !== 'INITIAL_SESSION') showLogin();
     }
   });
+  // URLにセッション情報が含まれてる場合（Googleログイン後）に処理するにゃ
   sbClient.auth.getSession().then(function(res) {
     if (!res.data.session) showLogin();
   });
@@ -988,7 +996,7 @@ function hideLoginScreens() {
 async function loginGoogle() {
   var res = await sbClient.auth.signInWithOAuth({
     provider: 'google',
-    options: { redirectTo: window.location.href }
+    options: { redirectTo: 'https://shippobiyorihandmade.github.io/inventory/inventory_supabase.html' }
   });
   if (res.error) showLoginErr(res.error.message);
 }
