@@ -2033,6 +2033,11 @@ function getSaleLoc() {
   }
   return sel.value;
 }
+
+// ══════════════════════════════════════════════
+// SALES
+// ══════════════════════════════════════════════
+function rSales() {
   var prods = items.filter(function(i) { return i.type === 'product'; });
   document.getElementById('saleItem').innerHTML = prods.length ? prods.map(function(i) { return '<option value="' + i.id + '">' + i.name + '（在庫:' + i.stock + '）</option>'; }).join('') : '<option value="">完成品がありません</option>';
   if (!document.getElementById('saleDate').value) dpSet('saleDate', tod());
