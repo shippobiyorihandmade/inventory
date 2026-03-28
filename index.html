@@ -1,7 +1,14 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta http-equiv="refresh" content="0;url=inventory_supabase.html">
+<meta charset="UTF-8">
+<title>リダイレクト中...</title>
+<script>
+// Googleログイン後のセッション情報（#以降）を保持してリダイレクトにゃ
+var hash = window.location.hash;
+var search = window.location.search;
+window.location.replace('inventory_supabase.html' + search + hash);
+</script>
 </head>
 <body></body>
 </html>
