@@ -222,7 +222,7 @@ footer p{font-size:12px;opacity:.5;margin-top:16px;}
     <div class="feature-card fade-up">
       <div class="feature-icon fi-green">🧾</div>
       <h3>材料レシピ＆原価計算</h3>
-      <p>1点あたりの材料使用量を登録すると、原価と粗利率を自動で計算。適正価格設定をサポートします。</p>
+      <p>完成品に使用する材料と使用量をレシピとして登録。材料の仕入れ単価から原価と粗利率を自動計算します。適正価格設定をサポートします。</p>
     </div>
     <div class="feature-card fade-up">
       <div class="feature-icon fi-blue">🔨</div>
@@ -391,6 +391,18 @@ footer p{font-size:12px;opacity:.5;margin-top:16px;}
   </div>
 </section>
 
+  <!-- シミュレーター誘導バナー -->
+  <div style="max-width:760px;margin:0 auto 60px;padding:0 24px">
+    <div style="background:linear-gradient(135deg,#fff8f5,#fdf0e8);border:1.5px solid #f0cdb0;border-radius:20px;padding:28px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px">
+      <div>
+        <div style="font-size:11px;font-weight:700;color:var(--ac);letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px">無料ツール</div>
+        <div style="font-size:18px;font-weight:700;margin-bottom:6px">🧮 販売価格シミュレーター</div>
+        <div style="font-size:13px;color:var(--tx2);line-height:1.7">原価・作業時間・手数料から適正価格を自動計算。<br>minne・Creema・委託など販路別に比較できます。</div>
+      </div>
+      <a href="simulator.html" style="display:inline-block;background:linear-gradient(135deg,var(--ac),#d4733a);color:#fff;padding:12px 24px;border-radius:30px;font-size:13px;font-weight:700;text-decoration:none;white-space:nowrap;box-shadow:0 4px 16px rgba(192,98,42,.3)">使ってみる →</a>
+    </div>
+  </div>
+
 <!-- フッター -->
 <footer>
   <div class="footer-logo">🧵 <span>ハンドメイド</span>在庫管理</div>
@@ -415,7 +427,7 @@ function switchTab(id) {
 
 // 問い合わせ送信（Supabaseに保存）
 var SB_URL = 'https://cexwvkezbgadqhffzzbp.supabase.co';
-var SB_KEY = 'ANON_KEY_HERE'; // ← Anon Keyを入れてください
+var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNleHd2a2V6YmdhZHFoZmZ6emJwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ1OTM0MTMsImV4cCI6MjA5MDE2OTQxM30.4Q8XAveV22dQTJJcSGZJBfobsDOuEblxusiR1UjQCKE'; // ← Anon Keyを入れてください
 
 async function sendLandingContact() {
   var name  = document.getElementById('cName').value.trim();
