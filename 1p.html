@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ハンドメイド在庫管理 — 作家さんのための在庫管理アプリ</title>
+<meta name="description" content="ハンドメイド作家さんのための在庫管理アプリ。完成品・材料・販売記録・製作記録をまとめて管理。スマホからもかんたん操作。">
+<link rel="icon" href="favicon.png">
+<link rel="apple-touch-icon" href="icon.png">
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@300;400;500;700&family=Shippori+Mincho:wght@400;600&display=swap" rel="stylesheet">
+<!-- Google AdSense -->
+<!-- <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script> -->
+<style>
+:root{
+  --bg:#faf8f5;--sf:#fff;--sf2:#f3efe9;--bd:#e5ddd0;
+  --tx:#2c2416;--tx2:#7a6e60;--tx3:#a89880;
+  --ac:#c0622a;--ac2:#e8a87c;--ac3:#4a7c6f;
+  --r:14px;--rL:24px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'Zen Kaku Gothic New',sans-serif;background:var(--bg);color:var(--tx);line-height:1.7;overflow-x:hidden;}
+
+/* ── ナビ ── */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(250,248,245,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--bd);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;}
+.nav-logo{font-size:15px;font-weight:700;display:flex;align-items:center;gap:7px;color:var(--tx);text-decoration:none;}
+.nav-logo span{color:var(--ac);}
+.nav-cta{background:var(--ac);color:#fff;padding:8px 18px;border-radius:30px;font-size:13px;font-weight:700;text-decoration:none;transition:all .2s;}
+.nav-cta:hover{background:#a8531f;transform:translateY(-1px);}
+
+/* ── ヒーロー ── */
+.hero{padding:120px 24px 80px;text-align:center;max-width:780px;margin:0 auto;}
+.hero-badge{display:inline-flex;align-items:center;gap:6px;background:var(--sf2);border:1px solid var(--bd);border-radius:30px;padding:5px 14px;font-size:12px;font-weight:700;color:var(--ac);margin-bottom:24px;letter-spacing:.04em;}
+.hero h1{font-family:'Shippori Mincho',serif;font-size:clamp(28px,6vw,52px);font-weight:600;line-height:1.35;margin-bottom:20px;color:var(--tx);}
+.hero h1 em{font-style:normal;color:var(--ac);}
+.hero p{font-size:clamp(14px,2vw,18px);color:var(--tx2);margin-bottom:36px;line-height:1.9;max-width:560px;margin-left:auto;margin-right:auto;}
+.hero-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
+.btn-main{background:linear-gradient(135deg,var(--ac),#d4733a);color:#fff;padding:14px 32px;border-radius:30px;font-size:15px;font-weight:700;text-decoration:none;transition:all .2s;box-shadow:0 4px 20px rgba(192,98,42,.35);}
+.btn-main:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(192,98,42,.45);}
+.btn-sub{background:var(--sf);color:var(--tx);padding:14px 32px;border-radius:30px;font-size:15px;font-weight:700;text-decoration:none;border:1.5px solid var(--bd);transition:all .2s;}
+.btn-sub:hover{background:var(--sf2);}
+
+/* ── モックスクリーン ── */
+.mock-wrap{max-width:900px;margin:0 auto 80px;padding:0 24px;}
+.mock-device{background:linear-gradient(135deg,#2c2416,#4a3828);border-radius:32px;padding:16px;box-shadow:0 32px 80px rgba(44,36,22,.25);max-width:360px;margin:0 auto;}
+.mock-screen{background:var(--bg);border-radius:20px;overflow:hidden;}
+.mock-header{background:linear-gradient(135deg,#2c2416,#3d3020);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;}
+.mock-header-title{color:#e8a87c;font-size:13px;font-weight:700;}
+.mock-sync{width:7px;height:7px;border-radius:50%;background:#4a7c6f;}
+.mock-cards{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:12px;}
+.mock-card{background:#fff;border-radius:10px;padding:12px;text-align:center;border:1px solid #e5ddd0;}
+.mock-card-num{font-size:20px;font-weight:700;color:var(--ac);}
+.mock-card-lbl{font-size:10px;color:#7a6e60;margin-top:2px;}
+.mock-item{margin:0 12px 8px;background:#fff;border-radius:10px;padding:10px 12px;display:flex;align-items:center;gap:10px;border:1px solid #e5ddd0;}
+.mock-item-icon{width:36px;height:36px;background:#f3efe9;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+.mock-item-name{font-size:12px;font-weight:700;color:#2c2416;}
+.mock-item-sub{font-size:10px;color:#7a6e60;}
+.mock-item-stock{font-size:14px;font-weight:700;color:#c0622a;margin-left:auto;}
+.mock-nav{display:flex;border-top:1px solid #e5ddd0;background:#fff;}
+.mock-nav-item{flex:1;padding:8px 4px;text-align:center;font-size:9px;color:#7a6e60;}
+.mock-nav-item.on{color:#c0622a;}
+.mock-nav-icon{font-size:16px;display:block;margin-bottom:2px;}
+
+/* ── 広告スペース ── */
+.ad-section{max-width:900px;margin:0 auto 60px;padding:0 24px;}
+.ad-slot{background:var(--sf2);border:1px dashed var(--bd);border-radius:var(--r);min-height:90px;display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--tx3);}
+
+/* ── 機能紹介 ── */
+.features{max-width:960px;margin:0 auto 80px;padding:0 24px;}
+.section-label{text-align:center;font-size:12px;font-weight:700;color:var(--ac);letter-spacing:.12em;text-transform:uppercase;margin-bottom:12px;}
+.section-title{text-align:center;font-family:'Shippori Mincho',serif;font-size:clamp(22px,4vw,36px);font-weight:600;margin-bottom:48px;color:var(--tx);}
+.features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;}
+.feature-card{background:var(--sf);border:1px solid var(--bd);border-radius:var(--rL);padding:28px 24px;transition:box-shadow .2s;}
+.feature-card:hover{box-shadow:0 8px 32px rgba(44,36,22,.1);}
+.feature-icon{width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:16px;}
+.fi-orange{background:#fff3ed;}
+.fi-green{background:#edf5f3;}
+.fi-blue{background:#e8f0ff;}
+.fi-pink{background:#fde8f0;}
+.fi-yellow{background:#fff8e1;}
+.fi-purple{background:#f3e8ff;}
+.feature-card h3{font-size:15px;font-weight:700;margin-bottom:8px;}
+.feature-card p{font-size:13px;color:var(--tx2);line-height:1.8;}
+
+/* ── スクリーンショット ── */
+.screenshots{max-width:960px;margin:0 auto 80px;padding:0 24px;}
+.ss-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;}
+.ss-item{background:var(--sf);border:1px solid var(--bd);border-radius:var(--r);overflow:hidden;}
+.ss-placeholder{background:var(--sf2);aspect-ratio:9/16;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:var(--tx3);font-size:12px;}
+.ss-placeholder span{font-size:32px;}
+.ss-label{padding:10px 14px;font-size:12px;font-weight:700;color:var(--tx2);}
+
+/* ── FAQ ── */
+.faq{max-width:700px;margin:0 auto 80px;padding:0 24px;}
+.faq-item{border-bottom:1px solid var(--bd);padding:20px 0;}
+.faq-item:first-child{border-top:1px solid var(--bd);}
+.faq-q{font-size:14px;font-weight:700;margin-bottom:10px;display:flex;gap:10px;align-items:flex-start;}
+.faq-q::before{content:'Q';background:var(--ac);color:#fff;width:22px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;margin-top:1px;}
+.faq-a{font-size:13px;color:var(--tx2);line-height:1.9;padding-left:32px;}
+
+/* ── 利用規約・プライバシー ── */
+.legal{max-width:760px;margin:0 auto 80px;padding:0 24px;}
+.legal-tabs{display:flex;gap:8px;margin-bottom:24px;}
+.legal-tab{padding:8px 18px;border-radius:30px;font-size:13px;font-weight:700;cursor:pointer;border:1.5px solid var(--bd);background:var(--sf);color:var(--tx2);transition:all .2s;}
+.legal-tab.on{background:var(--tx);color:#fff;border-color:var(--tx);}
+.legal-content{display:none;background:var(--sf);border:1px solid var(--bd);border-radius:var(--rL);padding:28px;}
+.legal-content.on{display:block;}
+.legal-content h3{font-size:14px;font-weight:700;margin:20px 0 8px;}
+.legal-content h3:first-child{margin-top:0;}
+.legal-content p,.legal-content li{font-size:13px;color:var(--tx2);line-height:1.9;margin-bottom:8px;}
+.legal-content ul{padding-left:20px;}
+
+/* ── 問い合わせ ── */
+.contact-section{max-width:680px;margin:0 auto 80px;padding:0 24px;}
+.contact-form{background:var(--sf);border:1px solid var(--bd);border-radius:var(--rL);padding:32px;}
+label{display:block;font-size:11px;font-weight:700;color:var(--tx2);margin-bottom:4px;letter-spacing:.04em;}
+input,select,textarea{width:100%;padding:10px 13px;border:1.5px solid var(--bd);border-radius:10px;font-family:inherit;font-size:14px;background:var(--sf);color:var(--tx);transition:border-color .2s;-webkit-appearance:none;appearance:none;margin-bottom:14px;}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--ac);box-shadow:0 0 0 3px rgba(192,98,42,.08);}
+textarea{resize:vertical;min-height:120px;}
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237a6e60' fill='none' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px;}
+.btn-send{background:linear-gradient(135deg,var(--ac),#d4733a);color:#fff;padding:12px 28px;border-radius:30px;font-family:inherit;font-size:14px;font-weight:700;border:none;cursor:pointer;transition:all .2s;width:100%;}
+.btn-send:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(192,98,42,.35);}
+#contactMsg{margin-top:12px;font-size:13px;text-align:center;}
+
+/* ── フッター ── */
+footer{background:var(--tx);color:#faf8f5;padding:40px 24px;text-align:center;}
+.footer-logo{font-size:16px;font-weight:700;margin-bottom:8px;}
+.footer-logo span{color:var(--ac2);}
+footer p{font-size:12px;opacity:.5;margin-top:16px;}
+
+/* ── アニメーション ── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.fade-up{opacity:0;animation:fadeUp .6s ease forwards;}
+.fade-up:nth-child(1){animation-delay:.1s}
+.fade-up:nth-child(2){animation-delay:.2s}
+.fade-up:nth-child(3){animation-delay:.3s}
+.fade-up:nth-child(4){animation-delay:.4s}
+.fade-up:nth-child(5){animation-delay:.5s}
+.fade-up:nth-child(6){animation-delay:.6s}
+
+@media(max-width:600px){
+  .hero{padding:88px 20px 60px;}
+  .features-grid{grid-template-columns:1fr;}
+  .ss-grid{grid-template-columns:repeat(2,1fr);}
+  .contact-form{padding:20px;}
+}
+</style>
+</head>
+<body>
+
+<!-- ナビ -->
+<nav>
+  <a class="nav-logo" href="#">🧵 <span>ハンドメイド</span>在庫管理</a>
+  <a class="nav-cta" href="inventory_supabase.html">アプリを使う →</a>
+</nav>
+
+<!-- ヒーロー -->
+<section class="hero">
+  <div class="hero-badge">🎨 ハンドメイド作家さん向け</div>
+  <h1>在庫管理を、<br><em>もっとかんたん</em>に。</h1>
+  <p>完成品・材料・販売・製作記録をまるごと管理。<br>スマホからもサクサク使える、作家さんのための在庫管理アプリです。</p>
+  <div class="hero-btns">
+    <a class="btn-main" href="inventory_supabase.html">今すぐ使ってみる</a>
+    <a class="btn-sub" href="#features">機能を見る</a>
+  </div>
+</section>
+
+<!-- モックスクリーン -->
+<div class="mock-wrap">
+  <div class="mock-device">
+    <div class="mock-screen">
+      <div class="mock-header">
+        <span class="mock-header-title">🧵 ハンドメイド在庫管理</span>
+        <div class="mock-sync"></div>
+      </div>
+      <div class="mock-cards">
+        <div class="mock-card"><div class="mock-card-num" style="color:#c0622a">12</div><div class="mock-card-lbl">完成品 種類</div></div>
+        <div class="mock-card"><div class="mock-card-num" style="color:#c0622a">24</div><div class="mock-card-lbl">材料 種類</div></div>
+        <div class="mock-card"><div class="mock-card-num" style="color:#d4622a">2</div><div class="mock-card-lbl">要補充</div></div>
+        <div class="mock-card"><div class="mock-card-num" style="color:#4a7c6f">8</div><div class="mock-card-lbl">今月の販売件数</div></div>
+      </div>
+      <div class="mock-item">
+        <div class="mock-item-icon">🎨</div>
+        <div><div class="mock-item-name">レジンリング S</div><div class="mock-item-sub">売価 ¥1,800</div></div>
+        <div class="mock-item-stock">5個</div>
+      </div>
+      <div class="mock-item">
+        <div class="mock-item-icon">🧶</div>
+        <div><div class="mock-item-name">コットン生地 花柄</div><div class="mock-item-sub">単価 ¥280/m</div></div>
+        <div class="mock-item-stock" style="color:#4a7c6f">3m</div>
+      </div>
+      <div style="height:8px"></div>
+      <div class="mock-nav">
+        <div class="mock-nav-item on"><span class="mock-nav-icon">📊</span>ダッシュ</div>
+        <div class="mock-nav-item"><span class="mock-nav-icon">🎨</span>完成品</div>
+        <div class="mock-nav-item"><span class="mock-nav-icon">🧶</span>材料</div>
+        <div class="mock-nav-item"><span class="mock-nav-icon">🔨</span>製作</div>
+        <div class="mock-nav-item"><span class="mock-nav-icon">☰</span>メニュー</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 広告スペース -->
+<div class="ad-section">
+  <div class="ad-slot">
+    <!-- Google AdSense 広告ここに入ります -->
+    広告
+  </div>
+</div>
+
+<!-- 機能紹介 -->
+<section class="features" id="features">
+  <div class="section-label">Features</div>
+  <h2 class="section-title">主な機能</h2>
+  <div class="features-grid">
+    <div class="feature-card fade-up">
+      <div class="feature-icon fi-orange">🎨</div>
+      <h3>完成品・材料の在庫管理</h3>
+      <p>作品と材料をカテゴリ別に整理。低在庫アラートで補充忘れを防ぎます。写真も登録できます。</p>
+    </div>
+    <div class="feature-card fade-up">
+      <div class="feature-icon fi-green">🧾</div>
+      <h3>材料レシピ＆原価計算</h3>
+      <p>1点あたりの材料使用量を登録すると、原価と粗利率を自動で計算。適正価格設定をサポートします。</p>
+    </div>
+    <div class="feature-card fade-up">
+      <div class="feature-icon fi-blue">🔨</div>
+      <h3>製作記録</h3>
+      <p>製作すると材料在庫が自動で減算。既存の完成品を選ぶか、その場で新しい作品を登録できます。</p>
+    </div>
+    <div class="feature-card fade-up">
+      <div class="feature-icon fi-pink">💴</div>
+      <h3>販売記録＆売上管理</h3>
+      <p>minne・マルシェ・委託など販売場所別に記録。今月の売上・利益・仕入れ額を一目で確認。</p>
+    </div>
+    <div class="feature-card fade-up">
+      <div class="feature-icon fi-yellow">🛒</div>
+      <h3>仕入れ管理</h3>
+      <p>材料の仕入れを記録して在庫に自動反映。単価の推移グラフでコスト変動も把握できます。</p>
+    </div>
+    <div class="feature-card fade-up">
+      <div class="feature-icon fi-purple">✅</div>
+      <h3>棚卸モード＆PDF出力</h3>
+      <p>実際の在庫数を入力して差分を一括反映。棚卸表をPDF出力して印刷利用も可能です。</p>
+    </div>
+  </div>
+</section>
+
+<!-- スクリーンショット -->
+<section class="screenshots" id="screenshots">
+  <div class="section-label">Screenshots</div>
+  <h2 class="section-title">画面イメージ</h2>
+  <div class="ss-grid">
+    <div class="ss-item">
+      <div class="ss-placeholder">
+        <span>📊</span>
+        <!-- スクリーンショットをここに差し替えてください -->
+        <!-- <img src="ss_dash.png" style="width:100%;display:block"> -->
+        ダッシュボード
+      </div>
+      <div class="ss-label">在庫サマリー</div>
+    </div>
+    <div class="ss-item">
+      <div class="ss-placeholder">
+        <span>🎨</span>
+        <!-- <img src="ss_products.png" style="width:100%;display:block"> -->
+        完成品一覧
+      </div>
+      <div class="ss-label">完成品管理</div>
+    </div>
+    <div class="ss-item">
+      <div class="ss-placeholder">
+        <span>💴</span>
+        <!-- <img src="ss_sales.png" style="width:100%;display:block"> -->
+        販売記録
+      </div>
+      <div class="ss-label">売上管理</div>
+    </div>
+    <div class="ss-item">
+      <div class="ss-placeholder">
+        <span>🔨</span>
+        <!-- <img src="ss_make.png" style="width:100%;display:block"> -->
+        製作記録
+      </div>
+      <div class="ss-label">製作管理</div>
+    </div>
+  </div>
+  <p style="text-align:center;font-size:12px;color:var(--tx3);margin-top:16px">※ スクリーンショットは準備中です</p>
+</section>
+
+<!-- 広告スペース2 -->
+<div class="ad-section">
+  <div class="ad-slot">
+    <!-- Google AdSense 広告ここに入ります -->
+    広告
+  </div>
+</div>
+
+<!-- FAQ -->
+<section class="faq" id="faq">
+  <div class="section-label">FAQ</div>
+  <h2 class="section-title" style="text-align:center;font-family:'Shippori Mincho',serif;font-size:clamp(22px,4vw,36px);font-weight:600;margin-bottom:36px">よくある質問</h2>
+  <div class="faq-item">
+    <div class="faq-q">無料で使えますか？</div>
+    <div class="faq-a">はい、基本機能は無料でご利用いただけます。利用にはGoogleアカウントが必要です。</div>
+  </div>
+  <div class="faq-item">
+    <div class="faq-q">データはどこに保存されますか？</div>
+    <div class="faq-a">データはSupabase（クラウドデータベース）に保存されます。端末が変わってもデータは引き継がれます。</div>
+  </div>
+  <div class="faq-item">
+    <div class="faq-q">スマホとPCの両方で使えますか？</div>
+    <div class="faq-a">はい、どちらでもお使いいただけます。スマホはボトムナビとスワイプ操作に最適化されています。</div>
+  </div>
+  <div class="faq-item">
+    <div class="faq-q">写真は登録できますか？</div>
+    <div class="faq-a">完成品・材料それぞれに写真を1枚登録できます（最大2MB）。</div>
+  </div>
+  <div class="faq-item">
+    <div class="faq-q">利用にはどうすれば？</div>
+    <div class="faq-a">現在は招待制での提供となっています。利用希望の方は下記の問い合わせフォームよりお気軽にご連絡ください。</div>
+  </div>
+</section>
+
+<!-- 利用規約・プライバシーポリシー -->
+<section class="legal" id="legal">
+  <div class="section-label">Legal</div>
+  <h2 class="section-title" style="text-align:center;font-family:'Shippori Mincho',serif;font-size:clamp(22px,4vw,36px);font-weight:600;margin-bottom:24px">利用規約・プライバシーポリシー</h2>
+  <div class="legal-tabs">
+    <button class="legal-tab on" onclick="switchTab('terms')">利用規約</button>
+    <button class="legal-tab" onclick="switchTab('privacy')">プライバシーポリシー</button>
+  </div>
+  <div class="legal-content on" id="tab-terms">
+    <h3>第1条（利用について）</h3>
+    <p>本サービスは、ハンドメイド作家の在庫管理を支援することを目的としたWebアプリケーションです。ご利用にはGoogleアカウントおよびご招待が必要です。</p>
+    <h3>第2条（禁止事項）</h3>
+    <ul>
+      <li>本サービスへの不正アクセス・改ざん</li>
+      <li>他ユーザーのデータへの不正な閲覧・改ざん</li>
+      <li>本サービスの商業目的での無断転用</li>
+      <li>その他、運営が不適切と判断する行為</li>
+    </ul>
+    <h3>第3条（免責事項）</h3>
+    <p>本サービスの利用によって生じた損害について、運営は一切の責任を負いません。データのバックアップはご自身で行ってください。</p>
+    <h3>第4条（サービスの変更・終了）</h3>
+    <p>運営は予告なくサービスの内容を変更、または終了することがあります。</p>
+    <h3>第5条（規約の変更）</h3>
+    <p>本規約は予告なく変更されることがあります。変更後のご利用をもって、変更に同意したものとみなします。</p>
+  </div>
+  <div class="legal-content" id="tab-privacy">
+    <h3>収集する情報</h3>
+    <ul>
+      <li>Googleアカウントのメールアドレス・プロフィール情報（ログイン時）</li>
+      <li>アプリ内で入力した在庫・販売・製作データ</li>
+      <li>アップロードした写真</li>
+    </ul>
+    <h3>情報の利用目的</h3>
+    <p>収集した情報は、サービスの提供・改善のみに利用します。第三者への販売・提供は行いません。</p>
+    <h3>データの保存</h3>
+    <p>データはSupabase（米国）のサーバーに保存されます。Supabaseのプライバシーポリシーも合わせてご確認ください。</p>
+    <h3>Cookieについて</h3>
+    <p>本サービスはログイン状態の維持のためにlocalStorageを使用します。広告配信のためにGoogle AdSenseのCookieが使用される場合があります。</p>
+    <h3>お問い合わせ</h3>
+    <p>プライバシーに関するお問い合わせは、下記フォームよりご連絡ください。</p>
+  </div>
+</section>
+
+<!-- 問い合わせ -->
+<section class="contact-section" id="contact">
+  <div class="section-label">Contact</div>
+  <h2 class="section-title" style="text-align:center;font-family:'Shippori Mincho',serif;font-size:clamp(22px,4vw,36px);font-weight:600;margin-bottom:24px">お問い合わせ</h2>
+  <div class="contact-form">
+    <p style="font-size:13px;color:var(--tx2);margin-bottom:20px;line-height:1.9">ご質問・ご要望・利用申し込みなど、お気軽にお問い合わせください。</p>
+    <label>お名前</label>
+    <input type="text" id="cName" placeholder="山田 花子">
+    <label>メールアドレス *</label>
+    <input type="email" id="cEmail" placeholder="example@gmail.com">
+    <label>お問い合わせ種別</label>
+    <select id="cCat">
+      <option value="利用申し込み">🙋 利用の申し込み</option>
+      <option value="使い方">❓ 使い方について</option>
+      <option value="バグ報告">🐛 バグ・不具合の報告</option>
+      <option value="機能要望">💡 機能の要望</option>
+      <option value="その他">💬 その他</option>
+    </select>
+    <label>内容 *</label>
+    <textarea id="cBody" placeholder="お問い合わせ内容をご記入ください。&#10;&#10;利用申し込みの場合は、使用するGmailアドレスをお知らせください。"></textarea>
+    <button class="btn-send" onclick="sendLandingContact()">送信する →</button>
+    <div id="contactMsg"></div>
+  </div>
+</section>
+
+<!-- フッター -->
+<footer>
+  <div class="footer-logo">🧵 <span>ハンドメイド</span>在庫管理</div>
+  <div style="display:flex;gap:20px;justify-content:center;margin-top:16px;flex-wrap:wrap">
+    <a href="#features" style="color:#faf8f5;opacity:.6;font-size:12px;text-decoration:none">機能紹介</a>
+    <a href="#faq" style="color:#faf8f5;opacity:.6;font-size:12px;text-decoration:none">よくある質問</a>
+    <a href="#legal" style="color:#faf8f5;opacity:.6;font-size:12px;text-decoration:none">利用規約</a>
+    <a href="#legal" style="color:#faf8f5;opacity:.6;font-size:12px;text-decoration:none">プライバシーポリシー</a>
+    <a href="#contact" style="color:#faf8f5;opacity:.6;font-size:12px;text-decoration:none">お問い合わせ</a>
+  </div>
+  <p>© 2026 ハンドメイド在庫管理. All rights reserved.</p>
+</footer>
+
+<script>
+// タブ切り替え
+function switchTab(id) {
+  document.querySelectorAll('.legal-tab').forEach(function(t) { t.classList.remove('on'); });
+  document.querySelectorAll('.legal-content').forEach(function(c) { c.classList.remove('on'); });
+  document.getElementById('tab-' + id).classList.add('on');
+  event.target.classList.add('on');
+}
+
+// 問い合わせ送信（Supabaseに保存）
+var SB_URL = 'https://cexwvkezbgadqhffzzbp.supabase.co';
+var SB_KEY = 'ANON_KEY_HERE'; // ← Anon Keyを入れてください
+
+async function sendLandingContact() {
+  var name  = document.getElementById('cName').value.trim();
+  var email = document.getElementById('cEmail').value.trim();
+  var cat   = document.getElementById('cCat').value;
+  var body  = document.getElementById('cBody').value.trim();
+  var msg   = document.getElementById('contactMsg');
+  if (!email) { msg.innerHTML = '<span style="color:#c0622a">メールアドレスを入力してください</span>'; return; }
+  if (!body)  { msg.innerHTML = '<span style="color:#c0622a">内容を入力してください</span>'; return; }
+  msg.innerHTML = '送信中...';
+  try {
+    var res = await fetch(SB_URL + '/rest/v1/contacts', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Prefer': 'return=minimal' },
+      body: JSON.stringify({ user_id: null, email: email, category: cat, title: (name ? name + 'より：' : '') + cat, body: (name ? '【名前】' + name + '\n\n' : '') + body, status: 'unread' })
+    });
+    if (!res.ok) throw new Error(await res.text());
+    msg.innerHTML = '<span style="color:#4a7c6f">✅ 送信しました！確認次第ご連絡いたします。</span>';
+    ['cName','cEmail','cBody'].forEach(function(id){ document.getElementById(id).value=''; });
+  } catch(e) {
+    msg.innerHTML = '<span style="color:#c0622a">送信に失敗しました。時間をおいて再度お試しください。</span>';
+  }
+}
+</script>
+</body>
+</html>
