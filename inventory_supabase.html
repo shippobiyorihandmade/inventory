@@ -290,7 +290,9 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
 .bn-sheet-item{display:flex;flex-direction:column;align-items:center;gap:5px;padding:14px 8px;border:1.5px solid var(--bd);border-radius:12px;background:var(--sf2);font-family:inherit;font-size:12px;font-weight:700;color:var(--tx);cursor:pointer;transition:all .15s;-webkit-tap-highlight-color:transparent;}
 .bn-sheet-item:hover,.bn-sheet-item:active{background:var(--bd);transform:scale(.97);}
 
-/* アップロード中スピナー */
+/* 広告スペース */
+.ad-banner{width:100%;min-height:60px;background:var(--sf2);border:1px dashed var(--bd);border-radius:var(--r);display:flex;align-items:center;justify-content:center;margin-bottom:14px;overflow:hidden;font-size:11px;color:var(--tx2);}
+.ad-banner ins{display:block;width:100%;}
 @keyframes spin{to{transform:rotate(360deg)}}
 .uploading::after{content:'';display:inline-block;width:12px;height:12px;border:2px solid var(--bd);border-top-color:var(--ac);border-radius:50%;animation:spin .7s linear infinite;margin-left:6px;vertical-align:middle;}
 </style>
@@ -468,6 +470,19 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
 <!-- DASHBOARD -->
 <div class="pg on" id="pg-dash">
   <div class="sg" id="sgrid"></div>
+  <!-- 広告スペース（AdSense用） -->
+  <div class="ad-banner" id="adBanner1">
+    <!-- Google AdSense ここに貼り付け
+    <ins class="adsbygoogle"
+      style="display:block"
+      data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+      data-ad-slot="XXXXXXXXXX"
+      data-ad-format="auto"
+      data-full-width-responsive="true"></ins>
+    <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+    -->
+    広告スペース
+  </div>
   <div id="alrt"></div>
   <div class="card">
     <div class="ch">
@@ -778,6 +793,19 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
       <input type="month" id="saleMF" onchange="renderSaleHist()" style="width:auto;font-size:12px;padding:5px 9px;border:1px solid var(--bd);border-radius:6px">
     </div>
     <div class="tw"><table><thead><tr><th>日付</th><th>商品</th><th>数</th><th>売上</th><th>利益</th><th>率</th><th>販売場所</th><th>メモ</th><th></th></tr></thead><tbody id="saleTbody"></tbody></table></div>
+  </div>
+  <!-- 広告スペース（AdSense用） -->
+  <div class="ad-banner" id="adBanner2">
+    <!-- Google AdSense ここに貼り付け
+    <ins class="adsbygoogle"
+      style="display:block"
+      data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+      data-ad-slot="XXXXXXXXXX"
+      data-ad-format="auto"
+      data-full-width-responsive="true"></ins>
+    <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+    -->
+    広告スペース
   </div>
 </div>
 
@@ -1190,6 +1218,7 @@ function mstr() { var n = new Date(); return n.getFullYear() + '-' + String(n.ge
 // ══════════════════════════════════════════════
 var PAGES = ['dash', 'products', 'materials', 'make', 'purchase', 'adjust', 'sales', 'history'];
 var BN_MAIN = ['dash', 'products', 'materials', 'sales']; // ボトムナビのメインページ
+var currentPageId = 'dash';
 
 function showPage(id) {
   document.querySelectorAll('.pg').forEach(function(p) { p.classList.remove('on'); });
@@ -1197,9 +1226,51 @@ function showPage(id) {
   document.getElementById('pg-' + id).classList.add('on');
   document.querySelectorAll('.tab')[PAGES.indexOf(id)].classList.add('on');
   syncBnNav(id);
+  currentPageId = id;
   var m = { dash: rDash, products: rProds, materials: rMats, make: rMakePg, purchase: rPurPg, adjust: rAdj, sales: rSales, history: rHist };
   if (m[id]) m[id]();
 }
+
+// ══════════════════════════════════════════════
+// SWIPE NAVIGATION
+// ══════════════════════════════════════════════
+(function() {
+  var tx = 0, ty = 0, locked = false;
+  var THRESHOLD = 60;  // スワイプ判定距離（px）
+  var ANGLE = 30;      // 横スワイプ判定角度
+
+  document.addEventListener('touchstart', function(e) {
+    if (e.touches.length !== 1) return;
+    tx = e.touches[0].clientX;
+    ty = e.touches[0].clientY;
+    locked = false;
+  }, { passive: true });
+
+  document.addEventListener('touchend', function(e) {
+    if (locked) return;
+    var dx = e.changedTouches[0].clientX - tx;
+    var dy = e.changedTouches[0].clientY - ty;
+    // 縦スクロール中は無視
+    if (Math.abs(dy) > Math.abs(dx)) return;
+    // 角度チェック（斜めは無視）
+    if (Math.abs(dy) / (Math.abs(dx) || 1) > Math.tan(ANGLE * Math.PI / 180)) return;
+    // モーダルが開いてたら無視
+    if (document.querySelector('.ov.open')) return;
+    // 距離チェック
+    if (Math.abs(dx) < THRESHOLD) return;
+
+    var idx = PAGES.indexOf(currentPageId);
+    if (dx < 0 && idx < PAGES.length - 1) {
+      // 左スワイプ → 次のページ
+      showPage(PAGES[idx + 1]);
+      locked = true;
+    } else if (dx > 0 && idx > 0) {
+      // 右スワイプ → 前のページ
+      showPage(PAGES[idx - 1]);
+      locked = true;
+    }
+  }, { passive: true });
+})();
 
 // ══════════════════════════════════════════════
 // BOTTOM NAV
