@@ -389,8 +389,8 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
   <button class="tab" onclick="showPage('materials')">🧶 材料</button>
   <button class="tab" onclick="showPage('make')">🔨 製作記録</button>
   <button class="tab" onclick="showPage('purchase')">🛒 仕入れ</button>
-  <button class="tab" onclick="showPage('adjust')">± 在庫調整</button>
   <button class="tab" onclick="showPage('sales')">💴 販売記録</button>
+  <button class="tab" onclick="showPage('adjust')">± 在庫調整</button>
   <button class="tab" onclick="showPage('history')">📋 履歴</button>
 </nav>
 
@@ -1216,7 +1216,7 @@ function mstr() { var n = new Date(); return n.getFullYear() + '-' + String(n.ge
 // ══════════════════════════════════════════════
 // PAGE ROUTING
 // ══════════════════════════════════════════════
-var PAGES = ['dash', 'products', 'materials', 'make', 'purchase', 'adjust', 'sales', 'history'];
+var PAGES = ['dash', 'products', 'materials', 'make', 'purchase', 'sales', 'adjust', 'history'];
 var BN_MAIN = ['dash', 'products', 'materials', 'sales']; // ボトムナビのメインページ
 var currentPageId = 'dash';
 
