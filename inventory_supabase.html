@@ -9,6 +9,7 @@
 <link rel="icon" href="favicon.png">
 <link rel="apple-touch-icon" href="icon.png">
 <title>ハンドメイド在庫管理</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#faf8f5;--sf:#fff;--sf2:#f3efe9;--bd:#e5ddd0;--tx:#2c2416;--tx2:#7a6e60;--ac:#c0622a;--ac2:#e8a87c;--ac3:#4a7c6f;--wn:#d4622a;--wb:#fff3ed;--ok:#4a7c6f;--ob:#edf5f3;--r:12px;--sh:0 2px 12px rgba(44,36,22,.08);--shl:0 8px 32px rgba(44,36,22,.12);--pk:#e87ea1;--lv:#a78bdf;}
@@ -224,6 +225,25 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
 .setup-box h2{font-size:20px;font-weight:700;margin-bottom:6px;color:var(--tx);}
 .setup-box p{font-size:13px;color:var(--tx2);margin-bottom:20px;line-height:1.7;}
 .setup-icon{font-size:40px;margin-bottom:14px;display:block;text-align:center;}
+/* ログイン画面 */
+.login-screen{position:fixed;inset:0;background:linear-gradient(135deg,#faf5ef 0%,#f5ede0 50%,#faf0e8 100%);z-index:9998;display:none;align-items:center;justify-content:center;padding:20px;}
+.login-screen.open{display:flex;}
+.login-box{background:var(--sf);border-radius:20px;padding:32px 28px;max-width:400px;width:100%;box-shadow:0 12px 48px rgba(44,36,22,.15);border:1px solid rgba(229,221,208,.7);}
+.login-box h2{font-size:20px;font-weight:700;margin-bottom:6px;color:var(--tx);text-align:center;}
+.login-box p{font-size:13px;color:var(--tx2);margin-bottom:22px;line-height:1.7;text-align:center;}
+.btn-google{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:12px;border-radius:10px;border:1.5px solid var(--bd);background:var(--sf);font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;transition:all .15s;margin-bottom:12px;}
+.btn-google:hover{background:var(--sf2);border-color:#aaa;}
+.btn-google img{width:20px;height:20px;}
+.login-divider{display:flex;align-items:center;gap:10px;margin:14px 0;color:var(--tx2);font-size:12px;}
+.login-divider::before,.login-divider::after{content:'';flex:1;height:1px;background:var(--bd);}
+.login-err{background:#fde8e8;border:1px solid #f5c0c0;border-radius:8px;padding:9px 12px;font-size:12px;color:#c04a4a;margin-top:10px;display:none;}
+.login-err.show{display:block;}
+/* ユーザーメニュー */
+.user-menu{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.user-avatar{width:30px;height:30px;border-radius:50%;background:var(--ac2);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;cursor:pointer;flex-shrink:0;overflow:hidden;}
+.user-avatar img{width:100%;height:100%;object-fit:cover;}
+.btn-logout{font-size:11px;padding:4px 10px;border-radius:6px;border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.1);color:#faf8f5;cursor:pointer;font-family:inherit;transition:all .15s;white-space:nowrap;}
+.btn-logout:hover{background:rgba(255,255,255,.2);}
 
 @media print {
   body { background: #fff !important; }
@@ -302,14 +322,63 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
 
 <div id="print-area"></div>
 
+<!-- ログイン画面 -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-box">
+    <span class="setup-icon">🧵</span>
+    <h2>ハンドメイド在庫管理</h2>
+    <p>ログインして始めましょう🐾<br><small style="color:var(--tx2)">招待されたアカウントでログインしてください</small></p>
+    <button class="btn-google" onclick="loginGoogle()">
+      <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
+      Googleでログイン
+    </button>
+    <div class="login-divider">または</div>
+    <div class="fr" style="margin-bottom:8px"><div>
+      <label>メールアドレス</label>
+      <input type="email" id="loginEmail" placeholder="example@gmail.com">
+    </div></div>
+    <div class="fr" style="margin-bottom:12px"><div>
+      <label>パスワード</label>
+      <input type="password" id="loginPass" placeholder="パスワード" onkeydown="if(event.key==='Enter')loginEmail_pw()">
+    </div></div>
+    <button class="btn bp" style="width:100%;margin-bottom:8px" onclick="loginEmailPw()">ログイン</button>
+    <button class="btn bs" style="width:100%;font-size:12px" onclick="showSignup()">新規登録（招待コードが必要）</button>
+    <div class="login-err" id="loginErr"></div>
+  </div>
+</div>
+
+<!-- 新規登録画面 -->
+<div class="login-screen" id="signupScreen">
+  <div class="login-box">
+    <span class="setup-icon">✉️</span>
+    <h2>新規登録</h2>
+    <p>管理者から招待されたメールアドレスで登録してください</p>
+    <div class="fr" style="margin-bottom:8px"><div>
+      <label>メールアドレス</label>
+      <input type="email" id="signupEmail" placeholder="招待されたメールアドレス">
+    </div></div>
+    <div class="fr" style="margin-bottom:12px"><div>
+      <label>パスワード（8文字以上）</label>
+      <input type="password" id="signupPass" placeholder="パスワードを設定">
+    </div></div>
+    <button class="btn bp" style="width:100%;margin-bottom:8px" onclick="doSignup()">登録する</button>
+    <button class="btn bs" style="width:100%;font-size:12px" onclick="showLogin()">← ログインに戻る</button>
+    <div class="login-err" id="signupErr"></div>
+  </div>
+</div>
+
 <header>
   <div class="ht">🧵 <span>ハンドメイド</span>在庫管理 <span class="badge">β</span></div>
-  <div style="display:flex;align-items:center;gap:12px">
+  <div style="display:flex;align-items:center;gap:8px">
     <div class="sync-status">
       <div class="sync-dot" id="syncDot"></div>
       <span id="syncLabel">接続中...</span>
     </div>
     <div style="font-family:'DM Mono',monospace;font-size:12px;opacity:.6" id="hdate"></div>
+    <div class="user-menu" id="userMenu" style="display:none">
+      <div class="user-avatar" id="userAvatar">？</div>
+      <button class="btn-logout" onclick="doLogout()">ログアウト</button>
+    </div>
   </div>
 </header>
 <nav class="nav-tabs">
@@ -823,10 +892,13 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
 
 <script>
 // ══════════════════════════════════════════════
-// SUPABASE CONFIG
+// SUPABASE CONFIG & AUTH
 // ══════════════════════════════════════════════
 var SB_URL = localStorage.getItem('sb_url') || '';
 var SB_KEY = localStorage.getItem('sb_key') || '';
+var sbClient = null;
+var currentUser = null;
+var accessToken = null;
 
 function saveConfig() {
   var url = document.getElementById('cfgUrl').value.trim().replace(/\/$/, '');
@@ -836,7 +908,7 @@ function saveConfig() {
   localStorage.setItem('sb_key', key);
   SB_URL = url; SB_KEY = key;
   document.getElementById('setupScreen').style.display = 'none';
-  loadAll();
+  initSupabase();
 }
 
 function checkConfig() {
@@ -848,14 +920,116 @@ function checkConfig() {
   return true;
 }
 
+function initSupabase() {
+  sbClient = supabase.createClient(SB_URL, SB_KEY);
+  sbClient.auth.onAuthStateChange(function(event, session) {
+    if (session && session.user) {
+      currentUser = session.user;
+      accessToken = session.access_token;
+      updateUserUI();
+      loadAll();
+    } else {
+      currentUser = null; accessToken = null;
+      document.getElementById('userMenu').style.display = 'none';
+      showLogin();
+    }
+  });
+  sbClient.auth.getSession().then(function(res) {
+    if (!res.data.session) showLogin();
+  });
+}
+
+function updateUserUI() {
+  var menu = document.getElementById('userMenu');
+  var avatar = document.getElementById('userAvatar');
+  menu.style.display = 'flex';
+  if (currentUser.user_metadata && currentUser.user_metadata.avatar_url) {
+    avatar.innerHTML = '<img src="' + currentUser.user_metadata.avatar_url + '" alt="">';
+  } else {
+    var name = currentUser.email || '?';
+    avatar.textContent = name.charAt(0).toUpperCase();
+  }
+}
+
+// ── ログイン画面表示 ──
+function showLogin() {
+  document.getElementById('loginScreen').classList.add('open');
+  document.getElementById('signupScreen').classList.remove('open');
+}
+function showSignup() {
+  document.getElementById('loginScreen').classList.remove('open');
+  document.getElementById('signupScreen').classList.add('open');
+}
+function hideLoginScreens() {
+  document.getElementById('loginScreen').classList.remove('open');
+  document.getElementById('signupScreen').classList.remove('open');
+}
+
+// ── Googleログイン ──
+async function loginGoogle() {
+  var res = await sbClient.auth.signInWithOAuth({
+    provider: 'google',
+    options: { redirectTo: window.location.href }
+  });
+  if (res.error) showLoginErr(res.error.message);
+}
+
+// ── メール＋パスワードログイン ──
+async function loginEmailPw() {
+  var email = document.getElementById('loginEmail').value.trim();
+  var pass = document.getElementById('loginPass').value;
+  if (!email || !pass) { showLoginErr('メールとパスワードを入力してください'); return; }
+  var res = await sbClient.auth.signInWithPassword({ email: email, password: pass });
+  if (res.error) { showLoginErr('ログインに失敗しました：' + res.error.message); return; }
+  hideLoginScreens();
+}
+
+// ── 新規登録 ──
+async function doSignup() {
+  var email = document.getElementById('signupEmail').value.trim();
+  var pass = document.getElementById('signupPass').value;
+  if (!email || !pass) { showSignupErr('メールとパスワードを入力してください'); return; }
+  if (pass.length < 8) { showSignupErr('パスワードは8文字以上にしてください'); return; }
+  // 招待チェック
+  var inv = await fetch(SB_URL + '/rest/v1/invited_users?email=eq.' + encodeURIComponent(email) + '&select=email', {
+    headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY }
+  });
+  var invData = await inv.json();
+  if (!invData || invData.length === 0) { showSignupErr('このメールアドレスは招待されていません。管理者に招待を依頼してください。'); return; }
+  var res = await sbClient.auth.signUp({ email: email, password: pass });
+  if (res.error) { showSignupErr('登録に失敗しました：' + res.error.message); return; }
+  showSignupErr('確認メールを送りました！メールのリンクをクリックして登録を完了してください。');
+  document.getElementById('signupErr').style.background = '#edf5f3';
+  document.getElementById('signupErr').style.borderColor = '#b2dcc5';
+  document.getElementById('signupErr').style.color = '#3a6b5e';
+}
+
+// ── ログアウト ──
+async function doLogout() {
+  if (!confirm('ログアウトしますか？')) return;
+  await sbClient.auth.signOut();
+  currentUser = null; accessToken = null;
+  showLogin();
+}
+
+function showLoginErr(msg) {
+  var el = document.getElementById('loginErr');
+  el.textContent = msg; el.classList.add('show');
+}
+function showSignupErr(msg) {
+  var el = document.getElementById('signupErr');
+  el.textContent = msg; el.classList.add('show');
+}
+
 // ══════════════════════════════════════════════
 // SUPABASE API
 // ══════════════════════════════════════════════
 function sbHeaders() {
+  var token = accessToken || SB_KEY;
   return {
     'Content-Type': 'application/json',
     'apikey': SB_KEY,
-    'Authorization': 'Bearer ' + SB_KEY,
+    'Authorization': 'Bearer ' + token,
     'Prefer': 'return=representation'
   };
 }
@@ -877,10 +1051,12 @@ async function sbGet(table) {
 async function sbUpsert(table, obj) {
   var id = obj.id;
   var data = Object.assign({}, obj);
+  var body = { id: id, data: data, updated_at: new Date().toISOString() };
+  if (currentUser) body.user_id = currentUser.id;
   var res = await fetch(SB_URL + '/rest/v1/' + table, {
     method: 'POST',
     headers: Object.assign({}, sbHeaders(), { 'Prefer': 'resolution=merge-duplicates,return=representation' }),
-    body: JSON.stringify({ id: id, data: data, updated_at: new Date().toISOString() })
+    body: JSON.stringify(body)
   });
   if (!res.ok) throw new Error(await res.text());
 }
@@ -1837,12 +2013,11 @@ function printStocktake(type) {
 function init() {
   var d = new Date();
   document.getElementById('hdate').textContent = d.getFullYear() + '/' + String(d.getMonth() + 1).padStart(2, '0') + '/' + String(d.getDate()).padStart(2, '0');
-  // mkRPrev / mkCPrev の動的生成
   var mkRP = document.createElement('div'); mkRP.id = 'mkRPrev'; mkRP.style.marginBottom = '9px';
   var mkCP = document.createElement('div'); mkCP.id = 'mkCPrev'; mkCP.className = 'cd'; mkCP.style.marginBottom = '13px';
   var mkBtn = document.querySelector('#pg-make .btn.bp');
   if (mkBtn) { mkBtn.parentNode.insertBefore(mkRP, mkBtn); mkBtn.parentNode.insertBefore(mkCP, mkBtn); }
-  if (checkConfig()) loadAll();
+  if (checkConfig()) initSupabase();
 }
 init();
 </script>
