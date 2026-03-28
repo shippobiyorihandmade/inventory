@@ -405,9 +405,9 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
       <span class="bn-label">材料</span>
       <span class="bn-dot"></span>
     </button>
-    <button class="bn-item" onclick="bnNav('sales')" id="bn-sales">
-      <span class="bn-icon">💴</span>
-      <span class="bn-label">販売</span>
+    <button class="bn-item" onclick="bnNav('make')" id="bn-make">
+      <span class="bn-icon">🔨</span>
+      <span class="bn-label">製作</span>
       <span class="bn-dot"></span>
     </button>
     <button class="bn-item" onclick="toggleBnMore()" id="bn-more">
@@ -426,13 +426,13 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
       <button class="bi" onclick="closeBnMore()">✕</button>
     </div>
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:12px 16px 24px">
-      <button class="bn-sheet-item" onclick="bnNav('make');closeBnMore()">
-        <span style="font-size:28px">🔨</span>
-        <span>製作記録</span>
-      </button>
       <button class="bn-sheet-item" onclick="bnNav('purchase');closeBnMore()">
         <span style="font-size:28px">🛒</span>
         <span>仕入れ</span>
+      </button>
+      <button class="bn-sheet-item" onclick="bnNav('sales');closeBnMore()">
+        <span style="font-size:28px">💴</span>
+        <span>販売</span>
       </button>
       <button class="bn-sheet-item" onclick="bnNav('adjust');closeBnMore()">
         <span style="font-size:28px">±</span>
@@ -1216,7 +1216,7 @@ function mstr() { var n = new Date(); return n.getFullYear() + '-' + String(n.ge
 // PAGE ROUTING
 // ══════════════════════════════════════════════
 var PAGES = ['dash', 'products', 'materials', 'make', 'purchase', 'sales', 'adjust', 'history'];
-var BN_MAIN = ['dash', 'products', 'materials', 'sales']; // ボトムナビのメインページ
+var BN_MAIN = ['dash', 'products', 'materials', 'make']; // ボトムナビのメインページ
 var currentPageId = 'dash';
 
 function showPage(id) {
