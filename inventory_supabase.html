@@ -587,6 +587,13 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
       </div>
     </div>
   </div>
+  <div class="card">
+    <div class="ch">
+      <span class="ct">📢 お知らせ</span>
+      <span class="ts tm">管理者からのお知らせにゃ</span>
+    </div>
+    <div id="dashAnnList" style="padding:4px 0"><div class="empty" style="padding:16px"><p>お知らせはないにゃ</p></div></div>
+  </div>
 </div>
 
 <!-- PRODUCTS -->
@@ -1515,6 +1522,28 @@ function rDash() {
   document.getElementById('dProfit').textContent = yen(ms.reduce(function(a, s) { return a + s.profit; }, 0));
   document.getElementById('dCost').textContent = yen(mp.reduce(function(a, p) { return a + p.total; }, 0));
   document.getElementById('dMake').textContent = mm.reduce(function(a, m) { return a + m.qty; }, 0);
+  loadDashAnn();
+}
+
+async function loadDashAnn() {
+  try {
+    var r = await fetch(SB_URL + '/rest/v1/announcements?select=*&is_active=eq.true&order=created_at.desc&limit=5', {
+      headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + (accessToken || SB_KEY) }
+    });
+    if (!r.ok) return;
+    var list = await r.json();
+    var el = document.getElementById('dashAnnList');
+    if (!list || !list.length) { el.innerHTML = '<div class="empty" style="padding:16px"><p>お知らせはないにゃ</p></div>'; return; }
+    el.innerHTML = list.map(function(a) {
+      var d = new Date(a.created_at);
+      var ds = d.getFullYear() + '/' + String(d.getMonth()+1).padStart(2,'0') + '/' + String(d.getDate()).padStart(2,'0');
+      return '<div style="padding:13px 16px;border-bottom:1px solid var(--bd)">'
+        + '<div style="font-size:13px;font-weight:700;margin-bottom:4px">' + a.title + '</div>'
+        + '<div style="font-size:12px;color:var(--tx2);line-height:1.7;margin-bottom:4px">' + a.body.replace(/\n/g,'<br>') + '</div>'
+        + '<div style="font-size:11px;color:var(--tx2)">' + ds + '</div>'
+        + '</div>';
+    }).join('');
+  } catch(e) { console.error(e); }
 }
 
 function showDetail(id) {
