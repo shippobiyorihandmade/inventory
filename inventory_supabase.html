@@ -451,6 +451,7 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
   <button class="tab" onclick="showPage('sales')">💴 販売記録</button>
   <button class="tab" onclick="showPage('adjust')">± 在庫調整</button>
   <button class="tab" onclick="showPage('history')">📋 履歴</button>
+  <button class="tab" onclick="showPage('contact')">💬 問い合わせ</button>
 </nav>
 
 <!-- ボトムナビ（スマホ専用） -->
@@ -507,6 +508,10 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
       <button class="bn-sheet-item" onclick="bnNav('history');closeBnMore()">
         <span style="font-size:28px">📋</span>
         <span>履歴</span>
+      </button>
+      <button class="bn-sheet-item" onclick="bnNav('contact');closeBnMore()">
+        <span style="font-size:28px">💬</span>
+        <span>問い合わせ</span>
       </button>
     </div>
   </div>
@@ -895,6 +900,38 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
       <span class="ts tm" id="hCount"></span>
     </div>
     <div class="cb" style="padding:0 16px"><div id="histList"></div></div>
+  </div>
+</div>
+
+<!-- CONTACT -->
+<div class="pg" id="pg-contact">
+  <div class="card">
+    <div class="ch"><span class="ct">💬 お問い合わせ</span></div>
+    <div class="cb">
+      <p class="ts tm" style="margin-bottom:14px;line-height:1.7">使い方のご質問・バグ報告などはこちらからお送りくださいにゃ🐾<br>管理者が確認して対応するにゃ。</p>
+      <div class="fr" style="margin-bottom:10px">
+        <div><label>カテゴリ</label>
+          <select id="contactCat">
+            <option value="使い方">❓ 使い方について</option>
+            <option value="バグ報告">🐛 バグ・不具合の報告</option>
+            <option value="機能要望">💡 機能の要望</option>
+            <option value="その他">💬 その他</option>
+          </select>
+        </div>
+      </div>
+      <div class="fr" style="margin-bottom:10px">
+        <div><label>件名 *</label><input type="text" id="contactTitle" placeholder="例：材料の登録ができない"></div>
+      </div>
+      <div class="fr" style="margin-bottom:14px">
+        <div><label>内容 *</label><textarea id="contactBody" rows="5" placeholder="できるだけ詳しく教えてもらえると助かるにゃ🐾&#10;&#10;例：〇〇の画面で△△をしたら、××というエラーが出た"></textarea></div>
+      </div>
+      <button class="btn bp" onclick="sendContact()">📨 送信する</button>
+      <div id="contactResult" style="margin-top:10px;font-size:13px"></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="ch"><span class="ct">📬 送信履歴</span></div>
+    <div class="cb" style="padding:0 16px"><div id="contactHistList"></div></div>
   </div>
 </div>
 
@@ -1333,7 +1370,7 @@ function mstr() { var n = new Date(); return n.getFullYear() + '-' + String(n.ge
 // ══════════════════════════════════════════════
 // PAGE ROUTING
 // ══════════════════════════════════════════════
-var PAGES = ['dash', 'products', 'materials', 'make', 'purchase', 'sales', 'adjust', 'history'];
+var PAGES = ['dash', 'products', 'materials', 'make', 'purchase', 'sales', 'adjust', 'history', 'contact'];
 var BN_MAIN = ['dash', 'products', 'materials', 'make']; // ボトムナビのメインページ
 var currentPageId = 'dash';
 
@@ -1344,7 +1381,7 @@ function showPage(id) {
   document.querySelectorAll('.tab')[PAGES.indexOf(id)].classList.add('on');
   syncBnNav(id);
   currentPageId = id;
-  var m = { dash: rDash, products: rProds, materials: rMats, make: rMakePg, purchase: rPurPg, adjust: rAdj, sales: rSales, history: rHist };
+  var m = { dash: rDash, products: rProds, materials: rMats, make: rMakePg, purchase: rPurPg, adjust: rAdj, sales: rSales, history: rHist, contact: rContact };
   if (m[id]) m[id]();
 }
 
@@ -2098,6 +2135,63 @@ async function clrHist() {
     setSyncing('ok');
   } catch(e) { setSyncing('error'); }
   rHist();
+}
+
+// ══════════════════════════════════════════════
+// CONTACT
+// ══════════════════════════════════════════════
+function rContact() { loadContactHist(); }
+
+async function sendContact() {
+  var cat = document.getElementById('contactCat').value;
+  var title = document.getElementById('contactTitle').value.trim();
+  var body = document.getElementById('contactBody').value.trim();
+  var res = document.getElementById('contactResult');
+  if (!title) { res.innerHTML = '<span style="color:var(--wn)">件名を入力してください</span>'; return; }
+  if (!body)  { res.innerHTML = '<span style="color:var(--wn)">内容を入力してください</span>'; return; }
+  res.innerHTML = '送信中...';
+  try {
+    var r = await fetch(SB_URL + '/rest/v1/contacts', {
+      method: 'POST',
+      headers: sbHeaders(),
+      body: JSON.stringify({
+        user_id: currentUser ? currentUser.id : null,
+        email: currentUser ? currentUser.email : '',
+        category: cat, title: title, body: body, status: 'unread'
+      })
+    });
+    if (!r.ok) throw new Error(await r.text());
+    res.innerHTML = '<span style="color:var(--ok)">✅ 送信しました！管理者が確認するにゃ🐾</span>';
+    document.getElementById('contactTitle').value = '';
+    document.getElementById('contactBody').value = '';
+    loadContactHist();
+  } catch(e) {
+    res.innerHTML = '<span style="color:var(--wn)">送信に失敗しました: ' + e.message + '</span>';
+  }
+}
+
+async function loadContactHist() {
+  if (!currentUser) return;
+  try {
+    var r = await fetch(SB_URL + '/rest/v1/contacts?user_id=eq.' + currentUser.id + '&order=created_at.desc&select=*', { headers: sbHeaders() });
+    if (!r.ok) return;
+    var list = await r.json();
+    var el = document.getElementById('contactHistList');
+    if (!list || !list.length) { el.innerHTML = '<div class="empty" style="padding:20px"><p>送信履歴がないにゃ</p></div>'; return; }
+    el.innerHTML = list.map(function(c) {
+      var d = new Date(c.created_at);
+      var ds = d.getFullYear() + '/' + String(d.getMonth()+1).padStart(2,'0') + '/' + String(d.getDate()).padStart(2,'0');
+      var stColor = c.status === 'replied' ? 'var(--ok)' : c.status === 'read' ? 'var(--tx2)' : 'var(--wn)';
+      var stLabel = c.status === 'replied' ? '返信済み' : c.status === 'read' ? '確認済み' : '未確認';
+      return '<div style="padding:12px 0;border-bottom:1px solid var(--bd)">'
+        + '<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">'
+        + '<span class="ts fw7">' + c.title + '</span>'
+        + '<span class="bak" style="background:var(--sf2);color:' + stColor + ';font-size:10px">' + stLabel + '</span>'
+        + '</div>'
+        + '<div class="ts tm">' + c.category + ' · ' + ds + '</div>'
+        + '</div>';
+    }).join('');
+  } catch(e) { console.error(e); }
 }
 
 // ══════════════════════════════════════════════
