@@ -844,18 +844,10 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
         </div>
       </div>
       <div class="fr c2">
-        <div><label>販売場所</label>
-          <select id="saleLoc" onchange="toggleSaleLocCustom()">
-            <option value="手元">🏠 手元（直接販売）</option>
-            <option value="委託">🏪 委託</option>
-            <option value="minne">💻 minne</option>
-            <option value="Creema">💻 Creema</option>
-            <option value="ネットその他">📱 ネットその他</option>
-            <option value="マルシェ">⛺ マルシェ</option>
-            <option value="その他">… その他</option>
-            <option value="__custom__">✏️ カスタム入力...</option>
-          </select>
-          <input type="text" id="saleLocCustom" placeholder="販売場所を入力" style="display:none;margin-top:6px">
+        <div><label>販売場所
+          <button type="button" onclick="openLocMgr()" style="margin-left:8px;font-size:10px;padding:2px 8px;border-radius:20px;border:1px solid var(--bd);background:var(--sf2);cursor:pointer;font-family:inherit;color:var(--tx2)">⚙️ 管理</button>
+        </label>
+          <select id="saleLoc"></select>
         </div>
         <div><label>メモ</label><input type="text" id="saleMemo" placeholder="例：イベント名など"></div>
       </div>
@@ -944,6 +936,27 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
   <div class="card">
     <div class="ch"><span class="ct">📬 送信履歴</span></div>
     <div class="cb" style="padding:0 16px"><div id="contactHistList"></div></div>
+  </div>
+</div>
+
+<!-- 販売場所管理モーダル -->
+<div class="ov" id="locMgrOv">
+  <div class="md" style="max-width:400px">
+    <div class="mh">
+      <span class="mt2">⚙️ 販売場所を管理</span>
+      <button class="bi" onclick="closeMod('locMgrOv')">✕</button>
+    </div>
+    <div class="mb">
+      <p class="ts tm" style="margin-bottom:12px">よく使う販売場所を登録しておくと選択肢に表示されます。</p>
+      <div style="display:flex;gap:7px;margin-bottom:14px">
+        <input type="text" id="locNewName" placeholder="例：BASE、〇〇マルシェ" style="flex:1;margin:0">
+        <button class="btn bg bsm" onclick="addLocation()">＋ 追加</button>
+      </div>
+      <div id="locMgrList"></div>
+    </div>
+    <div class="mft">
+      <button class="btn bs" onclick="closeMod('locMgrOv')">閉じる</button>
+    </div>
   </div>
 </div>
 
@@ -1190,6 +1203,12 @@ async function sbGet(table) {
   return rows.map(function(r) { return Object.assign({ id: r.id }, r.data); });
 }
 
+async function sbGetDirect(table) {
+  var res = await fetch(SB_URL + '/rest/v1/' + table + '?select=*', { headers: sbHeaders() });
+  if (!res.ok) throw new Error(await res.text());
+  return await res.json();
+}
+
 async function sbUpsert(table, obj) {
   var id = obj.id;
   var data = Object.assign({}, obj);
@@ -1286,7 +1305,7 @@ async function loadAll() {
     hist  = await sbGet('history');
     purch = await sbGet('purchases');
     makes = await sbGet('makes');
-    locs  = await sbGet('locations');
+    locs  = await sbGetDirect('locations');
     setSyncing('ok');
     rDash();
     checkAnnouncements();
@@ -2014,24 +2033,78 @@ async function saveAdj() {
 // ══════════════════════════════════════════════
 // SALES
 // ══════════════════════════════════════════════
-function toggleSaleLocCustom() {
+// ══════════════════════════════════════════════
+// SALES LOCATIONS
+// ══════════════════════════════════════════════
+var DEFAULT_LOCS = [
+  { id: 'hand',    name: '🏠 手元（直接販売）' },
+  { id: 'consign', name: '🏪 委託' },
+  { id: 'minne',   name: '💻 minne' },
+  { id: 'creema',  name: '💻 Creema' },
+  { id: 'netother',name: '📱 ネットその他' },
+  { id: 'marche',  name: '⛺ マルシェ' },
+  { id: 'other',   name: '… その他' },
+];
+
+function buildLocSelect(selectedVal) {
   var sel = document.getElementById('saleLoc');
-  var custom = document.getElementById('saleLocCustom');
-  if (sel.value === '__custom__') {
-    custom.style.display = 'block';
-    custom.focus();
-  } else {
-    custom.style.display = 'none';
-    custom.value = '';
+  if (!sel) return;
+  var prev = selectedVal || sel.value || '🏠 手元（直接販売）';
+  var opts = DEFAULT_LOCS.map(function(l) {
+    return '<option value="' + l.name + '"' + (l.name === prev ? ' selected' : '') + '>' + l.name + '</option>';
+  });
+  locs.forEach(function(l) {
+    opts.push('<option value="' + l.name + '"' + (l.name === prev ? ' selected' : '') + '>✨ ' + l.name + '</option>');
+  });
+  sel.innerHTML = opts.join('');
+}
+
+function openLocMgr() {
+  renderLocMgrList();
+  openMod('locMgrOv');
+}
+
+function renderLocMgrList() {
+  var el = document.getElementById('locMgrList');
+  if (!locs.length) {
+    el.innerHTML = '<p class="ts tm">カスタムの販売場所はまだないにゃ。上から追加してにゃ🐾</p>';
+    return;
   }
+  el.innerHTML = locs.map(function(l) {
+    return '<div class="ar"><span class="an fw7">✨ ' + l.name + '</span><button class="bi bdl" onclick="delLocation(\'' + l.id + '\')">🗑</button></div>';
+  }).join('');
+}
+
+async function addLocation() {
+  var name = document.getElementById('locNewName').value.trim();
+  if (!name) { alert('販売場所名を入力してください'); return; }
+  if (locs.find(function(l) { return l.name === name; })) { alert('同じ名前がすでにあります'); return; }
+  var obj = { id: uid(), name: name, user_id: currentUser ? currentUser.id : null };
+  locs.push(obj);
+  setSyncing('syncing');
+  try {
+    await fetch(SB_URL + '/rest/v1/locations', {
+      method: 'POST',
+      headers: sbHeaders(),
+      body: JSON.stringify({ id: obj.id, user_id: obj.user_id, name: obj.name })
+    });
+    setSyncing('ok');
+  } catch(e) { setSyncing('error'); console.error(e); }
+  document.getElementById('locNewName').value = '';
+  buildLocSelect();
+  renderLocMgrList();
+}
+
+async function delLocation(id) {
+  if (!confirm('この販売場所を削除しますか？')) return;
+  locs = locs.filter(function(l) { return l.id !== id; });
+  try { await sbDelete('locations', id); } catch(e) { console.error(e); }
+  buildLocSelect();
+  renderLocMgrList();
 }
 
 function getSaleLoc() {
-  var sel = document.getElementById('saleLoc');
-  if (sel.value === '__custom__') {
-    return document.getElementById('saleLocCustom').value.trim() || 'その他';
-  }
-  return sel.value;
+  return document.getElementById('saleLoc').value;
 }
 
 // ══════════════════════════════════════════════
@@ -2040,6 +2113,7 @@ function getSaleLoc() {
 function rSales() {
   var prods = items.filter(function(i) { return i.type === 'product'; });
   document.getElementById('saleItem').innerHTML = prods.length ? prods.map(function(i) { return '<option value="' + i.id + '">' + i.name + '（在庫:' + i.stock + '）</option>'; }).join('') : '<option value="">完成品がありません</option>';
+  buildLocSelect();
   if (!document.getElementById('saleDate').value) dpSet('saleDate', tod());
   if (!document.getElementById('saleMF').value) document.getElementById('saleMF').value = mstr();
   updSalePrev(); renderSaleHist();
@@ -2071,7 +2145,7 @@ async function recSale() {
   item.stock = Math.max(0, item.stock - qty);
   addH(item.name, -qty, '販売（' + loc + (memo ? '・' + memo : '') + '）', item.stock);
   await svItem(item);
-  document.getElementById('saleQty').value = 1; document.getElementById('salePrice').value = ''; document.getElementById('saleMemo').value = ''; document.getElementById('saleLoc').value = '手元'; document.getElementById('saleLocCustom').style.display = 'none'; document.getElementById('saleLocCustom').value = '';
+  document.getElementById('saleQty').value = 1; document.getElementById('salePrice').value = ''; document.getElementById('saleMemo').value = ''; buildLocSelect('🏠 手元（直接販売）');
   rSales(); alert('販売を記録しました');
 }
 function renderSaleHist() {
