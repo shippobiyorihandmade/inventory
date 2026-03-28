@@ -590,9 +590,9 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
   <div class="card">
     <div class="ch">
       <span class="ct">📢 お知らせ</span>
-      <span class="ts tm">管理者からのお知らせにゃ</span>
+      <span class="ts tm">管理者からのお知らせ</span>
     </div>
-    <div id="dashAnnList" style="padding:4px 0"><div class="empty" style="padding:16px"><p>お知らせはないにゃ</p></div></div>
+    <div id="dashAnnList" style="padding:4px 0"><div class="empty" style="padding:16px"><p>お知らせはありません</p></div></div>
   </div>
 </div>
 
@@ -1533,7 +1533,7 @@ async function loadDashAnn() {
     if (!r.ok) return;
     var list = await r.json();
     var el = document.getElementById('dashAnnList');
-    if (!list || !list.length) { el.innerHTML = '<div class="empty" style="padding:16px"><p>お知らせはないにゃ</p></div>'; return; }
+    if (!list || !list.length) { el.innerHTML = '<div class="empty" style="padding:16px"><p>お知らせはありません</p></div>'; return; }
     el.innerHTML = list.map(function(a) {
       var d = new Date(a.created_at);
       var ds = d.getFullYear() + '/' + String(d.getMonth()+1).padStart(2,'0') + '/' + String(d.getDate()).padStart(2,'0');
