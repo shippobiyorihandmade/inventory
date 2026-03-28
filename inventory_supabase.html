@@ -2067,7 +2067,7 @@ function openLocMgr() {
 function renderLocMgrList() {
   var el = document.getElementById('locMgrList');
   if (!locs.length) {
-    el.innerHTML = '<p class="ts tm">カスタムの販売場所はまだないにゃ。上から追加してにゃ🐾</p>';
+    el.innerHTML = '<p class="ts tm">カスタムの販売場所はまだありません。上から追加してください。</p>';
     return;
   }
   el.innerHTML = locs.map(function(l) {
