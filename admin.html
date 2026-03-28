@@ -172,6 +172,17 @@ textarea{resize:vertical;min-height:80px;}
     </div>
   </div>
 
+  <!-- 問い合わせ一覧 -->
+  <div class="card">
+    <div class="ch">
+      <span class="ct">💬 問い合わせ一覧</span>
+      <button class="btn bs bsm" onclick="loadContacts()">🔄 更新</button>
+    </div>
+    <div class="cb" style="padding:0 16px">
+      <div id="contactList"><div class="empty">読み込み中...</div></div>
+    </div>
+  </div>
+
   <!-- アプリに戻るリンク -->
   <div style="text-align:center;padding:8px 0 24px">
     <a href="inventory_supabase.html" style="font-size:13px;color:var(--ac);text-decoration:none;font-weight:700">← アプリに戻る</a>
@@ -262,7 +273,7 @@ function sbH() {
   return { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + accessToken, 'Content-Type': 'application/json', 'Prefer': 'return=representation' };
 }
 
-function loadAll() { loadStats(); loadInvited(); loadUsers(); loadAnnouncements(); }
+function loadAll() { loadStats(); loadInvited(); loadUsers(); loadAnnouncements(); loadContacts(); }
 
 // ── 統計 ──
 async function loadStats() {
@@ -379,6 +390,43 @@ async function deleteAnn(id) {
   if (!confirm('このお知らせを削除しますか？')) return;
   await fetch(SB_URL + '/rest/v1/announcements?id=eq.' + id, { method: 'DELETE', headers: sbH() });
   loadAnnouncements(); loadStats();
+}
+
+// ── 問い合わせ一覧 ──
+async function loadContacts() {
+  try {
+    var r = await fetch(SB_URL + '/rest/v1/contacts?select=*&order=created_at.desc', { headers: sbH() });
+    var list = await r.json();
+    var el = document.getElementById('contactList');
+    if (!list || !list.length) { el.innerHTML = '<div class="empty" style="padding:20px">問い合わせはまだないにゃ</div>'; return; }
+    el.innerHTML = list.map(function(c) {
+      var d = new Date(c.created_at);
+      var ds = d.getFullYear() + '/' + String(d.getMonth()+1).padStart(2,'0') + '/' + String(d.getDate()).padStart(2,'0') + ' ' + String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
+      var stColor = c.status === 'replied' ? '#3a6b5e' : c.status === 'read' ? '#7a6e60' : '#c0622a';
+      var stLabel = c.status === 'replied' ? '返信済み' : c.status === 'read' ? '確認済み' : '未確認';
+      return '<div class="user-row" style="flex-direction:column;align-items:flex-start;gap:6px">'
+        + '<div style="display:flex;align-items:center;gap:8px;width:100%">'
+        + '<span style="font-size:13px;font-weight:700;flex:1">' + c.title + '</span>'
+        + '<span class="tag" style="background:#fff3ed;color:' + stColor + ';font-size:10px">' + stLabel + '</span>'
+        + '<select onchange="updateContactStatus(\'' + c.id + '\',this.value)" style="width:auto;font-size:11px;padding:3px 20px 3px 6px">'
+        + '<option value="unread"' + (c.status==='unread'?' selected':'') + '>未確認</option>'
+        + '<option value="read"' + (c.status==='read'?' selected':'') + '>確認済み</option>'
+        + '<option value="replied"' + (c.status==='replied'?' selected':'') + '>返信済み</option>'
+        + '</select>'
+        + '</div>'
+        + '<div style="font-size:12px;color:#7a6e60">' + c.category + ' · ' + (c.email || '不明') + ' · ' + ds + '</div>'
+        + '<div style="font-size:13px;color:#2c2416;line-height:1.6;background:#f3efe9;padding:8px 12px;border-radius:8px;width:100%">' + c.body.replace(/\n/g,'<br>') + '</div>'
+        + '</div>';
+    }).join('');
+  } catch(e) { console.error(e); }
+}
+
+async function updateContactStatus(id, status) {
+  await fetch(SB_URL + '/rest/v1/contacts?id=eq.' + id, {
+    method: 'PATCH',
+    headers: sbH(),
+    body: JSON.stringify({ status: status })
+  });
 }
 </script>
 </body>
