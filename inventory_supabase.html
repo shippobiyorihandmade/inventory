@@ -299,18 +299,12 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
 </head>
 <body>
 
-<!-- Supabase設定画面 -->
-<div class="setup-screen" id="setupScreen">
+<!-- Supabase設定画面（管理者用・通常は表示されないにゃ） -->
+<div class="setup-screen" id="setupScreen" style="display:none">
   <div class="setup-box">
     <span class="setup-icon">🔗🧵</span>
-    <h2 style="text-align:center">Supabase接続設定</h2>
-    <p style="text-align:center">Project URLとAnon Keyを入力してください。<br>一度入力すればこの端末では保存されます。</p>
-    <div class="fr" style="margin-bottom:10px">
-      <div>
-        <label>Project URL</label>
-        <input type="text" id="cfgUrl" placeholder="https://xxxxxx.supabase.co">
-      </div>
-    </div>
+    <h2 style="text-align:center">初期設定</h2>
+    <p style="text-align:center">管理者の方はAnon Keyを入力してください。<br>一度入力すればこの端末では保存されます。</p>
     <div class="fr" style="margin-bottom:18px">
       <div>
         <label>Anon Key</label>
@@ -318,7 +312,6 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
       </div>
     </div>
     <button class="btn bp" style="width:100%" onclick="saveConfig()">✅ 接続して始める</button>
-    <p style="margin-top:12px;font-size:11px;color:var(--tx2)">※入力値はこの端末のlocalStorageにのみ保存されます。データ本体はSupabaseに保存されます。</p>
   </div>
 </div>
 
@@ -922,25 +915,23 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
 // ══════════════════════════════════════════════
 // SUPABASE CONFIG & AUTH
 // ══════════════════════════════════════════════
-var SB_URL = localStorage.getItem('sb_url') || '';
-var SB_KEY = localStorage.getItem('sb_key') || '';
+var SB_URL = 'https://cexwvkezbgadqhffzzbp.supabase.co';
+var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNleHd2a2V6YmdhZHFoZmZ6emJwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ1OTM0MTMsImV4cCI6MjA5MDE2OTQxM30.4Q8XAveV22dQTJJcSGZJBfobsDOuEblxusiR1UjQCKE'; // ← SupabaseのAnon Keyをここに貼り付けるにゃ
 var sbClient = null;
 var currentUser = null;
 var accessToken = null;
 
 function saveConfig() {
-  var url = document.getElementById('cfgUrl').value.trim().replace(/\/$/, '');
   var key = document.getElementById('cfgKey').value.trim();
-  if (!url || !key) { alert('URLとキーを両方入力してください'); return; }
-  localStorage.setItem('sb_url', url);
+  if (!key) { alert('Anon Keyを入力してください'); return; }
   localStorage.setItem('sb_key', key);
-  SB_URL = url; SB_KEY = key;
+  SB_KEY = key;
   document.getElementById('setupScreen').style.display = 'none';
   initSupabase();
 }
 
 function checkConfig() {
-  if (!SB_URL || !SB_KEY) {
+  if (!SB_KEY) {
     document.getElementById('setupScreen').style.display = 'flex';
     return false;
   }
@@ -2088,7 +2079,12 @@ function init() {
   var mkCP = document.createElement('div'); mkCP.id = 'mkCPrev'; mkCP.className = 'cd'; mkCP.style.marginBottom = '13px';
   var mkBtn = document.querySelector('#pg-make .btn.bp');
   if (mkBtn) { mkBtn.parentNode.insertBefore(mkRP, mkBtn); mkBtn.parentNode.insertBefore(mkCP, mkBtn); }
-  if (checkConfig()) initSupabase();
+  // Anon Keyがあれば直接起動、なければ設定画面を出す（管理者用）
+  if (SB_KEY) {
+    initSupabase();
+  } else {
+    document.getElementById('setupScreen').style.display = 'flex';
+  }
 }
 init();
 </script>
