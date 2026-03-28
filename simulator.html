@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>販売価格シミュレーター — ハンドメイド作家向け値付けツール</title>
+<meta name="description" content="ハンドメイド作家向けの販売価格シミュレーター。原価・作業時間・手数料を考慮した適正価格をminne・Creema・委託など販路別に自動計算。ログイン不要で無料で使えます。">
+<link rel="icon" href="favicon.png">
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@300;400;500;700&family=Shippori+Mincho:wght@400;600&display=swap" rel="stylesheet">
+<!-- Google AdSense -->
+<!-- <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script> -->
+<style>
+:root{
+  --bg:#faf8f5;--sf:#fff;--sf2:#f3efe9;--bd:#e5ddd0;
+  --tx:#2c2416;--tx2:#7a6e60;--tx3:#a89880;
+  --ac:#c0622a;--ac2:#e8a87c;--ac3:#4a7c6f;
+  --wn:#d4622a;--wb:#fff3ed;--ok:#4a7c6f;--ob:#edf5f3;
+  --r:12px;--rL:20px;
+  --sh:0 2px 12px rgba(44,36,22,.08);
+  --shl:0 8px 32px rgba(44,36,22,.12);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'Zen Kaku Gothic New',sans-serif;background:var(--bg);color:var(--tx);line-height:1.7;overflow-x:hidden;font-size:14px;}
+
+/* ── ナビ ── */
+nav{position:sticky;top:0;z-index:100;background:rgba(250,248,245,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--bd);padding:0 20px;height:52px;display:flex;align-items:center;justify-content:space-between;}
+.nav-logo{font-size:14px;font-weight:700;display:flex;align-items:center;gap:6px;color:var(--tx);text-decoration:none;}
+.nav-logo span{color:var(--ac);}
+.nav-link{font-size:12px;color:var(--tx2);text-decoration:none;padding:6px 12px;border-radius:20px;border:1px solid var(--bd);background:var(--sf);transition:all .2s;white-space:nowrap;}
+.nav-link:hover{background:var(--sf2);}
+
+/* ── ヒーロー ── */
+.hero{text-align:center;padding:48px 20px 36px;max-width:680px;margin:0 auto;}
+.hero-badge{display:inline-flex;align-items:center;gap:6px;background:var(--sf2);border:1px solid var(--bd);border-radius:30px;padding:4px 14px;font-size:11px;font-weight:700;color:var(--ac);margin-bottom:16px;letter-spacing:.04em;}
+.hero h1{font-family:'Shippori Mincho',serif;font-size:clamp(22px,5vw,38px);font-weight:600;line-height:1.4;margin-bottom:12px;}
+.hero h1 em{font-style:normal;color:var(--ac);}
+.hero p{font-size:13px;color:var(--tx2);line-height:1.9;}
+
+/* ── メインレイアウト ── */
+.wrap{max-width:860px;margin:0 auto;padding:0 16px 60px;}
+
+/* ── カード ── */
+.card{background:var(--sf);border:1px solid var(--bd);border-radius:var(--rL);box-shadow:var(--sh);margin-bottom:16px;overflow:hidden;}
+.card-head{padding:14px 20px;background:var(--sf2);border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:8px;}
+.card-head h2{font-size:14px;font-weight:700;}
+.card-body{padding:20px;}
+
+/* ── フォーム ── */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+@media(max-width:560px){.form-grid{grid-template-columns:1fr;}}
+.form-group{display:flex;flex-direction:column;gap:4px;}
+.form-group.full{grid-column:1/-1;}
+label{font-size:11px;font-weight:700;color:var(--tx2);letter-spacing:.04em;}
+.label-opt{font-size:10px;font-weight:400;color:var(--tx3);margin-left:4px;}
+input[type=number],input[type=range]{width:100%;}
+input[type=number]{padding:9px 12px;border:1.5px solid var(--bd);border-radius:9px;font-family:inherit;font-size:15px;background:var(--sf);color:var(--tx);transition:border-color .2s;-webkit-appearance:none;}
+input[type=number]:focus{outline:none;border-color:var(--ac);box-shadow:0 0 0 3px rgba(192,98,42,.08);}
+.input-unit{position:relative;display:flex;align-items:center;}
+.input-unit input{padding-right:36px;}
+.unit{position:absolute;right:12px;font-size:12px;color:var(--tx3);pointer-events:none;}
+
+/* ── スライダー ── */
+.slider-wrap{margin-top:4px;}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;border-radius:3px;outline:none;cursor:pointer;background:var(--bd);}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:var(--ac);box-shadow:0 2px 8px rgba(192,98,42,.35);cursor:pointer;border:3px solid #fff;margin-top:-8px;}
+input[type=range]::-webkit-slider-runnable-track{height:6px;border-radius:3px;}
+input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;background:var(--ac);box-shadow:0 2px 8px rgba(192,98,42,.35);cursor:pointer;border:3px solid #fff;}
+input[type=range]::-moz-range-track{height:6px;border-radius:3px;background:var(--bd);}
+input[type=range]::-moz-range-progress{height:6px;border-radius:3px;background:var(--ac);}
+.slider-labels{display:flex;justify-content:space-between;font-size:10px;color:var(--tx3);margin-top:3px;}
+.slider-val{text-align:center;font-size:16px;font-weight:700;color:var(--ac);font-family:monospace;margin-top:2px;}
+
+/* ── 販路チェックボックス ── */
+.channel-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-top:4px;}
+.channel-item{display:flex;align-items:center;gap:8px;padding:10px 12px;border:1.5px solid var(--bd);border-radius:10px;cursor:pointer;transition:all .15s;background:var(--sf);}
+.channel-item:has(input:checked){border-color:var(--ac);background:#fff8f5;}
+.channel-item input{width:16px;height:16px;accent-color:var(--ac);flex-shrink:0;cursor:pointer;}
+.channel-label{font-size:12px;font-weight:700;flex:1;}
+.channel-fee{font-size:10px;color:var(--tx3);}
+.custom-fee-row{display:none;margin-top:8px;padding:10px 12px;background:var(--sf2);border-radius:10px;border:1px solid var(--bd);}
+.custom-fee-row.show{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+
+/* ── 広告スペース ── */
+.ad-slot{background:var(--sf2);border:1px dashed var(--bd);border-radius:var(--r);min-height:80px;display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--tx3);margin-bottom:16px;}
+
+/* ── 結果エリア ── */
+.result-card{background:var(--sf);border:1px solid var(--bd);border-radius:var(--rL);box-shadow:var(--sh);margin-bottom:16px;overflow:hidden;}
+.result-head{padding:14px 20px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+.result-head h2{font-size:14px;font-weight:700;}
+
+/* 推奨価格バナー */
+.rec-price-wrap{padding:20px;background:linear-gradient(135deg,#fff8f5,#fdf3ed);border-bottom:1px solid var(--bd);}
+.rec-price-label{font-size:11px;font-weight:700;color:var(--tx2);letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px;}
+.rec-price-val{font-size:clamp(28px,6vw,48px);font-weight:700;font-family:monospace;color:var(--ac);}
+.rec-price-sub{font-size:12px;color:var(--tx2);margin-top:4px;}
+.cost-breakdown{display:flex;gap:16px;flex-wrap:wrap;margin-top:12px;padding-top:12px;border-top:1px solid var(--bd);}
+.cost-item{font-size:12px;color:var(--tx2);}
+.cost-item b{color:var(--tx);font-family:monospace;}
+
+/* 販路別比較テーブル */
+.channel-table-wrap{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;min-width:500px;}
+th{background:var(--sf2);padding:10px 12px;text-align:left;font-size:11px;font-weight:700;color:var(--tx2);letter-spacing:.04em;border-bottom:2px solid var(--bd);white-space:nowrap;}
+th.num{text-align:right;}
+td{padding:10px 12px;border-bottom:1px solid var(--bd);font-size:13px;vertical-align:middle;}
+td.num{text-align:right;font-family:monospace;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:#faf7f3;}
+.best-row td{background:#f0f8f5!important;}
+.best-row td:first-child{border-left:3px solid var(--ac3);}
+
+/* バッジ */
+.badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;}
+.badge-best{background:var(--ob);color:var(--ok);}
+.badge-warn{background:var(--wb);color:var(--wn);}
+.badge-ng{background:#fde8e8;color:#c04a4a;}
+
+/* 価格スライダーエリア */
+.price-slider-section{padding:20px;border-top:1px solid var(--bd);}
+.price-slider-section h3{font-size:13px;font-weight:700;margin-bottom:14px;color:var(--tx2);}
+.price-slider-wrap{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+.price-slider-wrap input[type=range]{flex:1;min-width:200px;}
+.price-display{font-size:24px;font-weight:700;font-family:monospace;color:var(--tx);min-width:100px;}
+
+/* 免責 */
+.disclaimer{background:var(--sf2);border:1px solid var(--bd);border-radius:var(--r);padding:14px 16px;margin-bottom:16px;}
+.disclaimer h3{font-size:12px;font-weight:700;margin-bottom:6px;color:var(--tx2);}
+.disclaimer p,.disclaimer li{font-size:11px;color:var(--tx3);line-height:1.8;}
+.disclaimer ul{padding-left:16px;}
+.disclaimer a{color:var(--ac);text-decoration:none;}
+.disclaimer a:hover{text-decoration:underline;}
+
+/* フッター */
+footer{background:var(--tx);color:#faf8f5;padding:32px 20px;text-align:center;}
+.footer-logo{font-size:14px;font-weight:700;margin-bottom:8px;}
+.footer-logo span{color:var(--ac2);}
+.footer-links{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-top:12px;}
+.footer-links a{color:#faf8f5;opacity:.6;font-size:12px;text-decoration:none;}
+footer p{font-size:11px;opacity:.4;margin-top:14px;}
+
+/* アニメ */
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.fade-in{animation:fadeIn .3s ease forwards;}
+.hidden{display:none;}
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="lp.html">🧵 <span>ハンドメイド</span>在庫管理</a>
+  <a class="nav-link" href="inventory_supabase.html">アプリを使う →</a>
+</nav>
+
+<div class="hero">
+  <div class="hero-badge">🧮 無料ツール</div>
+  <h1>ハンドメイド<br><em>販売価格シミュレーター</em></h1>
+  <p>原価・作業時間・手数料をもとに、販路別の適正価格を自動計算します。<br>ログイン不要・完全無料でご利用いただけます。</p>
+</div>
+
+<div class="wrap">
+
+  <!-- 入力フォーム -->
+  <div class="card">
+    <div class="card-head">
+      <span style="font-size:18px">📝</span>
+      <h2>コストを入力</h2>
+    </div>
+    <div class="card-body">
+      <div class="form-grid">
+        <div class="form-group">
+          <label>原価（材料費）<span style="color:var(--ac)">*</span></label>
+          <div class="input-unit">
+            <input type="number" id="cost" value="500" min="0" oninput="calc()">
+            <span class="unit">円</span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>その他コスト<span class="label-opt">任意・梱包材など</span></label>
+          <div class="input-unit">
+            <input type="number" id="extraCost" value="0" min="0" oninput="calc()">
+            <span class="unit">円</span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>作業時間<span class="label-opt">任意</span></label>
+          <div class="input-unit">
+            <input type="number" id="workMin" value="0" min="0" oninput="calc()">
+            <span class="unit">分</span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>時給設定<span class="label-opt">作業時間入力時に使用</span></label>
+          <div class="input-unit">
+            <input type="number" id="hourlyRate" value="1000" min="0" oninput="calc()">
+            <span class="unit">円</span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>発送方法・送料<span class="label-opt">任意</span></label>
+          <select id="shippingPreset" onchange="onShippingPreset()" style="padding:9px 12px;border:1.5px solid var(--bd);border-radius:9px;font-family:inherit;font-size:13px;background:var(--sf);color:var(--tx);margin-bottom:6px;-webkit-appearance:none;appearance:none;background-image:url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%228%22%3E%3Cpath d=%22M1 1l5 5 5-5%22 stroke=%22%237a6e60%22 fill=%22none%22 stroke-width=%222%22 stroke-linecap=%22round%22/%3E%3C/svg%3E');background-repeat:no-repeat;background-position:right 12px center;padding-right:32px">
+            <option value="0">送料なし / 手渡し（¥0）</option>
+            <option value="210">ネコポス（¥210）</option>
+            <option value="230">クリックポスト（¥230）</option>
+            <option value="310">ゆうパケット（¥310）</option>
+            <option value="385">ゆうパケットポスト（¥385）</option>
+            <option value="750">宅急便コンパクト（¥750〜）</option>
+            <option value="870">ヤマト宅急便 60サイズ（¥870〜）</option>
+            <option value="1070">ヤマト宅急便 80サイズ（¥1,070〜）</option>
+            <option value="custom">手入力</option>
+          </select>
+          <div class="input-unit" id="shippingCustomWrap" style="display:none">
+            <input type="number" id="shipping" value="0" min="0" oninput="calc()" placeholder="送料を入力">
+            <span class="unit">円</span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>目標利益率</label>
+          <div class="slider-wrap">
+            <input type="range" id="targetMargin" min="0" max="80" value="30" oninput="onMarginSlide(this)">
+            <div class="slider-labels"><span>0%</span><span>40%</span><span>80%</span></div>
+            <div class="slider-val" id="targetMarginVal">30%</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 販路選択 -->
+  <div class="card">
+    <div class="card-head">
+      <span style="font-size:18px">🏪</span>
+      <h2>販路を選択</h2>
+    </div>
+    <div class="card-body">
+      <div class="channel-grid" id="channelGrid">
+        <label class="channel-item">
+          <input type="checkbox" value="minne" checked onchange="calc()">
+          <div><div class="channel-label">minne</div><div class="channel-fee">手数料 10.659%</div></div>
+        </label>
+        <label class="channel-item">
+          <input type="checkbox" value="creema" checked onchange="calc()">
+          <div><div class="channel-label">Creema</div><div class="channel-fee">手数料 11%</div></div>
+        </label>
+        <label class="channel-item">
+          <input type="checkbox" value="base" onchange="calc()">
+          <div><div class="channel-label">BASE</div><div class="channel-fee">手数料 6.6%＋40円</div></div>
+        </label>
+        <label class="channel-item">
+          <input type="checkbox" value="stores" onchange="calc()">
+          <div><div class="channel-label">STORES</div><div class="channel-fee">手数料 5.5%</div></div>
+        </label>
+        <label class="channel-item">
+          <input type="checkbox" value="consign" onchange="calc()">
+          <div><div class="channel-label">委託販売</div><div class="channel-fee">手数料 任意入力</div></div>
+        </label>
+        <label class="channel-item">
+          <input type="checkbox" value="marche" checked onchange="toggleCustom();calc()">
+          <div><div class="channel-label">マルシェ・直販</div><div class="channel-fee">手数料 任意入力</div></div>
+        </label>
+        <label class="channel-item">
+          <input type="checkbox" value="custom" onchange="toggleCustom();calc()">
+          <div><div class="channel-label">カスタム</div><div class="channel-fee">手数料 任意入力</div></div>
+        </label>
+      </div>
+      <!-- 委託 手数料入力 -->
+      <div class="custom-fee-row" id="consignFeeRow">
+        <label style="white-space:nowrap;font-size:12px;font-weight:700;color:var(--tx2)">委託手数料率：</label>
+        <div class="input-unit" style="width:120px">
+          <input type="number" id="consignFee" value="35" min="0" max="100" oninput="calc()" style="padding-right:28px">
+          <span class="unit">%</span>
+        </div>
+      </div>
+      <!-- マルシェ 手数料入力 -->
+      <div class="custom-fee-row" id="marcheFeeRow" style="display:flex">
+        <label style="white-space:nowrap;font-size:12px;font-weight:700;color:var(--tx2)">マルシェ手数料率：</label>
+        <div class="input-unit" style="width:120px">
+          <input type="number" id="marcheFee" value="0" min="0" max="100" oninput="calc()" style="padding-right:28px">
+          <span class="unit">%</span>
+        </div>
+        <span style="font-size:11px;color:var(--tx3);align-self:center;margin-left:6px">0%なら手数料なし</span>
+      </div>
+      <!-- カスタム入力 -->
+      <div class="custom-fee-row" id="customRow">
+        <div style="display:flex;gap:10px;flex-wrap:wrap;width:100%;align-items:center">
+          <div class="form-group" style="flex:1;min-width:140px;gap:3px">
+            <label>販路名</label>
+            <input type="text" id="customName" value="BASE" oninput="calc()" style="padding:7px 10px;border:1.5px solid var(--bd);border-radius:8px;font-family:inherit;font-size:13px;background:var(--sf);color:var(--tx)">
+          </div>
+          <div class="form-group" style="width:120px;gap:3px">
+            <label>手数料率</label>
+            <div class="input-unit">
+              <input type="number" id="customFee" value="6" min="0" max="100" oninput="calc()" style="padding-right:28px">
+              <span class="unit">%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 広告スペース -->
+  <div class="ad-slot">
+    <!-- Google AdSense 広告ここに入ります -->
+    広告
+  </div>
+
+  <!-- 結果 -->
+  <div id="resultArea" class="hidden">
+
+    <!-- 推奨販売価格 -->
+    <div class="result-card fade-in">
+      <div class="result-head">
+        <h2>💡 推奨販売価格</h2>
+        <span style="font-size:12px;color:var(--tx2)">目標利益率・手数料を考慮した最低ライン</span>
+      </div>
+      <div class="rec-price-wrap">
+        <div class="rec-price-label">最も手数料が高い販路での推奨価格</div>
+        <div class="rec-price-val" id="recPrice">¥—</div>
+        <div class="rec-price-sub" id="recPriceSub"></div>
+        <div class="cost-breakdown" id="costBreakdown"></div>
+      </div>
+    </div>
+
+    <!-- 価格スライダー -->
+    <div class="result-card fade-in">
+      <div class="result-head">
+        <h2>🎚️ 価格を調整して比較</h2>
+      </div>
+      <div class="price-slider-section">
+        <div class="price-slider-wrap">
+          <input type="range" id="priceSlider" min="100" max="50000" value="1000" step="50" oninput="onPriceSlide(this)">
+          <div class="price-display" id="priceDisplay">¥1,000</div>
+        </div>
+        <div class="slider-labels" style="margin-top:4px"><span>¥100</span><span>¥25,000</span><span>¥50,000</span></div>
+      </div>
+    </div>
+
+    <!-- 販路別比較 -->
+    <div class="result-card fade-in">
+      <div class="result-head">
+        <h2>📊 販路別比較</h2>
+      </div>
+      <div class="channel-table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>販路</th>
+              <th class="num">販売価格</th>
+              <th class="num">手数料</th>
+              <th class="num">手取り額</th>
+              <th class="num">利益額</th>
+              <th class="num">利益率</th>
+              <th class="num">時給換算</th>
+              <th>判定</th>
+            </tr>
+          </thead>
+          <tbody id="resultTbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- 免責・出典 -->
+  <div class="disclaimer">
+    <h3>📌 手数料率について</h3>
+    <ul>
+      <li><a href="https://minne.com/about/creators/fee" target="_blank" rel="noopener">minne</a>：作品価格＋送料＋オプション合計の10.659%（税込）。PLUS会員は最大10.45%。</li>
+      <li><a href="https://www.creema.jp/help/seller/entry/id/22" target="_blank" rel="noopener">Creema</a>：作品価格＋オプション合計の11%（税込）。送料は手数料対象外。フード類は15.4%。</li>
+      <li><a href="https://bindup.jp/camp/base/manual/about" target="_blank" rel="noopener">BASE</a>（スタンダードプラン）：決済手数料3.6%＋40円＋サービス利用料3.0%＝実質約6.6%＋40円。</li>
+      <li><a href="https://stores.jp/ec" target="_blank" rel="noopener">STORES</a>（フリープラン）：決済手数料5.5%。</li>
+      <li>委託・マルシェ・カスタムはユーザー入力値を使用します。</li>
+      <li>手数料率は変更される場合があります。最新情報は各公式サイトをご確認ください。</li>
+    </ul>
+    <p style="margin-top:8px">本ツールの計算結果はあくまで参考値です。実際の取引においては各販路の最新規約をご確認ください。</p>
+  </div>
+
+  <!-- アプリ誘導バナー -->
+  <div style="background:linear-gradient(135deg,#2c2416,#4a3828);border-radius:var(--rL);padding:24px;text-align:center;margin-bottom:16px">
+    <div style="font-size:13px;color:#e8a87c;font-weight:700;margin-bottom:6px">🧵 在庫・販売・製作をまるごと管理</div>
+    <div style="font-size:18px;font-weight:700;color:#faf8f5;margin-bottom:14px">ハンドメイド在庫管理アプリ</div>
+    <a href="inventory_supabase.html" style="display:inline-block;background:linear-gradient(135deg,var(--ac),#d4733a);color:#fff;padding:11px 28px;border-radius:30px;font-size:13px;font-weight:700;text-decoration:none">今すぐ使ってみる →</a>
+  </div>
+
+</div>
+
+<footer>
+  <div class="footer-logo">🧵 <span>ハンドメイド</span>在庫管理</div>
+  <div class="footer-links">
+    <a href="lp.html">サービス紹介</a>
+    <a href="lp.html#legal">利用規約</a>
+    <a href="lp.html#legal">プライバシーポリシー</a>
+    <a href="lp.html#contact">お問い合わせ</a>
+  </div>
+  <p>© 2026 しっぽ日和. All rights reserved.</p>
+</footer>
+
+<script>
+// ── 販路定義 ──
+var CHANNELS = {
+  minne:   { name: 'minne',        fee: 0.10659, fixed: 0,  shippingIncluded: true  },
+  creema:  { name: 'Creema',       fee: 0.11,    fixed: 0,  shippingIncluded: false },
+  base:    { name: 'BASE',         fee: 0.066,   fixed: 40, shippingIncluded: false },
+  stores:  { name: 'STORES',       fee: 0.055,   fixed: 0,  shippingIncluded: false },
+  consign: { name: '委託販売',      fee: 0.35,    fixed: 0,  shippingIncluded: false },
+  marche:  { name: 'マルシェ・直販', fee: 0,       fixed: 0,  shippingIncluded: false },
+  custom:  { name: 'カスタム',      fee: 0.06,    fixed: 0,  shippingIncluded: false },
+};
+
+var currentPrice = 1000;
+
+function v(id) { return parseFloat(document.getElementById(id).value) || 0; }
+function s(id) { return document.getElementById(id).value.trim(); }
+
+function getShipping() {
+  var sel = document.getElementById('shippingPreset');
+  if (sel.value === 'custom') return v('shipping');
+  return parseFloat(sel.value) || 0;
+}
+
+function onShippingPreset() {
+  var sel = document.getElementById('shippingPreset');
+  var wrap = document.getElementById('shippingCustomWrap');
+  wrap.style.display = sel.value === 'custom' ? 'flex' : 'none';
+  calc();
+}
+
+function getTotalCost() {
+  var cost    = v('cost');
+  var extra   = v('extraCost');
+  var workMin = v('workMin');
+  var rate    = v('hourlyRate');
+  var labor   = workMin > 0 ? (rate * workMin / 60) : 0;
+  return cost + extra + labor;
+}
+
+function getCheckedChannels() {
+  var checked = [];
+  document.querySelectorAll('#channelGrid input[type=checkbox]:checked').forEach(function(cb) {
+    var key = cb.value;
+    var ch = Object.assign({}, CHANNELS[key]);
+    if (key === 'consign') ch.fee = v('consignFee') / 100;
+    if (key === 'marche')  ch.fee = v('marcheFee') / 100;
+    if (key === 'custom')  { ch.fee = v('customFee') / 100; ch.name = s('customName') || 'カスタム'; }
+    checked.push({ key: key, ch: ch });
+  });
+  return checked;
+}
+
+function calcRecPrice(ch, totalCost, margin, shipping) {
+  var feeBase = ch.shippingIncluded ? shipping : 0;
+  var fixed = ch.fixed || 0;
+  return Math.ceil((totalCost + feeBase + fixed) / (1 - ch.fee) / (1 - margin) / 10) * 10;
+}
+
+function calcForPrice(ch, price, totalCost, shipping) {
+  var feeTarget = price + (ch.shippingIncluded ? shipping : 0);
+  var fixed = ch.fixed || 0;
+  var feeAmt    = Math.round(feeTarget * ch.fee) + fixed;
+  var takehome  = price - feeAmt;
+  var profit    = takehome - totalCost;
+  var margin    = price > 0 ? profit / price : 0;
+  return { feeAmt: feeAmt, takehome: takehome, profit: profit, margin: margin };
+}
+
+// thumbの半径補正込みでグラデーション位置を正確に計算するにゃ
+function updateSliderGradient(el) {
+  var min = parseFloat(el.min) || 0;
+  var max = parseFloat(el.max) || 100;
+  var val = parseFloat(el.value) || 0;
+  var thumbR = 11; // thumbの半径px
+  var w = el.offsetWidth || 200;
+  // thumbが両端で内側に入る補正
+  var ratio = (val - min) / (max - min);
+  var offset = thumbR - ratio * 2 * thumbR;
+  var pct = ratio * 100;
+  var correctedPct = 'calc(' + pct + '% + ' + offset + 'px)';
+  el.style.background = 'linear-gradient(to right, var(--ac) 0%, var(--ac) ' + correctedPct + ', var(--bd) ' + correctedPct + ', var(--bd) 100%)';
+}
+
+function onMarginSlide(el) {
+  updateSliderGradient(el);
+  document.getElementById('targetMarginVal').textContent = el.value + '%';
+  calc();
+}
+
+function onPriceSlide(el) {
+  currentPrice = parseInt(el.value);
+  updateSliderGradient(el);
+  document.getElementById('priceDisplay').textContent = '¥' + currentPrice.toLocaleString();
+  renderTable();
+}
+
+function toggleCustom() {
+  var customChecked  = document.querySelector('#channelGrid input[value=custom]:checked');
+  var consignChecked = document.querySelector('#channelGrid input[value=consign]:checked');
+  var marcheChecked  = document.querySelector('#channelGrid input[value=marche]:checked');
+  document.getElementById('customRow').classList.toggle('show', !!customChecked);
+  document.getElementById('consignFeeRow').classList.toggle('show', !!consignChecked);
+  document.getElementById('marcheFeeRow').style.display = marcheChecked ? 'flex' : 'none';
+}
+
+// consignチェックボックスの変化も監視
+document.querySelector('#channelGrid input[value=consign]').addEventListener('change', function() {
+  document.getElementById('consignFeeRow').classList.toggle('show', this.checked);
+});
+
+function calc() {
+  var channels = getCheckedChannels();
+  if (!channels.length) {
+    document.getElementById('resultArea').classList.add('hidden');
+    return;
+  }
+
+  var totalCost = getTotalCost();
+  var margin    = v('targetMargin') / 100;
+  var shipping  = getShipping();
+  var workMin   = v('workMin');
+
+  // 最もフィーが高い販路で推奨価格を計算
+  var maxFee = Math.max.apply(null, channels.map(function(c) { return c.ch.fee; }));
+  var maxCh  = channels.find(function(c) { return c.ch.fee === maxFee; }).ch;
+  var recPrice = calcRecPrice(maxCh, totalCost, margin, shipping);
+
+  // 推奨価格表示
+  document.getElementById('recPrice').textContent = '¥' + recPrice.toLocaleString();
+  document.getElementById('recPriceSub').textContent = maxCh.name + ' の手数料を考慮した推奨価格です';
+
+  // コスト内訳
+  var labor = workMin > 0 ? Math.round(v('hourlyRate') * workMin / 60) : 0;
+  var breakdown = '<span class="cost-item">材料費: <b>¥' + v('cost').toLocaleString() + '</b></span>';
+  if (v('extraCost')) breakdown += '<span class="cost-item">その他: <b>¥' + v('extraCost').toLocaleString() + '</b></span>';
+  if (labor)          breakdown += '<span class="cost-item">作業コスト: <b>¥' + labor.toLocaleString() + '</b></span>';
+  breakdown += '<span class="cost-item">総コスト: <b style="color:var(--ac)">¥' + Math.round(totalCost).toLocaleString() + '</b></span>';
+  document.getElementById('costBreakdown').innerHTML = breakdown;
+
+  // スライダーをrecPriceに合わせる
+  currentPrice = recPrice;
+  var slider = document.getElementById('priceSlider');
+  slider.value = Math.min(Math.max(recPrice, 100), 50000);
+  updateSliderGradient(slider);
+  document.getElementById('priceDisplay').textContent = '¥' + currentPrice.toLocaleString();
+
+  document.getElementById('resultArea').classList.remove('hidden');
+  renderTable();
+}
+
+function renderTable() {
+  var channels  = getCheckedChannels();
+  var totalCost = getTotalCost();
+  var shipping  = getShipping();
+  var workMin   = v('workMin');
+  var targetM   = v('targetMargin') / 100;
+
+  // 利益率が最大の販路を探す
+  var bestKey = '';
+  var bestMargin = -Infinity;
+  channels.forEach(function(c) {
+    var r = calcForPrice(c.ch, currentPrice, totalCost, shipping);
+    if (r.margin > bestMargin) { bestMargin = r.margin; bestKey = c.key; }
+  });
+
+  var tbody = document.getElementById('resultTbody');
+  tbody.innerHTML = channels.map(function(c) {
+    var r = calcForPrice(c.ch, currentPrice, totalCost, shipping);
+    var mPct = Math.round(r.margin * 100);
+    var isBest = c.key === bestKey && channels.length > 1;
+    var badge = '';
+    if (isBest) badge = '<span class="badge badge-best">おすすめ</span>';
+    else if (mPct >= Math.round(targetM * 100)) badge = '<span class="badge" style="background:var(--ob);color:var(--ok)">OK</span>';
+    else if (mPct >= 0) badge = '<span class="badge badge-warn">注意</span>';
+    else badge = '<span class="badge badge-ng">赤字</span>';
+
+    var marginColor = mPct >= Math.round(targetM * 100) ? 'var(--ok)' : mPct >= 0 ? 'var(--wn)' : '#c04a4a';
+    var jikyu = workMin > 0 && r.profit > 0 ? '¥' + Math.round(r.profit / (workMin / 60)).toLocaleString() + '/h' : '—';
+
+    return '<tr class="' + (isBest ? 'best-row' : '') + '">'
+      + '<td><b>' + c.ch.name + '</b><div style="font-size:10px;color:var(--tx3)">手数料 ' + Math.round(c.ch.fee * 1000) / 10 + '%</div></td>'
+      + '<td class="num">¥' + currentPrice.toLocaleString() + '</td>'
+      + '<td class="num" style="color:var(--wn)">−¥' + r.feeAmt.toLocaleString() + '</td>'
+      + '<td class="num"><b>¥' + r.takehome.toLocaleString() + '</b></td>'
+      + '<td class="num" style="color:' + (r.profit >= 0 ? 'var(--ok)' : '#c04a4a') + '"><b>' + (r.profit >= 0 ? '+' : '') + '¥' + Math.round(r.profit).toLocaleString() + '</b></td>'
+      + '<td class="num" style="color:' + marginColor + '"><b>' + mPct + '%</b></td>'
+      + '<td class="num" style="color:var(--tx2)">' + jikyu + '</td>'
+      + '<td>' + badge + '</td>'
+      + '</tr>';
+  }).join('');
+}
+
+// 初期化
+calc();
+updateSliderGradient(document.getElementById('targetMargin'));
+updateSliderGradient(document.getElementById('priceSlider'));
+</script>
+</body>
+</html>
