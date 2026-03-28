@@ -219,6 +219,19 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
 .mn{font-family:'DM Mono',monospace;}.ts{font-size:12px;}.tm{color:var(--tx2);}
 .fw7{font-weight:700;}.hidden{display:none;}
 
+/* お知らせモーダル */
+.ann-modal{display:none;position:fixed;inset:0;background:rgba(44,36,22,.6);z-index:9997;align-items:center;justify-content:center;padding:20px;}
+.ann-modal.open{display:flex;}
+.ann-box{background:var(--sf);border-radius:20px;padding:0;max-width:400px;width:100%;box-shadow:0 12px 48px rgba(44,36,22,.2);overflow:hidden;animation:sup .25s ease;}
+.ann-box-head{background:linear-gradient(135deg,var(--ac),#d4733a);padding:16px 20px;display:flex;align-items:center;gap:8px;}
+.ann-box-head h3{color:#fff;font-size:15px;font-weight:700;flex:1;}
+.ann-count{background:rgba(255,255,255,.25);color:#fff;font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;}
+.ann-box-body{padding:20px;}
+.ann-box-title{font-size:15px;font-weight:700;margin-bottom:8px;color:var(--tx);}
+.ann-box-text{font-size:13px;color:var(--tx2);line-height:1.8;white-space:pre-wrap;}
+.ann-box-date{font-size:11px;color:var(--tx2);margin-top:10px;}
+.ann-box-foot{padding:12px 20px 20px;display:flex;justify-content:flex-end;}
+
 /* 設定画面 */
 .setup-screen{position:fixed;inset:0;background:linear-gradient(135deg,#faf5ef 0%,#f5ede0 50%,#faf0e8 100%);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;}
 .setup-box{background:var(--sf);border-radius:20px;padding:32px 28px;max-width:420px;width:100%;box-shadow:0 12px 48px rgba(44,36,22,.15);border:1px solid rgba(229,221,208,.7);}
@@ -316,6 +329,25 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
 </div>
 
 <div id="print-area"></div>
+
+<!-- お知らせモーダル -->
+<div class="ann-modal" id="annModal">
+  <div class="ann-box">
+    <div class="ann-box-head">
+      <span style="font-size:18px">📢</span>
+      <h3>お知らせ</h3>
+      <span class="ann-count" id="annCount"></span>
+    </div>
+    <div class="ann-box-body">
+      <div class="ann-box-title" id="annModalTitle"></div>
+      <div class="ann-box-text" id="annModalBody"></div>
+      <div class="ann-box-date" id="annModalDate"></div>
+    </div>
+    <div class="ann-box-foot">
+      <button class="btn bp" onclick="confirmAnn()">✅ 確認した</button>
+    </div>
+  </div>
+</div>
 
 <!-- ログイン画面 -->
 <div class="login-screen" id="loginScreen">
@@ -916,7 +948,392 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
 // SUPABASE CONFIG & AUTH
 // ══════════════════════════════════════════════
 var SB_URL = 'https://cexwvkezbgadqhffzzbp.supabase.co';
-var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNleHd2a2V6YmdhZHFoZmZ6emJwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ1OTM0MTMsImV4cCI6MjA5MDE2OTQxM30.4Q8XAveV22dQTJJcSGZJBfobsDOuEblxusiR1UjQCKE'; // ← SupabaseのAnon Keyをここに貼り付けるにゃ
+var SB_KEY = '<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<link rel="icon" href="favicon.png">
+<title>管理者画面 — ハンドメイド在庫管理</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<style>
+:root{--bg:#faf8f5;--sf:#fff;--sf2:#f3efe9;--bd:#e5ddd0;--tx:#2c2416;--tx2:#7a6e60;--ac:#c0622a;--ac2:#e8a87c;--ac3:#4a7c6f;--wn:#d4622a;--wb:#fff3ed;--ok:#4a7c6f;--ob:#edf5f3;--r:12px;--sh:0 2px 12px rgba(44,36,22,.08);--shl:0 8px 32px rgba(44,36,22,.12);}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{overflow-x:hidden;width:100%;}
+body{font-family:'Hiragino Sans','Zen Kaku Gothic New',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;font-size:14px;}
+header{background:linear-gradient(135deg,#1a1208 0%,#2c2416 60%,#3d3020 100%);color:#faf8f5;padding:0 16px;display:flex;align-items:center;justify-content:space-between;height:52px;position:sticky;top:0;z-index:100;box-shadow:0 2px 16px rgba(0,0,0,.3);}
+.ht{font-size:14px;font-weight:700;display:flex;align-items:center;gap:6px;white-space:nowrap;}
+.ht span{color:#e8a87c;}
+.badge-admin{background:rgba(232,168,124,.25);border:1px solid rgba(232,168,124,.4);border-radius:20px;padding:2px 8px;font-size:10px;font-weight:700;color:#e8a87c;letter-spacing:.04em;}
+.main{padding:16px;max-width:800px;margin:0 auto;}
+.card{background:var(--sf);border-radius:var(--r);border:1px solid var(--bd);box-shadow:var(--sh);margin-bottom:16px;overflow:hidden;}
+.ch{padding:13px 16px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;background:var(--sf2);}
+.ct{font-size:14px;font-weight:700;}
+.cb{padding:16px;}
+label{display:block;font-size:11px;font-weight:700;color:var(--tx2);margin-bottom:3px;letter-spacing:.04em;}
+input,select,textarea{width:100%;padding:9px 11px;border:1.5px solid var(--bd);border-radius:8px;font-family:inherit;font-size:14px;background:var(--sf);color:var(--tx);transition:border-color .2s;-webkit-appearance:none;}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--ac);box-shadow:0 0 0 3px rgba(192,98,42,.1);}
+textarea{resize:vertical;min-height:80px;}
+.btn{display:inline-flex;align-items:center;gap:5px;padding:9px 16px;border-radius:8px;border:none;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;transition:all .15s;white-space:nowrap;}
+.bp{background:var(--ac);color:#fff;}.bp:hover{background:#a8531f;}
+.bs{background:var(--sf2);color:var(--tx);border:1.5px solid var(--bd);}.bs:hover{background:var(--bd);}
+.br{background:#fde8e8;color:#c04a4a;border:1.5px solid #f5c0c0;}.br:hover{background:#fbd0d0;}
+.bg{background:var(--ac3);color:#fff;}.bg:hover{background:#3a6b5e;}
+.bsm{padding:5px 10px;font-size:12px;border-radius:6px;}
+.fr{display:grid;grid-template-columns:1fr;gap:8px;margin-bottom:12px;}
+@media(min-width:480px){.fr.c2{grid-template-columns:1fr 1fr;}}
+.tag{display:inline-block;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;}
+.tag-ok{background:var(--ob);color:var(--ok);}
+.tag-wn{background:var(--wb);color:var(--wn);}
+.tag-admin{background:#f0e8ff;color:#6a3db5;}
+.user-row{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--bd);}
+.user-row:last-child{border-bottom:none;}
+.user-avatar{width:36px;height:36px;border-radius:50%;background:var(--ac2);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;flex-shrink:0;overflow:hidden;}
+.user-avatar img{width:100%;height:100%;object-fit:cover;}
+.user-info{flex:1;min-width:0;}
+.user-email{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.user-meta{font-size:11px;color:var(--tx2);margin-top:2px;}
+.ann-row{padding:11px 0;border-bottom:1px solid var(--bd);}
+.ann-row:last-child{border-bottom:none;}
+.ann-title{font-size:13px;font-weight:700;margin-bottom:3px;}
+.ann-body{font-size:12px;color:var(--tx2);line-height:1.6;}
+.ann-meta{font-size:11px;color:var(--tx2);margin-top:4px;}
+.empty{text-align:center;padding:24px;color:var(--tx2);font-size:13px;}
+.stat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:4px;}
+@media(min-width:480px){.stat-grid{grid-template-columns:repeat(4,1fr);}}
+.stat-card{background:var(--sf2);border-radius:10px;padding:12px;text-align:center;}
+.stat-num{font-size:22px;font-weight:700;font-family:monospace;display:block;}
+.stat-lbl{font-size:11px;color:var(--tx2);margin-top:2px;}
+.screen{display:none;position:fixed;inset:0;background:linear-gradient(135deg,#faf5ef,#f5ede0);z-index:999;align-items:center;justify-content:center;padding:20px;}
+.screen.open{display:flex;}
+.login-box{background:var(--sf);border-radius:20px;padding:32px 28px;max-width:380px;width:100%;box-shadow:var(--shl);}
+.login-box h2{font-size:18px;font-weight:700;margin-bottom:6px;text-align:center;}
+.login-box p{font-size:13px;color:var(--tx2);margin-bottom:20px;text-align:center;line-height:1.6;}
+.err{background:#fde8e8;border:1px solid #f5c0c0;border-radius:8px;padding:9px 12px;font-size:12px;color:#c04a4a;margin-top:10px;display:none;}
+.err.show{display:block;}
+.btn-google{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:12px;border-radius:10px;border:1.5px solid var(--bd);background:var(--sf);font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;transition:all .15s;margin-bottom:8px;}
+.btn-google:hover{background:var(--sf2);}
+.btn-google img{width:20px;height:20px;}
+.user-menu{display:flex;align-items:center;gap:8px;}
+.ua{width:28px;height:28px;border-radius:50%;background:var(--ac2);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;overflow:hidden;flex-shrink:0;}
+.ua img{width:100%;height:100%;object-fit:cover;}
+.btn-lo{font-size:11px;padding:4px 10px;border-radius:6px;border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.1);color:#faf8f5;cursor:pointer;font-family:inherit;}
+.btn-lo:hover{background:rgba(255,255,255,.2);}
+.inv-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:20px;font-size:11px;font-weight:700;background:#fff3ed;color:#c0622a;}
+</style>
+</head>
+<body>
+
+<!-- ログイン画面 -->
+<div class="screen" id="loginScreen">
+  <div class="login-box">
+    <div style="font-size:36px;text-align:center;margin-bottom:12px">🛠️</div>
+    <h2>管理者ログイン</h2>
+    <p>管理者アカウントでログインしてください</p>
+    <button class="btn-google" onclick="loginGoogle()">
+      <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="">
+      Googleでログイン
+    </button>
+    <div class="err" id="loginErr"></div>
+  </div>
+</div>
+
+<!-- 権限エラー画面 -->
+<div class="screen" id="forbiddenScreen">
+  <div class="login-box">
+    <div style="font-size:36px;text-align:center;margin-bottom:12px">🚫</div>
+    <h2>アクセス権限がありません</h2>
+    <p>このページは管理者専用です。<br>管理者アカウントでログインしてください。</p>
+    <button class="btn bp" style="width:100%" onclick="doLogout()">ログアウト</button>
+  </div>
+</div>
+
+<header>
+  <div class="ht">🛠️ <span>管理者</span>画面 <span class="badge-admin">ADMIN</span></div>
+  <div class="user-menu" id="userMenu" style="display:none">
+    <div class="ua" id="userAvatar">？</div>
+    <button class="btn-lo" onclick="doLogout()">ログアウト</button>
+  </div>
+</header>
+
+<div class="main" id="mainContent" style="display:none">
+
+  <!-- 利用状況 -->
+  <div class="card">
+    <div class="ch"><span class="ct">📊 利用状況</span><button class="btn bs bsm" onclick="loadStats()">🔄 更新</button></div>
+    <div class="cb">
+      <div class="stat-grid" id="statsGrid">
+        <div class="stat-card"><span class="stat-num" id="statUsers">—</span><span class="stat-lbl">登録ユーザー数</span></div>
+        <div class="stat-card"><span class="stat-num" id="statInvited">—</span><span class="stat-lbl">招待済み</span></div>
+        <div class="stat-card"><span class="stat-num" id="statAnn">—</span><span class="stat-lbl">お知らせ数</span></div>
+        <div class="stat-card"><span class="stat-num" id="statAdmin">—</span><span class="stat-lbl">管理者数</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ユーザー招待 -->
+  <div class="card">
+    <div class="ch"><span class="ct">✉️ ユーザー招待</span></div>
+    <div class="cb">
+      <p style="font-size:13px;color:var(--tx2);margin-bottom:12px">招待したいメールアドレスを登録するにゃ。登録されたメールアドレスだけが新規登録できるにゃ🐾</p>
+      <div class="fr c2" style="margin-bottom:8px">
+        <div><label>メールアドレス</label><input type="email" id="inviteEmail" placeholder="example@gmail.com"></div>
+        <div style="display:flex;align-items:flex-end"><button class="btn bg" style="width:100%" onclick="inviteUser()">＋ 招待する</button></div>
+      </div>
+      <div id="inviteResult" style="font-size:12px;margin-bottom:14px"></div>
+      <div class="ch" style="background:none;border:none;padding:0 0 8px;border-bottom:1px solid var(--bd);margin-bottom:8px">
+        <span style="font-size:12px;font-weight:700;color:var(--tx2)">招待済みリスト</span>
+        <button class="btn bs bsm" onclick="loadInvited()">🔄 更新</button>
+      </div>
+      <div id="invitedList"><div class="empty">読み込み中...</div></div>
+    </div>
+  </div>
+
+  <!-- 登録済みユーザー -->
+  <div class="card">
+    <div class="ch">
+      <span class="ct">👥 登録済みユーザー</span>
+      <button class="btn bs bsm" onclick="loadUsers()">🔄 更新</button>
+    </div>
+    <div class="cb" style="padding:0 16px">
+      <div id="userList"><div class="empty">読み込み中...</div></div>
+    </div>
+  </div>
+
+  <!-- お知らせ配信 -->
+  <div class="card">
+    <div class="ch"><span class="ct">📢 お知らせ配信</span></div>
+    <div class="cb">
+      <div class="fr" style="margin-bottom:8px">
+        <div><label>タイトル</label><input type="text" id="annTitle" placeholder="例：メンテナンスのお知らせ"></div>
+      </div>
+      <div class="fr" style="margin-bottom:8px">
+        <div><label>本文</label><textarea id="annBody" placeholder="お知らせの内容を入力してください"></textarea></div>
+      </div>
+      <button class="btn bp" onclick="postAnnouncement()">📢 配信する</button>
+      <div id="annResult" style="font-size:12px;margin-top:8px"></div>
+      <div style="margin-top:16px;border-top:1px solid var(--bd);padding-top:12px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <span style="font-size:12px;font-weight:700;color:var(--tx2)">配信済みお知らせ</span>
+          <button class="btn bs bsm" onclick="loadAnnouncements()">🔄 更新</button>
+        </div>
+        <div id="annList"><div class="empty">読み込み中...</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- アプリに戻るリンク -->
+  <div style="text-align:center;padding:8px 0 24px">
+    <a href="inventory_supabase.html" style="font-size:13px;color:var(--ac);text-decoration:none;font-weight:700">← アプリに戻る</a>
+  </div>
+
+</div>
+
+<script>
+var SB_URL = 'https://cexwvkezbgadqhffzzbp.supabase.co';
+var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNleHd2a2V6YmdhZHFoZmZ6emJwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ1OTM0MTMsImV4cCI6MjA5MDE2OTQxM30.4Q8XAveV22dQTJJcSGZJBfobsDOuEblxusiR1UjQCKE'; // ← inventory_supabase.htmlと同じAnon Keyを入れてにゃ
+var sbClient = null;
+var currentUser = null;
+var accessToken = null;
+
+// ── 初期化 ──
+window.addEventListener('load', function() {
+  sbClient = supabase.createClient(SB_URL, SB_KEY, {
+    auth: { detectSessionInUrl: true, persistSession: true, autoRefreshToken: true }
+  });
+  sbClient.auth.onAuthStateChange(function(event, session) {
+    if (session && session.user) {
+      currentUser = session.user;
+      accessToken = session.access_token;
+      checkAdmin();
+    } else {
+      if (event !== 'INITIAL_SESSION') showLogin();
+    }
+  });
+  sbClient.auth.getSession().then(function(r) {
+    if (!r.data.session) showLogin();
+  });
+});
+
+// ── 管理者チェック ──
+async function checkAdmin() {
+  var res = await fetch(SB_URL + '/rest/v1/admin_users?user_id=eq.' + currentUser.id + '&select=user_id', {
+    headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + accessToken }
+  });
+  var data = await res.json();
+  if (!data || data.length === 0) {
+    document.getElementById('loginScreen').classList.remove('open');
+    document.getElementById('forbiddenScreen').classList.add('open');
+    return;
+  }
+  // 管理者確認OK
+  document.getElementById('loginScreen').classList.remove('open');
+  document.getElementById('forbiddenScreen').classList.remove('open');
+  document.getElementById('mainContent').style.display = 'block';
+  updateUserUI();
+  loadAll();
+}
+
+function updateUserUI() {
+  var menu = document.getElementById('userMenu');
+  var avatar = document.getElementById('userAvatar');
+  menu.style.display = 'flex';
+  if (currentUser.user_metadata && currentUser.user_metadata.avatar_url) {
+    avatar.innerHTML = '<img src="' + currentUser.user_metadata.avatar_url + '" alt="">';
+  } else {
+    avatar.textContent = (currentUser.email || '?').charAt(0).toUpperCase();
+  }
+}
+
+function showLogin() {
+  document.getElementById('loginScreen').classList.add('open');
+}
+
+async function loginGoogle() {
+  var res = await sbClient.auth.signInWithOAuth({
+    provider: 'google',
+    options: { redirectTo: 'https://shippobiyorihandmade.github.io/inventory/admin.html' }
+  });
+  if (res.error) {
+    var el = document.getElementById('loginErr');
+    el.textContent = res.error.message; el.classList.add('show');
+  }
+}
+
+async function doLogout() {
+  await sbClient.auth.signOut();
+  currentUser = null; accessToken = null;
+  document.getElementById('mainContent').style.display = 'none';
+  document.getElementById('userMenu').style.display = 'none';
+  showLogin();
+}
+
+function sbH() {
+  return { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + accessToken, 'Content-Type': 'application/json', 'Prefer': 'return=representation' };
+}
+
+function loadAll() { loadStats(); loadInvited(); loadUsers(); loadAnnouncements(); }
+
+// ── 統計 ──
+async function loadStats() {
+  try {
+    var [inv, ann, adm] = await Promise.all([
+      fetch(SB_URL + '/rest/v1/invited_users?select=id', { headers: sbH() }).then(r => r.json()),
+      fetch(SB_URL + '/rest/v1/announcements?select=id', { headers: sbH() }).then(r => r.json()),
+      fetch(SB_URL + '/rest/v1/admin_users?select=id', { headers: sbH() }).then(r => r.json()),
+    ]);
+    // ユーザー数はauth.usersから直接は取れないのでinvitedで代用
+    document.getElementById('statUsers').textContent = inv.length;
+    document.getElementById('statInvited').textContent = inv.length;
+    document.getElementById('statAnn').textContent = ann.length;
+    document.getElementById('statAdmin').textContent = adm.length;
+  } catch(e) { console.error(e); }
+}
+
+// ── 招待 ──
+async function inviteUser() {
+  var email = document.getElementById('inviteEmail').value.trim();
+  var res = document.getElementById('inviteResult');
+  if (!email) { res.innerHTML = '<span style="color:var(--wn)">メールアドレスを入力してください</span>'; return; }
+  try {
+    var r = await fetch(SB_URL + '/rest/v1/invited_users', {
+      method: 'POST',
+      headers: sbH(),
+      body: JSON.stringify({ email: email, invited_by: currentUser.id })
+    });
+    if (!r.ok) {
+      var err = await r.json();
+      if (err.code === '23505') { res.innerHTML = '<span style="color:var(--wn)">このメールアドレスはすでに招待済みにゃ</span>'; return; }
+      throw new Error(JSON.stringify(err));
+    }
+    res.innerHTML = '<span style="color:var(--ok)">✅ ' + email + ' を招待リストに追加したにゃ🐾</span>';
+    document.getElementById('inviteEmail').value = '';
+    loadInvited(); loadStats();
+  } catch(e) { res.innerHTML = '<span style="color:var(--wn)">エラー: ' + e.message + '</span>'; }
+}
+
+async function loadInvited() {
+  try {
+    var r = await fetch(SB_URL + '/rest/v1/invited_users?select=*&order=created_at.desc', { headers: sbH() });
+    var list = await r.json();
+    var el = document.getElementById('invitedList');
+    if (!list.length) { el.innerHTML = '<div class="empty">招待済みユーザーはいないにゃ</div>'; return; }
+    el.innerHTML = list.map(function(u) {
+      var d = new Date(u.created_at);
+      var ds = d.getFullYear() + '/' + String(d.getMonth()+1).padStart(2,'0') + '/' + String(d.getDate()).padStart(2,'0');
+      return '<div class="user-row"><div style="flex:1;min-width:0"><div class="user-email">' + u.email + '</div><div class="user-meta">招待日: ' + ds + '</div></div><button class="btn br bsm" onclick="removeInvite(\'' + u.id + '\',\'' + u.email + '\')">削除</button></div>';
+    }).join('');
+  } catch(e) { console.error(e); }
+}
+
+async function removeInvite(id, email) {
+  if (!confirm(email + ' を招待リストから削除しますか？')) return;
+  await fetch(SB_URL + '/rest/v1/invited_users?id=eq.' + id, { method: 'DELETE', headers: sbH() });
+  loadInvited(); loadStats();
+}
+
+// ── ユーザー一覧（invited_usersから代用） ──
+async function loadUsers() {
+  try {
+    var r = await fetch(SB_URL + '/rest/v1/invited_users?select=*&order=created_at.asc', { headers: sbH() });
+    var list = await r.json();
+    var admR = await fetch(SB_URL + '/rest/v1/admin_users?select=*', { headers: sbH() });
+    var admList = await admR.json();
+    var admEmails = admList.map(function(a) { return a.user_id; });
+    var el = document.getElementById('userList');
+    if (!list.length) { el.innerHTML = '<div class="empty" style="padding:20px">招待済みユーザーがいないにゃ</div>'; return; }
+    el.innerHTML = list.map(function(u) {
+      var initial = u.email.charAt(0).toUpperCase();
+      var d = new Date(u.created_at);
+      var ds = d.getFullYear() + '/' + String(d.getMonth()+1).padStart(2,'0') + '/' + String(d.getDate()).padStart(2,'0');
+      return '<div class="user-row"><div class="user-avatar">' + initial + '</div><div class="user-info"><div class="user-email">' + u.email + '</div><div class="user-meta">招待日: ' + ds + '</div></div></div>';
+    }).join('');
+  } catch(e) { console.error(e); }
+}
+
+// ── お知らせ ──
+async function postAnnouncement() {
+  var title = document.getElementById('annTitle').value.trim();
+  var body = document.getElementById('annBody').value.trim();
+  var res = document.getElementById('annResult');
+  if (!title || !body) { res.innerHTML = '<span style="color:var(--wn)">タイトルと本文を入力してください</span>'; return; }
+  try {
+    var r = await fetch(SB_URL + '/rest/v1/announcements', {
+      method: 'POST',
+      headers: sbH(),
+      body: JSON.stringify({ title: title, body: body, created_by: currentUser.id })
+    });
+    if (!r.ok) throw new Error(await r.text());
+    res.innerHTML = '<span style="color:var(--ok)">✅ お知らせを配信したにゃ🐾</span>';
+    document.getElementById('annTitle').value = '';
+    document.getElementById('annBody').value = '';
+    loadAnnouncements(); loadStats();
+  } catch(e) { res.innerHTML = '<span style="color:var(--wn)">エラー: ' + e.message + '</span>'; }
+}
+
+async function loadAnnouncements() {
+  try {
+    var r = await fetch(SB_URL + '/rest/v1/announcements?select=*&order=created_at.desc', { headers: sbH() });
+    var list = await r.json();
+    var el = document.getElementById('annList');
+    if (!list.length) { el.innerHTML = '<div class="empty">お知らせはまだないにゃ</div>'; return; }
+    el.innerHTML = list.map(function(a) {
+      var d = new Date(a.created_at);
+      var ds = d.getFullYear() + '/' + String(d.getMonth()+1).padStart(2,'0') + '/' + String(d.getDate()).padStart(2,'0') + ' ' + String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
+      return '<div class="ann-row"><div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px"><div style="flex:1"><div class="ann-title">' + a.title + '</div><div class="ann-body">' + a.body.replace(/\n/g,'<br>') + '</div><div class="ann-meta">配信日時: ' + ds + '</div></div><button class="btn br bsm" style="flex-shrink:0" onclick="deleteAnn(\'' + a.id + '\')">削除</button></div></div>';
+    }).join('');
+  } catch(e) { console.error(e); }
+}
+
+async function deleteAnn(id) {
+  if (!confirm('このお知らせを削除しますか？')) return;
+  await fetch(SB_URL + '/rest/v1/announcements?id=eq.' + id, { method: 'DELETE', headers: sbH() });
+  loadAnnouncements(); loadStats();
+}
+</script>
+</body>
+</html>
+'; // ← SupabaseのAnon Keyをここに貼り付けるにゃ
 var sbClient = null;
 var currentUser = null;
 var accessToken = null;
@@ -1174,11 +1591,62 @@ async function loadAll() {
     locs  = await sbGet('locations');
     setSyncing('ok');
     rDash();
+    checkAnnouncements();
   } catch(e) {
     setSyncing('error');
     console.error(e);
     alert('Supabaseへの接続に失敗しました。URLとキーを確認してください。\n' + e.message);
   }
+}
+
+// ══════════════════════════════════════════════
+// ANNOUNCEMENTS
+// ══════════════════════════════════════════════
+var pendingAnns = [];
+var annIndex = 0;
+
+async function checkAnnouncements() {
+  try {
+    var r = await fetch(SB_URL + '/rest/v1/announcements?select=*&is_active=eq.true&order=created_at.desc', {
+      headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + (accessToken || SB_KEY) }
+    });
+    var all = await r.json();
+    if (!all || !all.length) return;
+    // 既読IDをlocalStorageから取得
+    var readIds = JSON.parse(localStorage.getItem('ann_read_' + (currentUser ? currentUser.id : 'anon')) || '[]');
+    // 未読だけ抽出
+    pendingAnns = all.filter(function(a) { return !readIds.includes(a.id); });
+    if (!pendingAnns.length) return;
+    annIndex = 0;
+    showAnn();
+  } catch(e) { console.error(e); }
+}
+
+function showAnn() {
+  if (annIndex >= pendingAnns.length) {
+    document.getElementById('annModal').classList.remove('open');
+    return;
+  }
+  var a = pendingAnns[annIndex];
+  var d = new Date(a.created_at);
+  var ds = d.getFullYear() + '年' + (d.getMonth()+1) + '月' + d.getDate() + '日';
+  document.getElementById('annModalTitle').textContent = a.title;
+  document.getElementById('annModalBody').textContent = a.body;
+  document.getElementById('annModalDate').textContent = '配信日: ' + ds;
+  var remaining = pendingAnns.length - annIndex;
+  document.getElementById('annCount').textContent = remaining > 1 ? remaining + '件' : '';
+  document.getElementById('annModal').classList.add('open');
+}
+
+function confirmAnn() {
+  var a = pendingAnns[annIndex];
+  // 既読をlocalStorageに保存
+  var key = 'ann_read_' + (currentUser ? currentUser.id : 'anon');
+  var readIds = JSON.parse(localStorage.getItem(key) || '[]');
+  if (!readIds.includes(a.id)) readIds.push(a.id);
+  localStorage.setItem(key, JSON.stringify(readIds));
+  annIndex++;
+  showAnn();
 }
 
 async function svItem(obj) {
