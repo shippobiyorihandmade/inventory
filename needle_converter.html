@@ -140,8 +140,8 @@ footer p{font-size:12px;opacity:.5;margin-top:12px;}
 
   <!-- モードタブ -->
   <div class="mode-tabs">
-    <button class="mtab on" onclick="setMode('select')">号数・サイズから変換</button>
-    <button class="mtab" onclick="setMode('mm')">mmから変換</button>
+    <button class="mtab on" onclick="setMode('select')">号数から変換</button>
+    <button class="mtab" onclick="setMode('us')">USサイズから変換</button>
     <button class="mtab" onclick="setMode('table')">全サイズ一覧表</button>
   </div>
 
@@ -167,23 +167,22 @@ footer p{font-size:12px;opacity:.5;margin-top:12px;}
     </div>
   </div>
 
-  <!-- mmから変換モード -->
-  <div id="mode-mm" class="card" style="display:none">
-    <div class="card-head">📏 mmを入力して変換</div>
+  <!-- USサイズから変換モード -->
+  <div id="mode-us" class="card" style="display:none">
+    <div class="card-head">🇺🇸 USサイズを選んで変換</div>
     <div class="card-body">
       <div class="conv-form">
         <div class="form-group">
-          <label>mm数を入力</label>
-          <input type="number" id="mmInput" min="0" max="20" step="0.1" placeholder="例：3.9" oninput="convertFromMm()">
+          <label id="us-label">USサイズを選択</label>
+          <select id="usSelect" onchange="convertFromUs()"></select>
         </div>
         <div class="conv-arrow">→</div>
         <div>
-          <div class="result-box" id="result-mm">
-            <div class="result-empty">← mmを入力してください</div>
+          <div class="result-box" id="result-us">
+            <div class="result-empty">← USサイズを選んでください</div>
           </div>
         </div>
       </div>
-      <p class="note">※ 入力値に最も近い号数を表示します。完全一致しない場合は「最近傍値」を表示します。</p>
     </div>
   </div>
 
@@ -321,18 +320,14 @@ function init() {
 function setNeedle(type) {
   currentNeedle = type;
   currentResult = null;
-  // タブUI更新
   document.querySelectorAll('.ntab').forEach(function(b) { b.classList.remove('on'); });
   var needleNames = ['knitting','crochet','lace','jumbo'];
   document.querySelectorAll('.ntab')[needleNames.indexOf(type)].classList.add('on');
-  // セレクト更新
   updateSelect();
-  // 一覧表更新
+  updateUsSelect();
   renderTable();
-  // 結果リセット
   document.getElementById('result-select').innerHTML = '<div class="result-empty">← 号数を選んでください</div>';
-  document.getElementById('result-mm').innerHTML = '<div class="result-empty">← mmを入力してください</div>';
-  document.getElementById('mmInput').value = '';
+  document.getElementById('result-us').innerHTML = '<div class="result-empty">← USサイズを選んでください</div>';
   updateBookmarkBtn();
 }
 
@@ -342,10 +337,10 @@ function setNeedle(type) {
 function setMode(mode) {
   currentMode = mode;
   document.querySelectorAll('.mtab').forEach(function(b) { b.classList.remove('on'); });
-  var modes = ['select','mm','table'];
+  var modes = ['select','us','table'];
   document.querySelectorAll('.mtab')[modes.indexOf(mode)].classList.add('on');
   document.getElementById('mode-select').style.display = mode === 'select' ? 'block' : 'none';
-  document.getElementById('mode-mm').style.display = mode === 'mm' ? 'block' : 'none';
+  document.getElementById('mode-us').style.display = mode === 'us' ? 'block' : 'none';
   document.getElementById('mode-table').style.display = mode === 'table' ? 'block' : 'none';
 }
 
@@ -383,32 +378,53 @@ function convertFromSelect() {
 }
 
 // ══════════════════════════════════════════════
-// mmから変換
+// USセレクト更新
 // ══════════════════════════════════════════════
-function convertFromMm() {
-  var val = parseFloat(document.getElementById('mmInput').value);
-  var box = document.getElementById('result-mm');
-  if (isNaN(val) || val <= 0) {
-    box.innerHTML = '<div class="result-empty">← mmを入力してください</div>';
+function updateUsSelect() {
+  var data = DATA[currentNeedle];
+  var sel = document.getElementById('usSelect');
+  // USサイズの重複を除いたリストを作る
+  var seen = {};
+  var opts = '<option value="">-- 選択してください --</option>';
+  data.rows.forEach(function(r, i) {
+    if (!seen[r.us]) {
+      seen[r.us] = true;
+      opts += '<option value="' + i + '">' + r.us + '</option>';
+    }
+  });
+  sel.innerHTML = opts;
+}
+
+// ══════════════════════════════════════════════
+// USサイズから変換
+// ══════════════════════════════════════════════
+function convertFromUs() {
+  var sel = document.getElementById('usSelect');
+  var idx = sel.value;
+  var box = document.getElementById('result-us');
+  if (idx === '') {
+    box.innerHTML = '<div class="result-empty">← USサイズを選んでください</div>';
     return;
   }
-  var rows = DATA[currentNeedle].rows;
-  // 最近傍値を探す
-  var best = rows.reduce(function(prev, curr) {
-    return Math.abs(curr.mm - val) < Math.abs(prev.mm - val) ? curr : prev;
-  });
-  var exact = Math.abs(best.mm - val) < 0.05;
-  var diff = Math.round(Math.abs(best.mm - val) * 100) / 100;
-  renderResult(box, best, exact ? null : '最近傍値（差分 ' + diff + 'mm）');
+  var row = DATA[currentNeedle].rows[parseInt(idx)];
+  // 同じUSサイズの行が複数ある場合はまとめて表示
+  var rows = DATA[currentNeedle].rows.filter(function(r) { return r.us === row.us; });
+  if (rows.length > 1) {
+    box.innerHTML =
+      '<div class="result-main">' + rows.map(function(r){ return r.jp; }).join(' / ') + '</div>' +
+      '<div class="result-sub">' + rows.map(function(r){ return r.mm + 'mm'; }).join(' / ') + '</div>' +
+      '<div style="font-size:11px;color:var(--tx3);margin-top:6px">※ このUSサイズに対応する号数が複数あります</div>';
+  } else {
+    renderResult(box, row);
+  }
 }
 
 function renderResult(box, row, note) {
-  var data = DATA[currentNeedle];
   box.innerHTML =
-    '<div class="result-main">' + row.jp + '</div>' +
-    '<div class="result-sub">' +
-      '<span style="margin-right:12px">📏 ' + row.mm + 'mm</span>' +
-      '<span>🇺🇸 ' + row.us + '</span>' +
+    '<div class="result-main">' + row.us + '</div>' +
+    '<div class="result-sub" style="display:flex;justify-content:center;gap:16px;margin-top:6px">' +
+      '<span>🇯🇵 <b>' + row.jp + '</b></span>' +
+      '<span>📏 <b>' + row.mm + 'mm</b></span>' +
     '</div>' +
     (note ? '<div style="font-size:11px;color:var(--tx3);margin-top:6px">' + note + '</div>' : '');
 }
