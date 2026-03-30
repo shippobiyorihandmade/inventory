@@ -159,6 +159,9 @@ footer p{font-size:12px;opacity:.5;margin-top:16px;}
   <div class="hero-badge">🎨 ハンドメイド作家さん向け</div>
   <h1>在庫管理を、<br><em>もっとかんたん</em>に。</h1>
   <p>完成品・材料・販売・製作記録をまるごと管理。<br>スマホからもサクサク使える、作家さんのための在庫管理アプリです。</p>
+  <div style="display:inline-flex;align-items:center;gap:6px;background:#edf5f3;border:1px solid #b2dcc5;border-radius:30px;padding:6px 16px;font-size:12px;color:#3a6b5e;font-weight:700;margin-bottom:28px">
+    ✅ 現在は小規模作家さん向けに無料提供中・将来的に有料化の可能性あり
+  </div>
   <div class="hero-btns">
     <a class="btn-main" href="inventory_supabase.html">今すぐ使ってみる</a>
     <a class="btn-sub" href="#features">機能を見る</a>
@@ -303,7 +306,11 @@ footer p{font-size:12px;opacity:.5;margin-top:16px;}
   <h2 class="section-title" style="text-align:center;font-family:'Shippori Mincho',serif;font-size:clamp(22px,4vw,36px);font-weight:600;margin-bottom:36px">よくある質問</h2>
   <div class="faq-item">
     <div class="faq-q">無料で使えますか？</div>
-    <div class="faq-a">はい、基本機能は無料でご利用いただけます。利用にはGoogleアカウント、またはメールアドレスが必要です。</div>
+    <div class="faq-a">現在は小規模のハンドメイド作家さんを対象に、無料でご提供しています。利用にはGoogleアカウントまたはメールアドレスと、招待登録が必要です。<br><br>なお、将来的にはサービスの維持・改善のため、広告の掲載や有料プランへの移行を検討する可能性があります。その際は事前にこのページや登録メールアドレスを通じてご案内します。現在ご利用中の方（先行ユーザー）は、できる限り継続して無料でご利用いただける形を検討しています。</div>
+  </div>
+  <div class="faq-item">
+    <div class="faq-q">将来、有料になりますか？</div>
+    <div class="faq-a">現時点では未定ですが、サービスの規模や運営状況によって、将来的に有料プランの導入や広告掲載を行う可能性があります。変更の際は必ず事前にご案内しますので、ご安心ください。先行ユーザーの方への特別な配慮も検討しています。</div>
   </div>
   <div class="faq-item">
     <div class="faq-q">データはどこに保存されますか？</div>
@@ -427,7 +434,7 @@ function switchTab(id) {
 
 // 問い合わせ送信（Supabaseに保存）
 var SB_URL = 'https://cexwvkezbgadqhffzzbp.supabase.co';
-var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNleHd2a2V6YmdhZHFoZmZ6emJwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ1OTM0MTMsImV4cCI6MjA5MDE2OTQxM30.4Q8XAveV22dQTJJcSGZJBfobsDOuEblxusiR1UjQCKE'; // ← Anon Keyを入れてください
+var SB_KEY = 'ANON_KEY_HERE'; // ← Anon Keyを入れてください
 
 async function sendLandingContact() {
   var name  = document.getElementById('cName').value.trim();
