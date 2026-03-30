@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>作品撮影チェックリスト｜ハンドメイド作家さんのための撮影ポイント完全ガイド</title>
+<meta name="description" content="minne・Creema等で売れる商品写真を撮るためのチェックリスト。ライティング・背景・構図・スタイリング・仕上げの5カテゴリで撮影ポイントを確認できます。">
+<link rel="icon" href="favicon.png">
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@300;400;500;700&family=Shippori+Mincho:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#faf8f5;--sf:#fff;--sf2:#f3efe9;--bd:#e5ddd0;
+  --tx:#2c2416;--tx2:#7a6e60;--tx3:#a89880;
+  --ac:#c0622a;--ac2:#e8a87c;--ac3:#4a7c6f;
+  --r:14px;--rL:24px;
+  --sh:0 2px 12px rgba(44,36,22,.08);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'Zen Kaku Gothic New',sans-serif;background:var(--bg);color:var(--tx);line-height:1.7;overflow-x:hidden;font-size:15px;}
+
+/* ── ナビ ── */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(250,248,245,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--bd);padding:0 20px;height:54px;display:flex;align-items:center;justify-content:space-between;}
+.nav-logo{font-size:14px;font-weight:700;display:flex;align-items:center;gap:6px;color:var(--tx);text-decoration:none;}
+.nav-logo span{color:var(--ac);}
+.nav-link{background:var(--sf2);color:var(--tx);padding:7px 16px;border-radius:30px;font-size:12px;font-weight:700;text-decoration:none;border:1.5px solid var(--bd);transition:all .2s;}
+.nav-link:hover{background:var(--bd);}
+
+/* ── ヒーロー ── */
+.hero{padding:90px 20px 32px;text-align:center;max-width:700px;margin:0 auto;}
+.hero-badge{display:inline-flex;align-items:center;gap:5px;background:var(--sf2);border:1px solid var(--bd);border-radius:30px;padding:4px 14px;font-size:11px;font-weight:700;color:var(--ac);margin-bottom:16px;letter-spacing:.06em;}
+.hero h1{font-family:'Shippori Mincho',serif;font-size:clamp(22px,5vw,38px);font-weight:600;line-height:1.4;margin-bottom:12px;}
+.hero h1 em{font-style:normal;color:var(--ac);}
+.hero p{font-size:14px;color:var(--tx2);margin-bottom:24px;}
+
+/* ── 全体進捗 ── */
+.main{max-width:680px;margin:0 auto;padding:0 16px 60px;}
+.progress-card{background:var(--sf);border:1px solid var(--bd);border-radius:var(--rL);box-shadow:var(--sh);padding:20px 24px;margin-bottom:16px;text-align:center;}
+.progress-label{font-size:13px;color:var(--tx2);margin-bottom:10px;}
+.progress-pct{font-size:36px;font-weight:700;color:var(--ac);font-family:'Zen Kaku Gothic New',sans-serif;line-height:1;}
+.progress-msg{font-size:13px;color:var(--tx2);margin-top:6px;min-height:20px;}
+.progress-bar-wrap{background:var(--sf2);border-radius:30px;height:10px;margin:12px 0 0;overflow:hidden;}
+.progress-bar{height:100%;background:linear-gradient(90deg,var(--ac),#d4733a);border-radius:30px;transition:width .4s ease;}
+.reset-btn{display:inline-flex;align-items:center;gap:5px;padding:7px 18px;border-radius:30px;border:1.5px solid var(--bd);background:var(--sf);font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;color:var(--tx2);margin-top:14px;transition:all .2s;}
+.reset-btn:hover{border-color:var(--wn,#d4622a);color:var(--wn,#d4622a);}
+
+/* 広告スペース */
+.ad-space{background:var(--sf2);border:1px dashed var(--bd);border-radius:var(--r);padding:20px;text-align:center;color:var(--tx3);font-size:12px;margin-bottom:16px;min-height:90px;display:flex;align-items:center;justify-content:center;}
+
+/* ── カテゴリカード ── */
+.cat-card{background:var(--sf);border:1px solid var(--bd);border-radius:var(--rL);box-shadow:var(--sh);margin-bottom:12px;overflow:hidden;transition:box-shadow .2s;}
+.cat-card:hover{box-shadow:0 4px 20px rgba(44,36,22,.12);}
+.cat-head{padding:14px 18px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;-webkit-tap-highlight-color:transparent;user-select:none;}
+.cat-head-left{display:flex;align-items:center;gap:10px;}
+.cat-icon{font-size:20px;width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.cat-title{font-size:14px;font-weight:700;}
+.cat-head-right{display:flex;align-items:center;gap:10px;}
+.cat-progress{font-size:12px;color:var(--tx2);font-weight:700;white-space:nowrap;}
+.cat-pbar{width:60px;height:6px;background:var(--sf2);border-radius:30px;overflow:hidden;}
+.cat-pfill{height:100%;border-radius:30px;transition:width .3s;}
+.cat-chevron{font-size:12px;color:var(--tx3);transition:transform .25s;}
+.cat-chevron.open{transform:rotate(180deg);}
+.cat-body{padding:0 18px;max-height:0;overflow:hidden;transition:max-height .35s ease, padding .25s;}
+.cat-body.open{max-height:2000px;padding:0 18px 16px;}
+
+/* ワンポイントアドバイス */
+.advice-box{background:linear-gradient(135deg,#fffbf5,#fff8ee);border:1.5px solid var(--ac2);border-radius:12px;padding:13px 16px;margin-bottom:14px;font-size:13px;color:var(--tx);line-height:1.8;position:relative;}
+.advice-label{font-size:10px;font-weight:700;color:var(--ac);letter-spacing:.08em;text-transform:uppercase;margin-bottom:5px;display:flex;align-items:center;gap:4px;}
+
+/* チェックアイテム */
+.check-item{display:flex;align-items:flex-start;gap:12px;padding:11px 0;border-bottom:1px solid var(--bd);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:background .15s;}
+.check-item:last-child{border-bottom:none;}
+.check-item:active{background:#faf7f3;}
+.check-box{width:24px;height:24px;border:2px solid var(--bd);border-radius:7px;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .2s;margin-top:1px;}
+.check-box.checked{background:var(--ac3);border-color:var(--ac3);}
+.check-box.checked::after{content:'✓';color:#fff;font-size:13px;font-weight:700;}
+.check-text{font-size:14px;line-height:1.6;flex:1;transition:color .2s;}
+.check-text.checked{color:var(--tx3);text-decoration:line-through;}
+
+/* アプリ誘導バナー */
+.app-banner{background:linear-gradient(135deg,#2c2416,#3d3020);border-radius:var(--rL);padding:22px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:16px;}
+.app-banner h3{color:#e8a87c;font-size:14px;font-weight:700;margin-bottom:4px;}
+.app-banner p{color:rgba(250,248,245,.7);font-size:12px;}
+.app-banner-btn{background:var(--ac);color:#fff;padding:10px 22px;border-radius:30px;font-size:13px;font-weight:700;text-decoration:none;white-space:nowrap;transition:all .2s;}
+.app-banner-btn:hover{background:#a8531f;}
+
+/* フッター */
+footer{background:var(--tx);color:#faf8f5;padding:32px 20px;text-align:center;}
+.footer-logo{font-size:15px;font-weight:700;margin-bottom:8px;}
+.footer-logo span{color:var(--ac2);}
+footer p{font-size:12px;opacity:.5;margin-top:12px;}
+.footer-links{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-top:12px;}
+.footer-links a{color:#faf8f5;opacity:.7;font-size:12px;text-decoration:none;transition:opacity .2s;}
+.footer-links a:hover{opacity:1;}
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="lp.html">🧵 <span>ハンドメイド</span>在庫管理</a>
+  <a class="nav-link" href="inventory_supabase.html">アプリを使う →</a>
+</nav>
+
+<div class="hero">
+  <div class="hero-badge">📷 ハンドメイド作家さん向け 無料ツール</div>
+  <h1>作品撮影<em>チェックリスト</em></h1>
+  <p>売れる商品写真を撮るためのポイントをカテゴリ別にチェック✨<br>撮影前・撮影後に確認してみてください📸</p>
+</div>
+
+<div class="main">
+
+  <!-- 全体進捗 -->
+  <div class="progress-card">
+    <div class="progress-label">全体の達成率</div>
+    <div class="progress-pct" id="totalPct">0%</div>
+    <div class="progress-msg" id="totalMsg">チェックを始めてみましょう🐾</div>
+    <div class="progress-bar-wrap">
+      <div class="progress-bar" id="totalBar" style="width:0%"></div>
+    </div>
+    <button class="reset-btn" onclick="resetAll()">🔄 全チェックをリセット</button>
+  </div>
+
+  <!-- 広告スペース -->
+  <div class="ad-space">広告スペース</div>
+
+  <!-- チェックリスト -->
+  <div id="checklistArea"></div>
+
+  <!-- アプリ誘導バナー -->
+  <div class="app-banner">
+    <div>
+      <h3>📦 在庫管理もまとめてかんたんに</h3>
+      <p>材料・完成品・販売記録を一元管理。<br>ハンドメイド作家さんのための無料アプリ。</p>
+    </div>
+    <a class="app-banner-btn" href="inventory_supabase.html">在庫管理アプリを使う →</a>
+  </div>
+
+</div>
+
+<footer>
+  <div class="footer-logo">🧵 <span>ハンドメイド</span>在庫管理</div>
+  <div class="footer-links">
+    <a href="lp.html">アプリ紹介ページ</a>
+    <a href="inventory_supabase.html">在庫管理アプリ</a>
+    <a href="simulator.html">価格シミュレーター</a>
+    <a href="needle_converter.html">編針変換ツール</a>
+  </div>
+  <p>© 2026 しっぽ日和. All rights reserved.</p>
+</footer>
+
+<script>
+// ══════════════════════════════════════════════
+// チェックリストデータ（もずくちゃんのアドバイス入り）
+// ══════════════════════════════════════════════
+var CATEGORIES = [
+  {
+    id: 'lighting',
+    icon: '☀️',
+    color: '#f5c842',
+    bg: '#fffde8',
+    title: 'ライティング',
+    advice: '光は「買いたい気持ち」を左右する最重要ポイントです！曇りの日の窓際が実は最強✨ 直射日光は影が強くなりすぎるので、レースカーテン越しの柔らかい光がおすすめですよ🐾',
+    items: [
+      '自然光を使っている',
+      '逆光になっていない',
+      '影が作品にかかっていない',
+      '白飛びしていない',
+    ]
+  },
+  {
+    id: 'background',
+    icon: '🖼',
+    color: '#7a9fd4',
+    bg: '#eef3fb',
+    title: '背景',
+    advice: '背景がごちゃごちゃしていると、どんなに素敵な作品も「伝わらない」ことも。白・グレー・クラフト紙で迷ったら、作品の一番目立つ色の反対色を選ぶと自然と映えますよ✨',
+    items: [
+      '背景がシンプルで作品が目立つ',
+      '生活感のあるものが映り込んでいない',
+      '背景色と作品色が被っていない',
+    ]
+  },
+  {
+    id: 'composition',
+    icon: '📐',
+    color: '#4a7c6f',
+    bg: '#edf5f3',
+    title: '構図・アングル',
+    advice: '1作品につき最低3枚撮るのがおすすめです！「全体・斜め45度・素材アップ」の3点セットがあると、お客様がお手に取るときのイメージが格段に湧きやすくなります📷',
+    items: [
+      '作品全体が収まっている',
+      '複数アングルで撮れている',
+      '細部（縫い目・素材感）のアップがある',
+    ]
+  },
+  {
+    id: 'styling',
+    icon: '🌸',
+    color: '#d47aad',
+    bg: '#fdf0f7',
+    title: 'スタイリング',
+    advice: '小物を置くときは「引き算」が大切です！素敵な小物をたくさん並べたくなりますが、主役はあくまで作品。添えるのは1〜2点までがおすすめですよ🌿',
+    items: [
+      '小物・コーディネートが作品の世界観に合っている',
+      '季節感が出ている',
+      'サイズ感がわかる比較物がある',
+    ]
+  },
+  {
+    id: 'finish',
+    icon: '📱',
+    color: '#c0622a',
+    bg: '#fff3ed',
+    title: '仕上げ・投稿',
+    advice: '加工しすぎは逆効果です！明るさ・コントラストを少し整えるくらいにとどめて、実物に近い色味でお届けするのがお客様との信頼につながりますよ🐾',
+    items: [
+      'ピントが合っている',
+      '色味の補正が過剰でない',
+      '解像度が十分（1000px以上推奨）',
+      '正方形トリミングで見栄えを確認した',
+    ]
+  }
+];
+
+// ══════════════════════════════════════════════
+// 状態管理
+// ══════════════════════════════════════════════
+var checks = JSON.parse(localStorage.getItem('photo_checks') || '{}');
+var openCats = { lighting: true, background: true, composition: true, styling: true, finish: true };
+
+function save() {
+  localStorage.setItem('photo_checks', JSON.stringify(checks));
+}
+
+// ══════════════════════════════════════════════
+// レンダリング
+// ══════════════════════════════════════════════
+function render() {
+  var area = document.getElementById('checklistArea');
+  area.innerHTML = CATEGORIES.map(function(cat) {
+    var total = cat.items.length;
+    var done = cat.items.filter(function(_, i) { return checks[cat.id + '_' + i]; }).length;
+    var pct = total ? Math.round(done / total * 100) : 0;
+    var isOpen = openCats[cat.id];
+
+    var itemsHtml = cat.items.map(function(text, i) {
+      var key = cat.id + '_' + i;
+      var checked = !!checks[key];
+      return '<div class="check-item" onclick="toggle(\'' + key + '\')">' +
+        '<div class="check-box' + (checked ? ' checked' : '') + '"></div>' +
+        '<div class="check-text' + (checked ? ' checked' : '') + '">' + text + '</div>' +
+        '</div>';
+    }).join('');
+
+    return '<div class="cat-card" id="cat-' + cat.id + '">' +
+      '<div class="cat-head" onclick="toggleCat(\'' + cat.id + '\')">' +
+        '<div class="cat-head-left">' +
+          '<div class="cat-icon" style="background:' + cat.bg + '">' + cat.icon + '</div>' +
+          '<span class="cat-title">' + cat.title + '</span>' +
+        '</div>' +
+        '<div class="cat-head-right">' +
+          '<span class="cat-progress">' + done + '/' + total + '</span>' +
+          '<div class="cat-pbar"><div class="cat-pfill" style="width:' + pct + '%;background:' + cat.color + '"></div></div>' +
+          '<span class="cat-chevron' + (isOpen ? ' open' : '') + '" id="chev-' + cat.id + '">▼</span>' +
+        '</div>' +
+      '</div>' +
+      '<div class="cat-body' + (isOpen ? ' open' : '') + '" id="body-' + cat.id + '">' +
+        '<div class="advice-box">' +
+          '<div class="advice-label">💡 ワンポイントアドバイス</div>' +
+          cat.advice +
+        '</div>' +
+        itemsHtml +
+      '</div>' +
+    '</div>';
+  }).join('');
+
+  updateTotal();
+}
+
+function updateTotal() {
+  var total = 0, done = 0;
+  CATEGORIES.forEach(function(cat) {
+    cat.items.forEach(function(_, i) {
+      total++;
+      if (checks[cat.id + '_' + i]) done++;
+    });
+  });
+  var pct = total ? Math.round(done / total * 100) : 0;
+  document.getElementById('totalPct').textContent = pct + '%';
+  document.getElementById('totalBar').style.width = pct + '%';
+
+  var msgs = [
+    [0,  'チェックを始めてみましょう🐾'],
+    [1,  'いいスタートにゃ！続けましょう✨'],
+    [30, '順調ですよ！このまま続けて📷'],
+    [50, 'いい感じ！折り返し地点です🌟'],
+    [70, 'もう少し！素敵な写真になりますよ✨'],
+    [90, 'あとひと息！完璧な仕上がりに近づいています🎉'],
+    [100,'全部チェック完了！素敵な写真が撮れそうですね🐾✨'],
+  ];
+  var msg = msgs[0][1];
+  msgs.forEach(function(m) { if (pct >= m[0]) msg = m[1]; });
+  document.getElementById('totalMsg').textContent = msg;
+}
+
+// ══════════════════════════════════════════════
+// 操作
+// ══════════════════════════════════════════════
+function toggle(key) {
+  checks[key] = !checks[key];
+  save();
+  render();
+}
+
+function toggleCat(id) {
+  openCats[id] = !openCats[id];
+  var body = document.getElementById('body-' + id);
+  var chev = document.getElementById('chev-' + id);
+  if (openCats[id]) {
+    body.classList.add('open');
+    chev.classList.add('open');
+  } else {
+    body.classList.remove('open');
+    chev.classList.remove('open');
+  }
+}
+
+function resetAll() {
+  if (!confirm('全てのチェックをリセットしますか？')) return;
+  checks = {};
+  save();
+  render();
+}
+
+// 初期化
+render();
+</script>
+</body>
+</html>
