@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>素材・生地の特徴早見表｜ハンドメイド作家のための素材選びガイド</title>
+<meta name="description" content="コットン・リネン・ニット・ウール・アクリルなど生地・糸の特徴を一覧比較。縫いやすさ・洗濯・通気性・用途でフィルタリングできるハンドメイド作家向け素材早見表。">
+<link rel="icon" href="favicon.png">
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@300;400;500;700&family=DM+Mono:wght@400;500&family=Shippori+Mincho:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#faf8f5;--sf:#fff;--sf2:#f3efe9;--bd:#e5ddd0;
+  --tx:#2c2416;--tx2:#7a6e60;--tx3:#a89880;
+  --ac:#c0622a;--ac2:#e8a87c;--ac3:#4a7c6f;
+  --r:14px;--rL:24px;
+  --sh:0 2px 12px rgba(44,36,22,.08);
+  --shl:0 8px 32px rgba(44,36,22,.15);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'Zen Kaku Gothic New',sans-serif;background:var(--bg);color:var(--tx);line-height:1.7;overflow-x:hidden;font-size:15px;}
+
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(250,248,245,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--bd);padding:0 20px;height:54px;display:flex;align-items:center;justify-content:space-between;}
+.nav-logo{font-size:14px;font-weight:700;display:flex;align-items:center;gap:6px;color:var(--tx);text-decoration:none;}
+.nav-logo span{color:var(--ac);}
+.nav-link{background:var(--sf2);color:var(--tx);padding:7px 16px;border-radius:30px;font-size:12px;font-weight:700;text-decoration:none;border:1.5px solid var(--bd);transition:all .2s;}
+.nav-link:hover{background:var(--bd);}
+
+.hero{padding:90px 20px 32px;text-align:center;max-width:700px;margin:0 auto;}
+.hero-badge{display:inline-flex;align-items:center;gap:5px;background:var(--sf2);border:1px solid var(--bd);border-radius:30px;padding:4px 14px;font-size:11px;font-weight:700;color:var(--ac);margin-bottom:16px;letter-spacing:.06em;}
+.hero h1{font-family:'Shippori Mincho',serif;font-size:clamp(22px,5vw,38px);font-weight:600;line-height:1.4;margin-bottom:12px;}
+.hero h1 em{font-style:normal;color:var(--ac);}
+.hero p{font-size:14px;color:var(--tx2);margin-bottom:24px;}
+
+.main{max-width:860px;margin:0 auto;padding:0 16px 60px;}
+
+/* タブ */
+.type-tabs{display:flex;background:var(--sf2);border-radius:30px;padding:4px;margin-bottom:16px;gap:4px;}
+.ttab{flex:1;padding:11px;border-radius:26px;border:none;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;color:var(--tx2);background:none;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:6px;}
+.ttab.on{background:var(--sf);color:var(--ac);box-shadow:var(--sh);}
+
+/* フィルター */
+.filter-wrap{background:var(--sf);border:1px solid var(--bd);border-radius:var(--rL);box-shadow:var(--sh);padding:16px 20px;margin-bottom:16px;}
+.filter-label{font-size:11px;font-weight:700;color:var(--tx2);letter-spacing:.06em;margin-bottom:8px;}
+.filter-chips{display:flex;gap:6px;flex-wrap:wrap;}
+.fchip{padding:6px 14px;border-radius:20px;border:1.5px solid var(--bd);background:var(--sf2);font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;color:var(--tx2);transition:all .15s;-webkit-tap-highlight-color:transparent;}
+.fchip.on{background:var(--ac);color:#fff;border-color:var(--ac);}
+.fchip:hover:not(.on){background:var(--bd);}
+
+/* 広告スペース */
+.ad-space{background:var(--sf2);border:1px dashed var(--bd);border-radius:var(--r);padding:20px;text-align:center;color:var(--tx3);font-size:12px;margin-bottom:16px;min-height:90px;display:flex;align-items:center;justify-content:center;}
+
+/* カードグリッド */
+.card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;margin-bottom:16px;}
+.mat-card{background:var(--sf);border:1px solid var(--bd);border-radius:var(--rL);box-shadow:var(--sh);cursor:pointer;transition:all .2s;overflow:hidden;}
+.mat-card:hover{box-shadow:var(--shl);transform:translateY(-2px);}
+.mat-card-head{padding:14px 16px 10px;display:flex;align-items:flex-start;gap:10px;}
+.mat-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
+.mat-name{font-size:15px;font-weight:700;margin-bottom:2px;}
+.mat-cat{font-size:11px;color:var(--tx3);font-weight:700;letter-spacing:.04em;}
+.mat-card-body{padding:0 16px 14px;}
+.mat-tags{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px;}
+.mat-tag{padding:3px 9px;border-radius:20px;font-size:10px;font-weight:700;}
+.mat-uses{font-size:12px;color:var(--tx2);line-height:1.6;}
+.mat-uses-label{font-size:10px;font-weight:700;color:var(--tx3);letter-spacing:.04em;margin-bottom:2px;}
+
+/* 星評価 */
+.stars-row{display:flex;align-items:center;gap:6px;margin-bottom:6px;}
+.stars-label{font-size:11px;color:var(--tx2);min-width:64px;}
+.stars{display:flex;gap:2px;}
+.star{font-size:11px;}
+.star.on{color:#f5c842;}
+.star.off{color:var(--bd);}
+
+/* モーダル */
+.ov{display:none;position:fixed;inset:0;background:rgba(44,36,22,.6);z-index:200;align-items:flex-end;justify-content:center;}
+@media(min-width:560px){.ov{align-items:center;padding:20px;}}
+.ov.open{display:flex;}
+.modal{background:var(--sf);border-radius:var(--rL) var(--rL) 0 0;width:100%;max-width:500px;max-height:92vh;overflow-y:auto;box-shadow:var(--shl);animation:slideUp .25s ease;}
+@media(min-width:560px){.modal{border-radius:var(--rL);max-height:88vh;}}
+@keyframes slideUp{from{transform:translateY(40px);opacity:0}to{transform:translateY(0);opacity:1}}
+.modal-head{padding:16px 20px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:12px;position:sticky;top:0;background:var(--sf);z-index:1;}
+.modal-icon{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0;}
+.modal-title{font-size:17px;font-weight:700;}
+.modal-sub{font-size:12px;color:var(--tx3);font-weight:700;letter-spacing:.04em;}
+.modal-close{margin-left:auto;width:32px;height:32px;border-radius:8px;border:1.5px solid var(--bd);background:var(--sf2);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.modal-body{padding:20px;}
+.modal-section{margin-bottom:18px;}
+.modal-section-title{font-size:11px;font-weight:700;color:var(--tx2);letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--bd);}
+.detail-text{font-size:13px;line-height:1.9;color:var(--tx);}
+.caution-box{background:#fff8f0;border:1.5px solid #f0cdb0;border-radius:10px;padding:12px 14px;font-size:13px;line-height:1.8;}
+.caution-box ul{list-style:none;padding:0;}
+.caution-box ul li::before{content:"⚠️ ";font-size:11px;}
+
+/* 空状態 */
+.empty{text-align:center;padding:40px 20px;color:var(--tx3);}
+.empty-icon{font-size:40px;margin-bottom:10px;}
+
+/* アプリ誘導バナー */
+.app-banner{background:linear-gradient(135deg,#2c2416,#3d3020);border-radius:var(--rL);padding:22px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:16px;}
+.app-banner h3{color:#e8a87c;font-size:14px;font-weight:700;margin-bottom:4px;}
+.app-banner p{color:rgba(250,248,245,.7);font-size:12px;}
+.app-banner-btn{background:var(--ac);color:#fff;padding:10px 22px;border-radius:30px;font-size:13px;font-weight:700;text-decoration:none;white-space:nowrap;}
+
+footer{background:var(--tx);color:#faf8f5;padding:32px 20px;text-align:center;}
+.footer-logo{font-size:15px;font-weight:700;margin-bottom:8px;}
+.footer-logo span{color:var(--ac2);}
+footer p{font-size:12px;opacity:.5;margin-top:12px;}
+.footer-links{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-top:12px;}
+.footer-links a{color:#faf8f5;opacity:.7;font-size:12px;text-decoration:none;}
+.footer-links a:hover{opacity:1;}
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="lp.html">🧵 <span>ハンドメイド</span>在庫管理</a>
+  <a class="nav-link" href="inventory_supabase.html">アプリを使う →</a>
+</nav>
+
+<div class="hero">
+  <div class="hero-badge">🧶 ハンドメイド作家さん向け 無料ツール</div>
+  <h1>素材・生地の<em>特徴早見表</em></h1>
+  <p>生地・糸の素材特性を一覧で比較して<br>作品にぴったりの素材選びをサポートします✨</p>
+</div>
+
+<div class="main">
+
+  <!-- タブ -->
+  <div class="type-tabs">
+    <button class="ttab on" onclick="setType('fabric')">🧵 生地（布もの向け）</button>
+    <button class="ttab" onclick="setType('yarn')">🧶 糸（編み物向け）</button>
+  </div>
+
+  <!-- フィルター -->
+  <div class="filter-wrap">
+    <div class="filter-label" id="filterLabel">▼ 絞り込む</div>
+    <div class="filter-chips" id="filterChips"></div>
+  </div>
+
+  <!-- 広告スペース -->
+  <div class="ad-space">広告スペース</div>
+
+  <!-- カード一覧 -->
+  <div class="card-grid" id="cardGrid"></div>
+
+  <!-- アプリ誘導バナー -->
+  <div class="app-banner">
+    <div>
+      <h3>📦 在庫管理もまとめてかんたんに</h3>
+      <p>材料・完成品・販売記録を一元管理。ハンドメイド作家さんのための無料アプリ。</p>
+    </div>
+    <a class="app-banner-btn" href="inventory_supabase.html">アプリを使う →</a>
+  </div>
+
+</div>
+
+<!-- 詳細モーダル -->
+<div class="ov" id="detailOv" onclick="if(event.target===this)closeMod()">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-icon" id="modIcon"></div>
+      <div>
+        <div class="modal-title" id="modTitle"></div>
+        <div class="modal-sub" id="modSub"></div>
+      </div>
+      <button class="modal-close" onclick="closeMod()">✕</button>
+    </div>
+    <div class="modal-body" id="modBody"></div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-logo">🧵 <span>ハンドメイド</span>在庫管理</div>
+  <div class="footer-links">
+    <a href="lp.html">アプリ紹介ページ</a>
+    <a href="inventory_supabase.html">在庫管理アプリ</a>
+    <a href="simulator.html">価格シミュレーター</a>
+    <a href="needle_converter.html">編針変換ツール</a>
+    <a href="photo_checklist.html">撮影チェックリスト</a>
+    <a href="color_checker.html">色の組み合わせチェッカー</a>
+  </div>
+  <p>© 2026 しっぽ日和. All rights reserved.</p>
+</footer>
+
+<script>
+// ══════════════════════════════════════════════
+// 素材データ
+// ══════════════════════════════════════════════
+var MATERIALS = {
+  fabric: [
+    {
+      id: 'cotton', name: 'コットン', icon: '🌸', color: '#fff3ed', iconBg: '#ffe4d0',
+      cat: '天然繊維',
+      tags: [
+        { label: '縫いやすい', color: '#edf5f3', tx: '#3a6b5e' },
+        { label: '洗濯機OK', color: '#e8f0ff', tx: '#3a5a9f' },
+        { label: '初心者向け', color: '#fff0ed', tx: '#c0622a' },
+      ],
+      stars: { ease: 5, wash: 5, breath: 3, stretch: 1 },
+      uses: 'ポーチ・バッグ・小物全般',
+      season: '通年',
+      price: '低〜中',
+      filters: ['wash_machine', 'beginner', 'bag', 'pouch', 'easy'],
+      desc: 'ハンドメイドの定番素材。適度な厚みと張りがあり、初心者でも扱いやすいのが特徴です。柄の種類も豊富で、作品のデザインの幅が広がります。洗濯に強く、肌触りも良いため幅広いアイテムに使えます。',
+      cautions: ['縮みやすいため、裁断前に水通しをおすすめします', '薄手のものはほつれやすいので端処理を丁寧に', '色落ちするものがあるため、初回は単独で洗濯を'],
+    },
+    {
+      id: 'linen', name: 'リネン', icon: '🌿', color: '#f0f8ed', iconBg: '#d4ecc8',
+      cat: '天然繊維',
+      tags: [
+        { label: '通気性◎', color: '#edf5f3', tx: '#3a6b5e' },
+        { label: 'バッグ向き', color: '#e8f0ff', tx: '#3a5a9f' },
+        { label: '夏向け', color: '#fffde8', tx: '#8c7a00' },
+      ],
+      stars: { ease: 3, wash: 3, breath: 5, stretch: 1 },
+      uses: 'バッグ・エコバッグ・夏小物',
+      season: '春夏',
+      price: '中',
+      filters: ['hand_wash', 'bag', 'summer'],
+      desc: '麻素材の生地で、通気性と吸水性に優れています。使い込むほどに柔らかくなる風合いが魅力。ナチュラルな雰囲気の作品に最適です。シワになりやすいですが、それもリネンらしい味になります。',
+      cautions: ['シワになりやすいためアイロンがけが必要なことも', '洗濯で縮みやすいため水通し必須', '端がほつれやすく、ロック処理か三つ折りで対応を'],
+    },
+    {
+      id: 'double_gauze', name: 'ダブルガーゼ', icon: '☁️', color: '#f0f5ff', iconBg: '#d0e0ff',
+      cat: '天然繊維',
+      tags: [
+        { label: '柔らか', color: '#fdf0f7', tx: '#8c3a6b' },
+        { label: '通気性◎', color: '#edf5f3', tx: '#3a6b5e' },
+        { label: '赤ちゃん向け', color: '#fff0ed', tx: '#c0622a' },
+      ],
+      stars: { ease: 2, wash: 3, breath: 5, stretch: 2 },
+      uses: 'スタイ・ハンカチ・マスク・ベビー用品',
+      season: '通年',
+      price: '低〜中',
+      filters: ['hand_wash', 'baby', 'summer'],
+      desc: '2枚のガーゼ生地を重ね合わせた素材。柔らかく肌触りが抜群で、赤ちゃん用品に大人気です。洗うほどにふんわり柔らかくなります。ズレやすく縫いにくいのが難点ですが、仕上がりの質感は格別です。',
+      cautions: ['ズレやすいため、まち針やクリップで丁寧に固定して', '端がほつれやすいので端処理は必須', '初心者には少し難しいため、慣れてからチャレンジを'],
+    },
+    {
+      id: 'ox', name: 'オックス', icon: '🌲', color: '#f3efe9', iconBg: '#e5ddd0',
+      cat: '天然繊維',
+      tags: [
+        { label: '縫いやすい', color: '#edf5f3', tx: '#3a6b5e' },
+        { label: '張りがある', color: '#f0f5ff', tx: '#3a5a9f' },
+        { label: 'バッグ向き', color: '#e8f0ff', tx: '#3a5a9f' },
+      ],
+      stars: { ease: 5, wash: 4, breath: 3, stretch: 1 },
+      uses: 'ポーチ・トートバッグ・小物',
+      season: '通年',
+      price: '低〜中',
+      filters: ['wash_machine', 'beginner', 'bag', 'pouch', 'easy'],
+      desc: 'コットンより少し厚めの平織り生地。適度な張りがあり、ポーチやバッグ作りに最適です。縫いやすさはコットンと同等で、初心者にもおすすめ。柄の種類も豊富です。',
+      cautions: ['厚めなので、ミシンの針は14号以上を推奨', '重ね縫い部分が厚くなりやすいので注意'],
+    },
+    {
+      id: 'canvas', name: 'キャンバス', icon: '🎒', color: '#faf0e0', iconBg: '#f0d8a8',
+      cat: '天然繊維',
+      tags: [
+        { label: '丈夫', color: '#edf5f3', tx: '#3a6b5e' },
+        { label: '厚手', color: '#f3efe9', tx: '#7a6e60' },
+        { label: 'バッグ向き', color: '#e8f0ff', tx: '#3a5a9f' },
+      ],
+      stars: { ease: 3, wash: 4, breath: 3, stretch: 1 },
+      uses: 'バッグ・底布・エコバッグ',
+      season: '通年',
+      price: '低〜中',
+      filters: ['wash_machine', 'bag'],
+      desc: '厚手でしっかりとした帆布素材。耐久性が高くバッグ作りに最適です。重ねが多いとミシンに負担がかかりますが、丈夫な作品に仕上がります。無地が多くシンプルな作品に向いています。',
+      cautions: ['厚みがあるためミシンの針は16号以上を推奨', '手縫いは難しいためミシン推奨', '重ね縫い部分は手動でゆっくり縫うと安心'],
+    },
+    {
+      id: 'knit', name: 'ニット生地', icon: '🧥', color: '#f0f0ff', iconBg: '#d8d8ff',
+      cat: '伸縮素材',
+      tags: [
+        { label: '伸縮◎', color: '#fdf0f7', tx: '#8c3a6b' },
+        { label: '手洗い推奨', color: '#fff8e0', tx: '#8c6b00' },
+        { label: '上級者向け', color: '#fde8e8', tx: '#c04a4a' },
+      ],
+      stars: { ease: 2, wash: 2, breath: 4, stretch: 5 },
+      uses: '帽子・小物カバー・子供服',
+      season: '秋冬',
+      price: '中',
+      filters: ['hand_wash', 'winter'],
+      desc: '伸縮性が高く、着心地の良い作品に仕上がります。Tシャツやニット帽など、体にフィットするアイテムに最適。ただし伸縮素材のため、普通のミシンでは縫い目が切れることがあります。',
+      cautions: ['ニット用のミシン針・伸縮縫い機能が必要', '切りっぱなしでもほつれにくいが端処理があると安心', '洗濯時に形崩れしやすいため手洗いかネット使用を'],
+    },
+    {
+      id: 'interfacing', name: '接着芯', icon: '📋', color: '#f5f5f5', iconBg: '#e0e0e0',
+      cat: '補助素材',
+      tags: [
+        { label: '補助素材', color: '#f3efe9', tx: '#7a6e60' },
+        { label: '形を整える', color: '#edf5f3', tx: '#3a6b5e' },
+      ],
+      stars: { ease: 4, wash: 2, breath: 1, stretch: 1 },
+      uses: 'バッグ・ポーチの芯材・見返し',
+      season: '通年',
+      price: '低',
+      filters: ['bag', 'pouch'],
+      desc: 'アイロンで生地に貼り付ける補助素材。バッグやポーチに張りを出したり、形を安定させるために使います。薄手・厚手・伸縮タイプなど種類が豊富で、用途に合わせて選びましょう。',
+      cautions: ['アイロンの温度が高すぎると剥がれやすくなることも', '洗濯を繰り返すと剥がれることがあるため高品質なものを選んで', '生地の端まで貼るとほつれ防止になります'],
+    },
+    {
+      id: 'sheeting', name: 'シーチング', icon: '🌾', color: '#fffde8', iconBg: '#f5e8c0',
+      cat: '天然繊維',
+      tags: [
+        { label: '薄手', color: '#f3efe9', tx: '#7a6e60' },
+        { label: '試し縫い向き', color: '#edf5f3', tx: '#3a6b5e' },
+        { label: '縫いやすい', color: '#fff0ed', tx: '#c0622a' },
+      ],
+      stars: { ease: 5, wash: 4, breath: 4, stretch: 1 },
+      uses: '試し縫い・マスク・ライナー',
+      season: '通年',
+      price: '低',
+      filters: ['wash_machine', 'beginner', 'easy'],
+      desc: '薄手で安価なコットン生地。試し縫いや型紙確認の練習用としてよく使われます。薄い分やや透け感がありますが、縫いやすく扱いやすいため初心者の練習にも最適です。',
+      cautions: ['薄いため多重縫いでは透け感が出ることも', '耐久性は高くないため本番作品には厚手のものを推奨'],
+    },
+  ],
+  yarn: [
+    {
+      id: 'wool', name: 'ウール', icon: '🐑', color: '#fff8f0', iconBg: '#ffe4c8',
+      cat: '動物繊維',
+      tags: [
+        { label: '温かい', color: '#fff8e0', tx: '#8c6b00' },
+        { label: '秋冬', color: '#f0f0ff', tx: '#4a4a8c' },
+        { label: '手洗い推奨', color: '#fde8e8', tx: '#c04a4a' },
+      ],
+      stars: { feel: 5, wash: 2, season: 1, price: 3 },
+      uses: 'マフラー・帽子・セーター・ミトン',
+      season: '秋冬',
+      price: '中〜高',
+      filters: ['hand_wash', 'winter', 'warm'],
+      desc: '羊の毛から作られた天然繊維。保温性が高く、秋冬アイテムの定番素材です。弾力性があり編みやすく、仕上がりも美しいです。ウォッシャブルウールなら洗濯機でも洗えるものもあります。',
+      cautions: ['水洗いするとフェルト化（縮む）することがあるため手洗い推奨', '虫食い被害に注意。防虫剤と一緒に保管を', '摩擦に弱いためゴシゴシ洗いは禁物'],
+    },
+    {
+      id: 'cotton_yarn', name: 'コットン糸', icon: '🌸', color: '#f0fff0', iconBg: '#c8f0c8',
+      cat: '植物繊維',
+      tags: [
+        { label: '洗濯機OK', color: '#e8f0ff', tx: '#3a5a9f' },
+        { label: '春夏', color: '#f0fff0', tx: '#3a6b3a' },
+        { label: '初心者向け', color: '#fff0ed', tx: '#c0622a' },
+      ],
+      stars: { feel: 3, wash: 5, season: 3, price: 5 },
+      uses: 'バッグ・コースター・夏小物・エコバッグ',
+      season: '春夏',
+      price: '低〜中',
+      filters: ['wash_machine', 'beginner', 'summer', 'bag'],
+      desc: '綿から作られた植物繊維の糸。汗を吸いやすく、夏小物やバッグに最適です。洗濯機で洗えるものが多く、実用的なアイテムに向いています。コシがあり編みやすいため、初心者にもおすすめです。',
+      cautions: ['縮みやすいものがあるため、洗濯表示を確認して', 'ウールよりも重くなりやすいため、大きいものは注意', '湿気を吸いやすいため保管時は乾燥剤と一緒に'],
+    },
+    {
+      id: 'acrylic', name: 'アクリル', icon: '⭐', color: '#f0f0ff', iconBg: '#d8d8ff',
+      cat: '化学繊維',
+      tags: [
+        { label: '洗濯機OK', color: '#e8f0ff', tx: '#3a5a9f' },
+        { label: '安価', color: '#edf5f3', tx: '#3a6b5e' },
+        { label: '初心者向け', color: '#fff0ed', tx: '#c0622a' },
+      ],
+      stars: { feel: 3, wash: 5, season: 5, price: 5 },
+      uses: 'あみぐるみ・練習用・マフラー',
+      season: '通年',
+      price: '低',
+      filters: ['wash_machine', 'beginner', 'amigurumi'],
+      desc: '化学繊維の糸で、手頃な価格と高い耐久性が特徴。カラーバリエーションが豊富で、あみぐるみや練習用に大活躍。機械洗濯OKのものが多く、日常使いのアイテムに向いています。',
+      cautions: ['静電気が起きやすいことがある', '天然繊維に比べると通気性は低め', '高温に弱いためアイロンは低温で使用して'],
+    },
+    {
+      id: 'alpaca', name: 'アルパカ', icon: '🦙', color: '#fdf0ff', iconBg: '#f0d0ff',
+      cat: '動物繊維',
+      tags: [
+        { label: '柔らかい', color: '#fdf0f7', tx: '#8c3a6b' },
+        { label: '高級感', color: '#fffde8', tx: '#8c7a00' },
+        { label: '秋冬', color: '#f0f0ff', tx: '#4a4a8c' },
+      ],
+      stars: { feel: 5, wash: 2, season: 1, price: 1 },
+      uses: 'マフラー・ショール・帽子',
+      season: '秋冬',
+      price: '高',
+      filters: ['hand_wash', 'winter', 'warm'],
+      desc: 'アルパカの毛から作られた高級繊維。ウールより軽くて暖かく、アレルギーを起こしにくいのも特徴。肌触りが抜群で、プレゼント用の作品にも喜ばれます。繊細なため丁寧に扱いましょう。',
+      cautions: ['デリケートな素材のため手洗いかドライクリーニングを', '毛玉ができやすいため摩擦に注意', '保管時は防虫対策を忘れずに'],
+    },
+    {
+      id: 'hemp_yarn', name: '麻糸（ジュート）', icon: '🌾', color: '#f5f0e8', iconBg: '#e8d8a8',
+      cat: '植物繊維',
+      tags: [
+        { label: '洗濯機OK', color: '#e8f0ff', tx: '#3a5a9f' },
+        { label: '春夏', color: '#f0fff0', tx: '#3a6b3a' },
+        { label: 'バッグ向き', color: '#e8f0ff', tx: '#3a5a9f' },
+      ],
+      stars: { feel: 2, wash: 4, season: 3, price: 5 },
+      uses: 'バッグ・エコバッグ・インテリア小物',
+      season: '春夏',
+      price: '低〜中',
+      filters: ['wash_machine', 'summer', 'bag'],
+      desc: '麻から作られた植物繊維の糸。ナチュラルでエコな雰囲気の作品に向いています。コシが強くバッグや小物入れに最適。編み目がきれいに出やすく、初心者でも整ったきれいな作品に仕上がりやすいです。',
+      cautions: ['硬めで手が疲れやすいため長時間の編み物には休憩を', '洗濯で若干縮む場合があるので洗濯表示を確認して', '天然素材のため色ムラがある場合も、それが味になります'],
+    },
+    {
+      id: 'mohair', name: 'モヘア', icon: '🐐', color: '#fff0f8', iconBg: '#f8d0e8',
+      cat: '動物繊維',
+      tags: [
+        { label: 'ふわふわ', color: '#fdf0f7', tx: '#8c3a6b' },
+        { label: '秋冬', color: '#f0f0ff', tx: '#4a4a8c' },
+        { label: '手洗い推奨', color: '#fde8e8', tx: '#c04a4a' },
+      ],
+      stars: { feel: 5, wash: 2, season: 1, price: 3 },
+      uses: 'マフラー・帽子・ニット小物',
+      season: '秋冬',
+      price: '中〜高',
+      filters: ['hand_wash', 'winter', 'warm'],
+      desc: 'アンゴラヤギの毛から作られた繊維。ふわふわとした独特の風合いが魅力で、ゴージャスな雰囲気の作品に仕上がります。他の糸と合わせて使うと豪華な質感に。ただし繊細で毛が落ちやすいです。',
+      cautions: ['毛が抜けやすいため作業時は黒い服を避けて', '洗濯で縮みやすいため手洗いかドライを推奨', 'ほどきにくいので編み間違いには注意'],
+    },
+    {
+      id: 'bamboo_yarn', name: 'バンブー糸', icon: '🎋', color: '#f0fff8', iconBg: '#c8f0d8',
+      cat: '植物繊維',
+      tags: [
+        { label: '肌に優しい', color: '#f0fff0', tx: '#3a6b3a' },
+        { label: '春夏', color: '#f0fff0', tx: '#3a6b3a' },
+        { label: '洗濯機OK', color: '#e8f0ff', tx: '#3a5a9f' },
+      ],
+      stars: { feel: 4, wash: 4, season: 3, price: 4 },
+      uses: 'ベビー用品・夏小物・スカーフ',
+      season: '春夏',
+      price: '中',
+      filters: ['wash_machine', 'summer', 'baby'],
+      desc: '竹から作られたエコな素材。シルクのような滑らかな手触りと天然の抗菌性が特徴です。吸湿性・放湿性に優れ、夏向けアイテムや敏感肌の方への作品にも安心して使えます。',
+      cautions: ['やや滑りやすく編み目がズレやすいことがある', '洗濯時は念のためネット使用を推奨', '強く引っ張ると糸が切れやすいため丁寧に扱って'],
+    },
+    {
+      id: 'linen_yarn', name: 'リネン糸', icon: '🌿', color: '#f5f8f0', iconBg: '#d8e8c0',
+      cat: '植物繊維',
+      tags: [
+        { label: '洗濯機OK', color: '#e8f0ff', tx: '#3a5a9f' },
+        { label: '春夏', color: '#f0fff0', tx: '#3a6b3a' },
+        { label: 'バッグ向き', color: '#e8f0ff', tx: '#3a5a9f' },
+      ],
+      stars: { feel: 3, wash: 4, season: 3, price: 4 },
+      uses: 'バッグ・コースター・夏小物',
+      season: '春夏',
+      price: '中',
+      filters: ['wash_machine', 'summer', 'bag'],
+      desc: '麻（亜麻）から作られた糸。清潔感のある光沢と通気性の良さが魅力です。使い込むほどに柔らかくなり、ナチュラルな風合いが楽しめます。バッグや夏の小物に最適です。',
+      cautions: ['固めの素材のため、長時間編むと手が疲れやすい', '洗濯で若干縮む場合があるため洗濯表示を確認して', '天然素材のため若干の色ムラがある場合も'],
+    },
+  ]
+};
+
+// ══════════════════════════════════════════════
+// フィルター定義
+// ══════════════════════════════════════════════
+var FILTERS = {
+  fabric: [
+    { id: 'easy', label: '縫いやすい' },
+    { id: 'beginner', label: '初心者向け' },
+    { id: 'wash_machine', label: '洗濯機OK' },
+    { id: 'hand_wash', label: '手洗い推奨' },
+    { id: 'bag', label: 'バッグ向き' },
+    { id: 'pouch', label: 'ポーチ向き' },
+    { id: 'summer', label: '夏向け' },
+    { id: 'winter', label: '秋冬向け' },
+    { id: 'baby', label: 'ベビー向け' },
+  ],
+  yarn: [
+    { id: 'beginner', label: '初心者向け' },
+    { id: 'wash_machine', label: '洗濯機OK' },
+    { id: 'hand_wash', label: '手洗い推奨' },
+    { id: 'summer', label: '春夏向け' },
+    { id: 'winter', label: '秋冬向け' },
+    { id: 'warm', label: '保温性高い' },
+    { id: 'bag', label: 'バッグ向き' },
+    { id: 'amigurumi', label: 'あみぐるみ向き' },
+    { id: 'baby', label: 'ベビー向け' },
+  ]
+};
+
+var currentType = 'fabric';
+var activeFilters = [];
+
+// ══════════════════════════════════════════════
+// レンダリング
+// ══════════════════════════════════════════════
+function setType(type) {
+  currentType = type;
+  activeFilters = [];
+  document.querySelectorAll('.ttab').forEach(function(b){ b.classList.remove('on'); });
+  document.querySelectorAll('.ttab')[type === 'fabric' ? 0 : 1].classList.add('on');
+  renderFilters();
+  renderCards();
+}
+
+function toggleFilter(id) {
+  var idx = activeFilters.indexOf(id);
+  if (idx >= 0) activeFilters.splice(idx, 1);
+  else activeFilters.push(id);
+  renderFilters();
+  renderCards();
+}
+
+function renderFilters() {
+  var filters = FILTERS[currentType];
+  document.getElementById('filterChips').innerHTML = filters.map(function(f) {
+    var on = activeFilters.includes(f.id);
+    return '<button class="fchip' + (on?' on':'') + '" onclick="toggleFilter(\'' + f.id + '\')">' + f.label + '</button>';
+  }).join('');
+}
+
+function renderCards() {
+  var list = MATERIALS[currentType].filter(function(m) {
+    if (!activeFilters.length) return true;
+    return activeFilters.every(function(f){ return m.filters.includes(f); });
+  });
+  var grid = document.getElementById('cardGrid');
+  if (!list.length) {
+    grid.innerHTML = '<div class="empty" style="grid-column:1/-1"><div class="empty-icon">🔍</div><p>該当する素材が見つかりませんでした。<br>フィルターを変えてみてください。</p></div>';
+    return;
+  }
+  var isFabric = currentType === 'fabric';
+  grid.innerHTML = list.map(function(m) {
+    var stars = isFabric
+      ? renderStars('縫いやすさ', m.stars.ease) + renderStars('洗濯', m.stars.wash) + renderStars('通気性', m.stars.breath) + renderStars('伸縮性', m.stars.stretch)
+      : renderStars('手触り', m.stars.feel) + renderStars('洗濯', m.stars.wash) + renderStars('価格', m.stars.price);
+    var tags = m.tags.map(function(t){ return '<span class="mat-tag" style="background:' + t.color + ';color:' + t.tx + '">' + t.label + '</span>'; }).join('');
+    return '<div class="mat-card" onclick="showDetail(\'' + currentType + '\',\'' + m.id + '\')">'
+      + '<div class="mat-card-head">'
+      + '<div class="mat-icon" style="background:' + m.iconBg + '">' + m.icon + '</div>'
+      + '<div><div class="mat-name">' + m.name + '</div><div class="mat-cat">' + m.cat + ' · ' + m.season + ' · ' + m.price + '</div></div>'
+      + '</div>'
+      + '<div class="mat-card-body">'
+      + '<div class="mat-tags">' + tags + '</div>'
+      + stars
+      + '<div class="mat-uses-label">向いている作品</div>'
+      + '<div class="mat-uses">' + m.uses + '</div>'
+      + '</div></div>';
+  }).join('');
+}
+
+function renderStars(label, val) {
+  var stars = '';
+  for (var i = 1; i <= 5; i++) {
+    stars += '<span class="star ' + (i <= val ? 'on' : 'off') + '">★</span>';
+  }
+  return '<div class="stars-row"><span class="stars-label">' + label + '</span><div class="stars">' + stars + '</div></div>';
+}
+
+// ══════════════════════════════════════════════
+// 詳細モーダル
+// ══════════════════════════════════════════════
+function showDetail(type, id) {
+  var m = MATERIALS[type].find(function(x){ return x.id === id; });
+  if (!m) return;
+  var isFabric = type === 'fabric';
+  document.getElementById('modIcon').style.background = m.iconBg;
+  document.getElementById('modIcon').textContent = m.icon;
+  document.getElementById('modTitle').textContent = m.name;
+  document.getElementById('modSub').textContent = m.cat + '  ·  ' + m.season + '  ·  ' + m.price;
+
+  var stars = isFabric
+    ? renderStars('縫いやすさ', m.stars.ease) + renderStars('洗濯強度', m.stars.wash) + renderStars('通気性', m.stars.breath) + renderStars('伸縮性', m.stars.stretch)
+    : renderStars('手触り', m.stars.feel) + renderStars('洗濯強度', m.stars.wash) + renderStars('価格帯', m.stars.price);
+
+  var tags = m.tags.map(function(t){ return '<span class="mat-tag" style="background:' + t.color + ';color:' + t.tx + ';font-size:12px;padding:4px 12px">' + t.label + '</span>'; }).join('');
+
+  var cautions = m.cautions.map(function(c){ return '<li>' + c + '</li>'; }).join('');
+
+  document.getElementById('modBody').innerHTML =
+    '<div class="modal-section"><div class="mat-tags" style="margin-bottom:12px">' + tags + '</div>' + stars + '</div>'
+    + '<div class="modal-section"><div class="modal-section-title">📝 特徴・説明</div><p class="detail-text">' + m.desc + '</p></div>'
+    + '<div class="modal-section"><div class="modal-section-title">📌 向いている作品</div><p class="detail-text">👉 ' + m.uses + '</p></div>'
+    + '<div class="modal-section"><div class="modal-section-title">⚠️ 扱う際の注意点</div><div class="caution-box"><ul>' + cautions + '</ul></div></div>';
+
+  document.getElementById('detailOv').classList.add('open');
+}
+
+function closeMod() {
+  document.getElementById('detailOv').classList.remove('open');
+}
+
+// 初期化
+renderFilters();
+renderCards();
+</script>
+</body>
+</html>
