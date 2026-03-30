@@ -477,7 +477,7 @@ function switchTab(id) {
 
 // 問い合わせ送信（Supabaseに保存）
 var SB_URL = 'https://cexwvkezbgadqhffzzbp.supabase.co';
-var SB_KEY = 'ANON_KEY_HERE'; // ← Anon Keyを入れてください
+var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNleHd2a2V6YmdhZHFoZmZ6emJwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ1OTM0MTMsImV4cCI6MjA5MDE2OTQxM30.4Q8XAveV22dQTJJcSGZJBfobsDOuEblxusiR1UjQCKE'; // ← Anon Keyを入れてください
 
 async function sendLandingContact() {
   var name  = document.getElementById('cName').value.trim();
