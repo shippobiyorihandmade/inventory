@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>編針サイズ変換ツール｜棒針・かぎ針・レース針の号数・mm・USサイズ早見表</title>
+<meta name="description" content="棒針・かぎ針・レース針の号数・mm・USサイズを瞬時に変換。ハンドメイド作家さんのための無料編針サイズ変換ツール。全サイズ一覧表つき。">
+<link rel="icon" href="favicon.png">
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@300;400;500;700&family=DM+Mono:wght@400;500&family=Shippori+Mincho:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#faf8f5;--sf:#fff;--sf2:#f3efe9;--bd:#e5ddd0;
+  --tx:#2c2416;--tx2:#7a6e60;--tx3:#a89880;
+  --ac:#c0622a;--ac2:#e8a87c;--ac3:#4a7c6f;
+  --r:14px;--rL:24px;
+  --sh:0 2px 12px rgba(44,36,22,.08);
+  --shl:0 8px 32px rgba(44,36,22,.15);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'Zen Kaku Gothic New',sans-serif;background:var(--bg);color:var(--tx);line-height:1.7;overflow-x:hidden;font-size:15px;}
+
+/* ── ナビ ── */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(250,248,245,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--bd);padding:0 20px;height:54px;display:flex;align-items:center;justify-content:space-between;}
+.nav-logo{font-size:14px;font-weight:700;display:flex;align-items:center;gap:6px;color:var(--tx);text-decoration:none;}
+.nav-logo span{color:var(--ac);}
+.nav-link{background:var(--sf2);color:var(--tx);padding:7px 16px;border-radius:30px;font-size:12px;font-weight:700;text-decoration:none;border:1.5px solid var(--bd);transition:all .2s;}
+.nav-link:hover{background:var(--bd);}
+
+/* ── ヒーロー ── */
+.hero{padding:90px 20px 40px;text-align:center;max-width:700px;margin:0 auto;}
+.hero-badge{display:inline-flex;align-items:center;gap:5px;background:var(--sf2);border:1px solid var(--bd);border-radius:30px;padding:4px 14px;font-size:11px;font-weight:700;color:var(--ac);margin-bottom:16px;letter-spacing:.06em;}
+.hero h1{font-family:'Shippori Mincho',serif;font-size:clamp(22px,5vw,38px);font-weight:600;line-height:1.4;margin-bottom:12px;}
+.hero h1 em{font-style:normal;color:var(--ac);}
+.hero p{font-size:14px;color:var(--tx2);margin-bottom:8px;}
+.hero-note{font-size:11px;color:var(--tx3);margin-bottom:28px;}
+
+/* ── メインカード ── */
+.main{max-width:720px;margin:0 auto;padding:0 16px 60px;}
+
+/* 針タブ */
+.needle-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px;justify-content:center;}
+.ntab{padding:10px 20px;border-radius:30px;border:2px solid var(--bd);background:var(--sf);font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;color:var(--tx2);transition:all .2s;display:flex;align-items:center;gap:6px;}
+.ntab.on{background:var(--ac);color:#fff;border-color:var(--ac);}
+.ntab:hover:not(.on){background:var(--sf2);border-color:var(--ac2);}
+
+/* モードタブ */
+.mode-tabs{display:flex;background:var(--sf2);border-radius:30px;padding:4px;margin-bottom:20px;gap:4px;}
+.mtab{flex:1;padding:9px;border-radius:26px;border:none;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;color:var(--tx2);background:none;transition:all .2s;}
+.mtab.on{background:var(--sf);color:var(--ac);box-shadow:var(--sh);}
+
+/* カード */
+.card{background:var(--sf);border:1px solid var(--bd);border-radius:var(--rL);box-shadow:var(--sh);margin-bottom:16px;overflow:hidden;}
+.card-head{padding:14px 20px;background:var(--sf2);border-bottom:1px solid var(--bd);font-size:13px;font-weight:700;display:flex;align-items:center;gap:8px;}
+.card-body{padding:20px;}
+
+/* 変換フォーム */
+.conv-form{display:grid;grid-template-columns:1fr auto 1fr;gap:16px;align-items:center;}
+@media(max-width:480px){.conv-form{grid-template-columns:1fr;}}
+.conv-arrow{font-size:22px;color:var(--ac2);text-align:center;}
+.form-group label{display:block;font-size:11px;font-weight:700;color:var(--tx2);letter-spacing:.06em;margin-bottom:6px;}
+select,input[type=number],input[type=text]{width:100%;padding:12px 14px;border:2px solid var(--bd);border-radius:12px;font-family:inherit;font-size:15px;background:var(--sf);color:var(--tx);transition:border-color .2s;-webkit-appearance:none;appearance:none;}
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237a6e60' fill='none' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:36px;}
+select:focus,input:focus{outline:none;border-color:var(--ac);box-shadow:0 0 0 3px rgba(192,98,42,.1);}
+
+/* 結果ボックス */
+.result-box{background:linear-gradient(135deg,#fff8f5,#fff3ed);border:2px solid var(--ac2);border-radius:14px;padding:18px;text-align:center;}
+.result-main{font-family:'DM Mono',monospace;font-size:28px;font-weight:500;color:var(--ac);margin-bottom:4px;}
+.result-sub{font-size:12px;color:var(--tx2);}
+.result-empty{color:var(--tx3);font-size:14px;}
+
+/* ブックマーク */
+.bookmark-btn{display:inline-flex;align-items:center;gap:5px;padding:8px 16px;border-radius:30px;border:1.5px solid var(--bd);background:var(--sf);font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;color:var(--tx2);transition:all .2s;margin-top:12px;}
+.bookmark-btn:hover{border-color:var(--ac2);color:var(--ac);}
+.bookmark-btn.saved{background:#fff3ed;border-color:var(--ac2);color:var(--ac);}
+.bookmarks-list{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;}
+.bm-chip{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:20px;background:var(--sf2);border:1px solid var(--bd);font-size:12px;cursor:pointer;transition:all .15s;}
+.bm-chip:hover{background:#fff3ed;border-color:var(--ac2);}
+.bm-del{color:var(--tx3);font-size:11px;}
+
+/* 一覧表 */
+.table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:12px;border:1px solid var(--bd);}
+table{width:100%;border-collapse:collapse;min-width:320px;font-size:13px;}
+th{background:var(--sf2);padding:10px 14px;text-align:center;font-size:11px;font-weight:700;color:var(--tx2);letter-spacing:.06em;border-bottom:2px solid var(--bd);white-space:nowrap;}
+td{padding:10px 14px;text-align:center;border-bottom:1px solid var(--bd);font-family:'DM Mono',monospace;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:#faf7f3;}
+td.highlight{background:#fff3ed;color:var(--ac);font-weight:700;}
+.size-label{font-family:'Zen Kaku Gothic New',sans-serif;font-weight:700;color:var(--tx);}
+
+/* 広告スペース */
+.ad-space{background:var(--sf2);border:1px dashed var(--bd);border-radius:var(--r);padding:20px;text-align:center;color:var(--tx3);font-size:12px;margin-bottom:20px;min-height:90px;display:flex;align-items:center;justify-content:center;}
+
+/* フッター */
+footer{background:var(--tx);color:#faf8f5;padding:32px 20px;text-align:center;}
+.footer-logo{font-size:15px;font-weight:700;margin-bottom:8px;}
+.footer-logo span{color:var(--ac2);}
+footer p{font-size:12px;opacity:.5;margin-top:12px;}
+.footer-links{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-top:12px;}
+.footer-links a{color:#faf8f5;opacity:.7;font-size:12px;text-decoration:none;transition:opacity .2s;}
+.footer-links a:hover{opacity:1;}
+
+/* ── アプリ誘導バナー ── */
+.app-banner{background:linear-gradient(135deg,#2c2416,#3d3020);border-radius:var(--rL);padding:24px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:20px;}
+.app-banner-text h3{color:#e8a87c;font-size:15px;font-weight:700;margin-bottom:4px;}
+.app-banner-text p{color:rgba(250,248,245,.7);font-size:12px;}
+.app-banner-btn{background:var(--ac);color:#fff;padding:10px 22px;border-radius:30px;font-size:13px;font-weight:700;text-decoration:none;white-space:nowrap;transition:all .2s;}
+.app-banner-btn:hover{background:#a8531f;}
+
+/* 注記 */
+.note{font-size:11px;color:var(--tx3);margin-top:10px;line-height:1.7;}
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="lp.html">🧵 <span>ハンドメイド</span>在庫管理</a>
+  <a class="nav-link" href="inventory_supabase.html">アプリを使う →</a>
+</nav>
+
+<div class="hero">
+  <div class="hero-badge">🧶 編み物作家さん向け 無料ツール</div>
+  <h1>編針サイズ<em>変換</em>ツール</h1>
+  <p>棒針・かぎ針・レース針の<strong>号数・mm・USサイズ</strong>を瞬時に変換</p>
+  <p class="hero-note">※ 各メーカーにより実寸が若干異なる場合があります。目安としてご利用ください。</p>
+</div>
+
+<div class="main">
+
+  <!-- 広告スペース -->
+  <div class="ad-space">広告スペース</div>
+
+  <!-- 針タブ -->
+  <div class="needle-tabs">
+    <button class="ntab on" onclick="setNeedle('knitting')">🪡 棒針</button>
+    <button class="ntab" onclick="setNeedle('crochet')">🧶 かぎ針</button>
+    <button class="ntab" onclick="setNeedle('lace')">🪢 レース針</button>
+    <button class="ntab" onclick="setNeedle('jumbo')">🪡 ジャンボ棒針</button>
+  </div>
+
+  <!-- モードタブ -->
+  <div class="mode-tabs">
+    <button class="mtab on" onclick="setMode('select')">号数・サイズから変換</button>
+    <button class="mtab" onclick="setMode('mm')">mmから変換</button>
+    <button class="mtab" onclick="setMode('table')">全サイズ一覧表</button>
+  </div>
+
+  <!-- 変換フォーム（号数選択モード） -->
+  <div id="mode-select" class="card">
+    <div class="card-head">🔄 号数・サイズを選んで変換</div>
+    <div class="card-body">
+      <div class="conv-form">
+        <div class="form-group">
+          <label id="sel-label">号数を選択</label>
+          <select id="sizeSelect" onchange="convertFromSelect()"></select>
+        </div>
+        <div class="conv-arrow">→</div>
+        <div>
+          <div class="result-box" id="result-select">
+            <div class="result-empty">← 号数を選んでください</div>
+          </div>
+        </div>
+      </div>
+      <div style="text-align:center">
+        <button class="bookmark-btn" id="bm-btn" onclick="toggleBookmark()">☆ よく使うサイズに追加</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- mmから変換モード -->
+  <div id="mode-mm" class="card" style="display:none">
+    <div class="card-head">📏 mmを入力して変換</div>
+    <div class="card-body">
+      <div class="conv-form">
+        <div class="form-group">
+          <label>mm数を入力</label>
+          <input type="number" id="mmInput" min="0" max="20" step="0.1" placeholder="例：3.9" oninput="convertFromMm()">
+        </div>
+        <div class="conv-arrow">→</div>
+        <div>
+          <div class="result-box" id="result-mm">
+            <div class="result-empty">← mmを入力してください</div>
+          </div>
+        </div>
+      </div>
+      <p class="note">※ 入力値に最も近い号数を表示します。完全一致しない場合は「最近傍値」を表示します。</p>
+    </div>
+  </div>
+
+  <!-- 一覧表モード -->
+  <div id="mode-table" style="display:none">
+    <div class="card">
+      <div class="card-head">📋 全サイズ一覧表</div>
+      <div class="card-body" style="padding:12px">
+        <div class="table-wrap">
+          <table id="sizeTable"></table>
+        </div>
+        <p class="note" style="margin-top:10px">※ 各メーカーにより実寸が異なる場合があります。目安としてご参照ください。</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- よく使うサイズ -->
+  <div id="bookmarks-card" class="card" style="display:none">
+    <div class="card-head">⭐ よく使うサイズ</div>
+    <div class="card-body">
+      <div class="bookmarks-list" id="bookmarks-list"></div>
+    </div>
+  </div>
+
+  <!-- アプリ誘導バナー -->
+  <div class="app-banner">
+    <div class="app-banner-text">
+      <h3>📦 在庫管理もまとめてかんたんに</h3>
+      <p>材料・完成品・販売記録を一元管理。ハンドメイド作家さんのための無料アプリ。</p>
+    </div>
+    <a class="app-banner-btn" href="inventory_supabase.html">在庫管理アプリを使う →</a>
+  </div>
+
+</div>
+
+<footer>
+  <div class="footer-logo">🧵 <span>ハンドメイド</span>在庫管理</div>
+  <div class="footer-links">
+    <a href="lp.html">アプリ紹介ページ</a>
+    <a href="inventory_supabase.html">在庫管理アプリ</a>
+    <a href="simulator.html">価格シミュレーター</a>
+  </div>
+  <p>© 2026 しっぽ日和. All rights reserved.</p>
+</footer>
+
+<script>
+// ══════════════════════════════════════════════
+// 針データ定義
+// ══════════════════════════════════════════════
+var DATA = {
+  knitting: {
+    name: '棒針',
+    icon: '🪡',
+    cols: ['号数', 'mm', 'USサイズ'],
+    rows: [
+      { jp: '0号', mm: 2.1, us: 'US 1' },
+      { jp: '1号', mm: 2.4, us: 'US 1.5' },
+      { jp: '2号', mm: 2.7, us: 'US 2' },
+      { jp: '3号', mm: 3.0, us: 'US 2.5' },
+      { jp: '4号', mm: 3.3, us: 'US 3' },
+      { jp: '5号', mm: 3.6, us: 'US 4' },
+      { jp: '6号', mm: 3.9, us: 'US 5' },
+      { jp: '7号', mm: 4.2, us: 'US 6' },
+      { jp: '8号', mm: 4.5, us: 'US 7' },
+      { jp: '9号', mm: 4.8, us: 'US 8' },
+      { jp: '10号', mm: 5.1, us: 'US 8' },
+      { jp: '11号', mm: 5.4, us: 'US 9' },
+      { jp: '12号', mm: 5.7, us: 'US 9' },
+      { jp: '13号', mm: 6.0, us: 'US 10' },
+      { jp: '15号', mm: 6.6, us: 'US 10.5' },
+    ]
+  },
+  crochet: {
+    name: 'かぎ針',
+    icon: '🧶',
+    cols: ['号数', 'mm', 'USサイズ'],
+    rows: [
+      { jp: '2/0号', mm: 2.0, us: 'US B/1' },
+      { jp: '3/0号', mm: 2.3, us: 'US C/2' },
+      { jp: '4/0号', mm: 2.5, us: 'US D/3' },
+      { jp: '5/0号', mm: 3.0, us: 'US E/4' },
+      { jp: '6/0号', mm: 3.5, us: 'US E/4' },
+      { jp: '7/0号', mm: 4.0, us: 'US G/6' },
+      { jp: '7.5/0号', mm: 4.5, us: 'US 7' },
+      { jp: '8/0号', mm: 5.0, us: 'US H/8' },
+      { jp: '9/0号', mm: 5.5, us: 'US I/9' },
+      { jp: '10/0号', mm: 6.0, us: 'US J/10' },
+    ]
+  },
+  lace: {
+    name: 'レース針',
+    icon: '🪢',
+    cols: ['号数', 'mm', 'USサイズ'],
+    rows: [
+      { jp: '0号', mm: 1.75, us: 'US 00' },
+      { jp: '2号', mm: 1.5, us: 'US 0' },
+      { jp: '4号', mm: 1.25, us: 'US 1' },
+      { jp: '6号', mm: 1.0, us: 'US 4' },
+      { jp: '8号', mm: 0.9, us: 'US 6' },
+      { jp: '10号', mm: 0.75, us: 'US 8' },
+      { jp: '12号', mm: 0.65, us: 'US 10' },
+      { jp: '14号', mm: 0.5, us: 'US 14' },
+    ]
+  },
+  jumbo: {
+    name: 'ジャンボ棒針',
+    icon: '🪡',
+    cols: ['mm表記', 'USサイズ', '目安'],
+    rows: [
+      { jp: '8mm', mm: 8.0, us: 'US 11' },
+      { jp: '9mm', mm: 9.0, us: 'US 13' },
+      { jp: '10mm', mm: 10.0, us: 'US 15' },
+      { jp: '12mm', mm: 12.0, us: 'US 17' },
+      { jp: '15mm', mm: 15.0, us: 'US 19' },
+    ]
+  }
+};
+
+var currentNeedle = 'knitting';
+var currentMode = 'select';
+var currentResult = null;
+var bookmarks = JSON.parse(localStorage.getItem('needle_bm') || '[]');
+
+// ══════════════════════════════════════════════
+// 初期化
+// ══════════════════════════════════════════════
+function init() {
+  renderBookmarks();
+  setNeedle('knitting');
+}
+
+// ══════════════════════════════════════════════
+// 針タブ切り替え
+// ══════════════════════════════════════════════
+function setNeedle(type) {
+  currentNeedle = type;
+  currentResult = null;
+  // タブUI更新
+  document.querySelectorAll('.ntab').forEach(function(b) { b.classList.remove('on'); });
+  var needleNames = ['knitting','crochet','lace','jumbo'];
+  document.querySelectorAll('.ntab')[needleNames.indexOf(type)].classList.add('on');
+  // セレクト更新
+  updateSelect();
+  // 一覧表更新
+  renderTable();
+  // 結果リセット
+  document.getElementById('result-select').innerHTML = '<div class="result-empty">← 号数を選んでください</div>';
+  document.getElementById('result-mm').innerHTML = '<div class="result-empty">← mmを入力してください</div>';
+  document.getElementById('mmInput').value = '';
+  updateBookmarkBtn();
+}
+
+// ══════════════════════════════════════════════
+// モード切り替え
+// ══════════════════════════════════════════════
+function setMode(mode) {
+  currentMode = mode;
+  document.querySelectorAll('.mtab').forEach(function(b) { b.classList.remove('on'); });
+  var modes = ['select','mm','table'];
+  document.querySelectorAll('.mtab')[modes.indexOf(mode)].classList.add('on');
+  document.getElementById('mode-select').style.display = mode === 'select' ? 'block' : 'none';
+  document.getElementById('mode-mm').style.display = mode === 'mm' ? 'block' : 'none';
+  document.getElementById('mode-table').style.display = mode === 'table' ? 'block' : 'none';
+}
+
+// ══════════════════════════════════════════════
+// セレクト更新
+// ══════════════════════════════════════════════
+function updateSelect() {
+  var data = DATA[currentNeedle];
+  var sel = document.getElementById('sizeSelect');
+  var label = document.getElementById('sel-label');
+  label.textContent = currentNeedle === 'jumbo' ? 'mmを選択' : '号数を選択';
+  sel.innerHTML = '<option value="">-- 選択してください --</option>' +
+    data.rows.map(function(r, i) {
+      return '<option value="' + i + '">' + r.jp + '（' + r.mm + 'mm）</option>';
+    }).join('');
+}
+
+// ══════════════════════════════════════════════
+// 号数から変換
+// ══════════════════════════════════════════════
+function convertFromSelect() {
+  var sel = document.getElementById('sizeSelect');
+  var idx = sel.value;
+  var box = document.getElementById('result-select');
+  if (idx === '') {
+    box.innerHTML = '<div class="result-empty">← 号数を選んでください</div>';
+    currentResult = null;
+    updateBookmarkBtn();
+    return;
+  }
+  var row = DATA[currentNeedle].rows[parseInt(idx)];
+  currentResult = row;
+  renderResult(box, row);
+  updateBookmarkBtn();
+}
+
+// ══════════════════════════════════════════════
+// mmから変換
+// ══════════════════════════════════════════════
+function convertFromMm() {
+  var val = parseFloat(document.getElementById('mmInput').value);
+  var box = document.getElementById('result-mm');
+  if (isNaN(val) || val <= 0) {
+    box.innerHTML = '<div class="result-empty">← mmを入力してください</div>';
+    return;
+  }
+  var rows = DATA[currentNeedle].rows;
+  // 最近傍値を探す
+  var best = rows.reduce(function(prev, curr) {
+    return Math.abs(curr.mm - val) < Math.abs(prev.mm - val) ? curr : prev;
+  });
+  var exact = Math.abs(best.mm - val) < 0.05;
+  var diff = Math.round(Math.abs(best.mm - val) * 100) / 100;
+  renderResult(box, best, exact ? null : '最近傍値（差分 ' + diff + 'mm）');
+}
+
+function renderResult(box, row, note) {
+  var data = DATA[currentNeedle];
+  box.innerHTML =
+    '<div class="result-main">' + row.jp + '</div>' +
+    '<div class="result-sub">' +
+      '<span style="margin-right:12px">📏 ' + row.mm + 'mm</span>' +
+      '<span>🇺🇸 ' + row.us + '</span>' +
+    '</div>' +
+    (note ? '<div style="font-size:11px;color:var(--tx3);margin-top:6px">' + note + '</div>' : '');
+}
+
+// ══════════════════════════════════════════════
+// 一覧表
+// ══════════════════════════════════════════════
+function renderTable() {
+  var data = DATA[currentNeedle];
+  var thead = '<thead><tr>' +
+    '<th>号数</th><th>mm</th><th>USサイズ</th>' +
+    '</tr></thead>';
+  var tbody = '<tbody>' + data.rows.map(function(r) {
+    return '<tr><td class="size-label">' + r.jp + '</td><td>' + r.mm + '</td><td>' + r.us + '</td></tr>';
+  }).join('') + '</tbody>';
+  document.getElementById('sizeTable').innerHTML = thead + tbody;
+}
+
+// ══════════════════════════════════════════════
+// ブックマーク
+// ══════════════════════════════════════════════
+function toggleBookmark() {
+  if (!currentResult) return;
+  var key = currentNeedle + '_' + currentResult.jp;
+  var idx = bookmarks.findIndex(function(b) { return b.key === key; });
+  if (idx >= 0) {
+    bookmarks.splice(idx, 1);
+  } else {
+    bookmarks.push({
+      key: key,
+      needle: DATA[currentNeedle].name,
+      jp: currentResult.jp,
+      mm: currentResult.mm,
+      us: currentResult.us
+    });
+  }
+  localStorage.setItem('needle_bm', JSON.stringify(bookmarks));
+  updateBookmarkBtn();
+  renderBookmarks();
+}
+
+function updateBookmarkBtn() {
+  var btn = document.getElementById('bm-btn');
+  if (!currentResult) { btn.className = 'bookmark-btn'; btn.textContent = '☆ よく使うサイズに追加'; return; }
+  var key = currentNeedle + '_' + currentResult.jp;
+  var saved = bookmarks.some(function(b) { return b.key === key; });
+  btn.className = 'bookmark-btn' + (saved ? ' saved' : '');
+  btn.textContent = saved ? '★ 登録済み（タップで解除）' : '☆ よく使うサイズに追加';
+}
+
+function renderBookmarks() {
+  var card = document.getElementById('bookmarks-card');
+  var list = document.getElementById('bookmarks-list');
+  if (!bookmarks.length) { card.style.display = 'none'; return; }
+  card.style.display = 'block';
+  list.innerHTML = bookmarks.map(function(b) {
+    return '<span class="bm-chip" onclick="applyBookmark(\'' + b.key + '\')">' +
+      '<span>' + b.needle + ' ' + b.jp + '</span>' +
+      '<span style="color:var(--tx3)">|</span>' +
+      '<span style="color:var(--tx2)">' + b.mm + 'mm</span>' +
+      '<span style="color:var(--tx2)">' + b.us + '</span>' +
+      '<span class="bm-del" onclick="event.stopPropagation();removeBookmark(\'' + b.key + '\')">✕</span>' +
+      '</span>';
+  }).join('');
+}
+
+function applyBookmark(key) {
+  var bm = bookmarks.find(function(b) { return b.key === key; });
+  if (!bm) return;
+  var needle = key.split('_')[0];
+  setNeedle(needle);
+  setMode('select');
+  // セレクトで該当を選ぶ
+  var rows = DATA[needle].rows;
+  var idx = rows.findIndex(function(r) { return r.jp === bm.jp; });
+  if (idx >= 0) {
+    document.getElementById('sizeSelect').value = idx;
+    convertFromSelect();
+  }
+}
+
+function removeBookmark(key) {
+  bookmarks = bookmarks.filter(function(b) { return b.key !== key; });
+  localStorage.setItem('needle_bm', JSON.stringify(bookmarks));
+  updateBookmarkBtn();
+  renderBookmarks();
+}
+
+init();
+</script>
+</body>
+</html>
