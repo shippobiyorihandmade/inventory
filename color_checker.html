@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>色の組み合わせチェッカー｜布・糸・アクセサリーの配色を自動提案</title>
+<meta name="description" content="布もの・編み物・アクセサリー作家さんのための配色チェッカー。カラーピッカーで選んだ色の補色・類似色・トライアドなど5種類の配色パターンを自動提案します。">
+<link rel="icon" href="favicon.png">
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@300;400;500;700&family=DM+Mono:wght@400;500&family=Shippori+Mincho:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#faf8f5;--sf:#fff;--sf2:#f3efe9;--bd:#e5ddd0;
+  --tx:#2c2416;--tx2:#7a6e60;--tx3:#a89880;
+  --ac:#c0622a;--ac2:#e8a87c;--ac3:#4a7c6f;
+  --r:14px;--rL:24px;
+  --sh:0 2px 12px rgba(44,36,22,.08);
+  --shl:0 8px 32px rgba(44,36,22,.15);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'Zen Kaku Gothic New',sans-serif;background:var(--bg);color:var(--tx);line-height:1.7;overflow-x:hidden;font-size:15px;}
+
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(250,248,245,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--bd);padding:0 20px;height:54px;display:flex;align-items:center;justify-content:space-between;}
+.nav-logo{font-size:14px;font-weight:700;display:flex;align-items:center;gap:6px;color:var(--tx);text-decoration:none;}
+.nav-logo span{color:var(--ac);}
+.nav-link{background:var(--sf2);color:var(--tx);padding:7px 16px;border-radius:30px;font-size:12px;font-weight:700;text-decoration:none;border:1.5px solid var(--bd);transition:all .2s;}
+.nav-link:hover{background:var(--bd);}
+
+.hero{padding:90px 20px 32px;text-align:center;max-width:700px;margin:0 auto;}
+.hero-badge{display:inline-flex;align-items:center;gap:5px;background:var(--sf2);border:1px solid var(--bd);border-radius:30px;padding:4px 14px;font-size:11px;font-weight:700;color:var(--ac);margin-bottom:16px;letter-spacing:.06em;}
+.hero h1{font-family:'Shippori Mincho',serif;font-size:clamp(22px,5vw,38px);font-weight:600;line-height:1.4;margin-bottom:12px;}
+.hero h1 em{font-style:normal;color:var(--ac);}
+.hero p{font-size:14px;color:var(--tx2);margin-bottom:24px;}
+
+.main{max-width:720px;margin:0 auto;padding:0 16px 60px;}
+
+/* モード切り替え */
+.mode-tabs{display:flex;background:var(--sf2);border-radius:30px;padding:4px;margin-bottom:20px;gap:4px;}
+.mtab{flex:1;padding:10px;border-radius:26px;border:none;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;color:var(--tx2);background:none;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:5px;}
+.mtab.on{background:var(--sf);color:var(--ac);box-shadow:var(--sh);}
+
+/* カード */
+.card{background:var(--sf);border:1px solid var(--bd);border-radius:var(--rL);box-shadow:var(--sh);margin-bottom:16px;overflow:hidden;}
+.card-head{padding:14px 20px;background:var(--sf2);border-bottom:1px solid var(--bd);font-size:13px;font-weight:700;display:flex;align-items:center;gap:8px;}
+.card-body{padding:20px;}
+
+/* カラーピッカー */
+.picker-wrap{display:flex;align-items:center;gap:16px;flex-wrap:wrap;}
+.color-preview{width:80px;height:80px;border-radius:16px;border:3px solid var(--bd);cursor:pointer;flex-shrink:0;transition:transform .2s;overflow:hidden;position:relative;}
+.color-preview:hover{transform:scale(1.05);}
+.color-preview input[type=color]{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;}
+.picker-info{flex:1;min-width:160px;}
+.picker-hex{font-family:'DM Mono',monospace;font-size:22px;font-weight:500;color:var(--tx);margin-bottom:4px;}
+.picker-rgb{font-size:12px;color:var(--tx2);font-family:'DM Mono',monospace;}
+.btn{display:inline-flex;align-items:center;gap:5px;padding:10px 20px;border-radius:30px;border:none;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;white-space:nowrap;}
+.btn-primary{background:linear-gradient(135deg,var(--ac),#d4733a);color:#fff;box-shadow:0 4px 16px rgba(192,98,42,.3);}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(192,98,42,.4);}
+.btn-secondary{background:var(--sf2);color:var(--tx);border:1.5px solid var(--bd);}
+.btn-secondary:hover{background:var(--bd);}
+
+/* プリセット */
+.preset-section{margin-top:16px;}
+.preset-label{font-size:11px;font-weight:700;color:var(--tx2);letter-spacing:.06em;margin-bottom:8px;}
+.preset-grid{display:flex;gap:6px;flex-wrap:wrap;}
+.preset-chip{width:30px;height:30px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:all .2s;flex-shrink:0;}
+.preset-chip:hover{transform:scale(1.2);}
+.preset-chip.selected{border-color:var(--tx);transform:scale(1.2);}
+
+/* 配色結果 */
+.scheme-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-top:4px;}
+.scheme-card{background:var(--sf);border:1px solid var(--bd);border-radius:var(--r);overflow:hidden;transition:box-shadow .2s;}
+.scheme-card:hover{box-shadow:var(--shl);}
+.scheme-type{padding:10px 14px;font-size:12px;font-weight:700;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:6px;}
+.scheme-swatches{padding:12px 14px;display:flex;gap:8px;align-items:flex-end;}
+.swatch{flex:1;border-radius:8px;min-height:48px;position:relative;transition:transform .15s;cursor:pointer;}
+.swatch:hover{transform:scale(1.05);}
+.swatch-info{padding:8px 14px 12px;}
+.swatch-hex{font-family:'DM Mono',monospace;font-size:11px;color:var(--tx2);}
+.swatch-row{display:flex;align-items:center;gap:6px;margin-bottom:4px;}
+.copy-btn{background:none;border:none;cursor:pointer;font-size:11px;color:var(--tx3);padding:0;transition:color .15s;}
+.copy-btn:hover{color:var(--ac);}
+.save-btn{display:inline-flex;align-items:center;gap:4px;padding:6px 14px;border-radius:20px;border:1.5px solid var(--bd);background:var(--sf2);font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;color:var(--tx2);margin-top:8px;transition:all .2s;}
+.save-btn:hover{border-color:var(--ac2);color:var(--ac);}
+.save-btn.saved{background:#fff3ed;border-color:var(--ac2);color:var(--ac);}
+.minne-link{font-size:10px;color:var(--ac);text-decoration:none;display:inline-flex;align-items:center;gap:2px;}
+.minne-link:hover{text-decoration:underline;}
+
+/* 保存した配色 */
+.saved-list{display:flex;flex-direction:column;gap:8px;}
+.saved-item{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--sf2);border-radius:10px;border:1px solid var(--bd);}
+.saved-swatches{display:flex;gap:4px;}
+.saved-swatch{width:24px;height:24px;border-radius:6px;}
+.saved-info{flex:1;font-size:12px;color:var(--tx2);}
+.saved-del{background:none;border:none;cursor:pointer;color:var(--tx3);font-size:14px;padding:0;}
+
+/* 広告スペース */
+.ad-space{background:var(--sf2);border:1px dashed var(--bd);border-radius:var(--r);padding:20px;text-align:center;color:var(--tx3);font-size:12px;margin-bottom:16px;min-height:90px;display:flex;align-items:center;justify-content:center;}
+
+/* アプリ誘導バナー */
+.app-banner{background:linear-gradient(135deg,#2c2416,#3d3020);border-radius:var(--rL);padding:22px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:16px;}
+.app-banner h3{color:#e8a87c;font-size:14px;font-weight:700;margin-bottom:4px;}
+.app-banner p{color:rgba(250,248,245,.7);font-size:12px;}
+.app-banner-btn{background:var(--ac);color:#fff;padding:10px 22px;border-radius:30px;font-size:13px;font-weight:700;text-decoration:none;white-space:nowrap;}
+
+footer{background:var(--tx);color:#faf8f5;padding:32px 20px;text-align:center;}
+.footer-logo{font-size:15px;font-weight:700;margin-bottom:8px;}
+.footer-logo span{color:var(--ac2);}
+footer p{font-size:12px;opacity:.5;margin-top:12px;}
+.footer-links{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-top:12px;}
+.footer-links a{color:#faf8f5;opacity:.7;font-size:12px;text-decoration:none;}
+.footer-links a:hover{opacity:1;}
+
+.empty{text-align:center;padding:32px;color:var(--tx3);font-size:13px;}
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="lp.html">🧵 <span>ハンドメイド</span>在庫管理</a>
+  <a class="nav-link" href="inventory_supabase.html">アプリを使う →</a>
+</nav>
+
+<div class="hero">
+  <div class="hero-badge">🎨 ハンドメイド作家さん向け 無料ツール</div>
+  <h1>色の組み合わせ<em>チェッカー</em></h1>
+  <p>布・糸・ビーズの色を選ぶだけで<br>相性のいい配色パターンを自動提案します✨</p>
+</div>
+
+<div class="main">
+
+  <!-- 広告スペース -->
+  <div class="ad-space">広告スペース</div>
+
+  <!-- モード切り替え -->
+  <div class="mode-tabs">
+    <button class="mtab on" onclick="setMode('fabric')">🧵 布もの・糸モード</button>
+    <button class="mtab" onclick="setMode('accessory')">💎 アクセサリーモード</button>
+  </div>
+
+  <!-- カラーピッカー -->
+  <div class="card">
+    <div class="card-head">🎨 ベースカラーを選ぶ</div>
+    <div class="card-body">
+      <div class="picker-wrap">
+        <div class="color-preview" id="colorPreview" style="background:#c0622a">
+          <input type="color" id="colorPicker" value="#c0622a" oninput="onColorChange(this.value)">
+        </div>
+        <div class="picker-info">
+          <div class="picker-hex" id="pickerHex">#C0622A</div>
+          <div class="picker-rgb" id="pickerRgb">RGB(192, 98, 42)</div>
+          <button class="btn btn-primary" style="margin-top:10px" onclick="generateSchemes()">✨ 配色を提案する</button>
+        </div>
+      </div>
+
+      <!-- プリセット -->
+      <div class="preset-section">
+        <div class="preset-label" id="presetLabel">▼ よく使う色（布もの・糸向け）</div>
+        <div class="preset-grid" id="presetGrid"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 配色結果 -->
+  <div class="card" id="resultCard" style="display:none">
+    <div class="card-head">🌈 配色パターン</div>
+    <div class="card-body" style="padding:14px">
+      <div class="scheme-grid" id="schemeGrid"></div>
+    </div>
+  </div>
+
+  <!-- 保存した配色 -->
+  <div class="card" id="savedCard" style="display:none">
+    <div class="card-head">⭐ 保存した配色</div>
+    <div class="card-body">
+      <div class="saved-list" id="savedList"></div>
+    </div>
+  </div>
+
+  <!-- アプリ誘導バナー -->
+  <div class="app-banner">
+    <div>
+      <h3>📦 在庫管理もまとめてかんたんに</h3>
+      <p>材料・完成品・販売記録を一元管理。ハンドメイド作家さんのための無料アプリ。</p>
+    </div>
+    <a class="app-banner-btn" href="inventory_supabase.html">アプリを使う →</a>
+  </div>
+
+</div>
+
+<footer>
+  <div class="footer-logo">🧵 <span>ハンドメイド</span>在庫管理</div>
+  <div class="footer-links">
+    <a href="lp.html">アプリ紹介ページ</a>
+    <a href="inventory_supabase.html">在庫管理アプリ</a>
+    <a href="simulator.html">価格シミュレーター</a>
+    <a href="needle_converter.html">編針変換ツール</a>
+    <a href="photo_checklist.html">撮影チェックリスト</a>
+  </div>
+  <p>© 2026 しっぽ日和. All rights reserved.</p>
+</footer>
+
+<script>
+// ══════════════════════════════════════════════
+// プリセットカラー
+// ══════════════════════════════════════════════
+var PRESETS = {
+  fabric: [
+    // ── ナチュラル・アースカラー ──
+    { hex: '#f0e6d0', name: 'クリーム' },
+    { hex: '#e8d5b0', name: 'バニラ' },
+    { hex: '#d4c4a0', name: 'リネン' },
+    { hex: '#c8b89a', name: 'ベージュ' },
+    { hex: '#b5a080', name: 'サンド' },
+    { hex: '#d4a574', name: 'キャメル' },
+    { hex: '#c0874a', name: 'ハニー' },
+    { hex: '#8b6b4a', name: 'ブラウン' },
+    { hex: '#6b4a2a', name: 'チョコ' },
+    { hex: '#3d2b1a', name: 'ダークブラウン' },
+    // ── グリーン系 ──
+    { hex: '#d4e8c8', name: 'ライトグリーン' },
+    { hex: '#b5d4a0', name: 'パステルグリーン' },
+    { hex: '#8fbf7a', name: 'アップル' },
+    { hex: '#7a9b7a', name: 'セージ' },
+    { hex: '#6b8c6b', name: 'フォレスト' },
+    { hex: '#5c7a6b', name: 'テール' },
+    { hex: '#4a7c6f', name: 'エバーグリーン' },
+    { hex: '#3a6b5e', name: 'ディープテール' },
+    // ── ブルー系 ──
+    { hex: '#d4e8f5', name: 'アイスブルー' },
+    { hex: '#b5d4e8', name: 'スカイ' },
+    { hex: '#8fadb5', name: 'ダスティブルー' },
+    { hex: '#6b8fa0', name: 'スレートブルー' },
+    { hex: '#4a7a8c', name: 'ティール' },
+    { hex: '#2c5f7a', name: 'ミッドナイト' },
+    // ── ピンク・ローズ系 ──
+    { hex: '#f5ddd5', name: 'ブラッシュ' },
+    { hex: '#e8c4b8', name: 'ピーチ' },
+    { hex: '#d4a0a0', name: 'ダスティローズ' },
+    { hex: '#c9a0a0', name: 'ローズ' },
+    { hex: '#b57a7a', name: 'マルサラ' },
+    { hex: '#8c5a5a', name: 'バーガンディ' },
+    // ── パープル系 ──
+    { hex: '#e8d4f0', name: 'ラベンダー' },
+    { hex: '#d4b8e0', name: 'ライラック' },
+    { hex: '#a0a4b8', name: 'ラベンダーグレー' },
+    { hex: '#b5849b', name: 'モーブ' },
+    { hex: '#8c6b8c', name: 'プラム' },
+    // ── モノトーン ──
+    { hex: '#f8f8f6', name: 'オフホワイト' },
+    { hex: '#e0dcd4', name: 'ライトグレー' },
+    { hex: '#a89880', name: 'ウォームグレー' },
+    { hex: '#6b6358', name: 'チャコール' },
+    { hex: '#2c2416', name: 'ほぼブラック' },
+    // ── テラコッタ・オレンジ ──
+    { hex: '#f0d0b0', name: 'アプリコット' },
+    { hex: '#e0a87a', name: 'テラコッタライト' },
+    { hex: '#c0622a', name: 'テラコッタ' },
+    { hex: '#a04a1a', name: 'バーント' },
+    // ── イエロー・マスタード ──
+    { hex: '#f5edb0', name: 'パステルイエロー' },
+    { hex: '#e8d060', name: 'イエロー' },
+    { hex: '#c8a820', name: 'マスタード' },
+    { hex: '#a88a10', name: 'ゴールデン' },
+  ],
+  accessory: [
+    // ── ビビッド ──
+    { hex: '#ff4757', name: 'レッド' },
+    { hex: '#ff6b35', name: 'コーラルレッド' },
+    { hex: '#ff8c42', name: 'オレンジ' },
+    { hex: '#ffd166', name: 'イエロー' },
+    { hex: '#f8b739', name: 'ゴールド' },
+    { hex: '#06d6a0', name: 'エメラルド' },
+    { hex: '#00c9a7', name: 'ターコイズ' },
+    { hex: '#4ecdc4', name: 'シアン' },
+    { hex: '#2ed573', name: 'グリーン' },
+    { hex: '#1e90ff', name: 'ドジャーブルー' },
+    { hex: '#4d79ff', name: 'ロイヤルブルー' },
+    { hex: '#a855f7', name: 'パープル' },
+    { hex: '#c44dff', name: 'バイオレット' },
+    { hex: '#ff6b9d', name: 'ホットピンク' },
+    { hex: '#ff3860', name: 'マゼンタ' },
+    // ── パステル ──
+    { hex: '#ffd1dc', name: 'パステルピンク' },
+    { hex: '#ffdab9', name: 'パステルピーチ' },
+    { hex: '#fff3cd', name: 'パステルイエロー' },
+    { hex: '#c9f0d4', name: 'パステルミント' },
+    { hex: '#b5e8d4', name: 'パステルグリーン' },
+    { hex: '#d1e8ff', name: 'パステルブルー' },
+    { hex: '#e8d4f0', name: 'パステルパープル' },
+    { hex: '#e8c1f4', name: 'パステルラベンダー' },
+    { hex: '#fce4ec', name: 'パステルローズ' },
+    { hex: '#e0f7fa', name: 'パステルシアン' },
+    // ── クリア・透明感 ──
+    { hex: '#a8d8ea', name: 'クリアブルー' },
+    { hex: '#a8e6cf', name: 'クリアグリーン' },
+    { hex: '#dda0dd', name: 'クリアパープル' },
+    { hex: '#ffb7b2', name: 'クリアピンク' },
+    { hex: '#ffeaa7', name: 'クリアイエロー' },
+    // ── ジュエリー・メタリック ──
+    { hex: '#ffd700', name: 'ゴールド' },
+    { hex: '#c0c0c0', name: 'シルバー' },
+    { hex: '#b87333', name: 'コッパー' },
+    { hex: '#e8cda0', name: 'シャンパン' },
+    { hex: '#b9f2ff', name: 'アイス' },
+    // ── ダーク・深みカラー ──
+    { hex: '#c0392b', name: 'ディープレッド' },
+    { hex: '#8e44ad', name: 'ディープパープル' },
+    { hex: '#2980b9', name: 'ディープブルー' },
+    { hex: '#1abc9c', name: 'ディープティール' },
+    { hex: '#27ae60', name: 'ディープグリーン' },
+    { hex: '#d35400', name: 'ディープオレンジ' },
+    { hex: '#2c3e50', name: 'ネイビー' },
+    { hex: '#4a235a', name: 'ディープバイオレット' },
+    // ── 白・黒・グレー ──
+    { hex: '#ffffff', name: 'ホワイト' },
+    { hex: '#f8f9fa', name: 'オフホワイト' },
+    { hex: '#adb5bd', name: 'グレー' },
+    { hex: '#495057', name: 'ダークグレー' },
+    { hex: '#212529', name: 'ブラック' },
+  ]
+};
+
+var currentMode = 'fabric';
+var currentColor = '#c0622a';
+var savedSchemes = JSON.parse(localStorage.getItem('color_schemes') || '[]');
+
+// ══════════════════════════════════════════════
+// カラー変換ユーティリティ
+// ══════════════════════════════════════════════
+function hexToRgb(hex) {
+  var r = parseInt(hex.slice(1,3),16);
+  var g = parseInt(hex.slice(3,5),16);
+  var b = parseInt(hex.slice(5,7),16);
+  return [r, g, b];
+}
+function rgbToHex(r, g, b) {
+  return '#' + [r,g,b].map(function(v){ return Math.round(Math.max(0,Math.min(255,v))).toString(16).padStart(2,'0'); }).join('').toUpperCase();
+}
+function rgbToHsl(r, g, b) {
+  r /= 255; g /= 255; b /= 255;
+  var max = Math.max(r,g,b), min = Math.min(r,g,b);
+  var h, s, l = (max+min)/2;
+  if (max === min) { h = s = 0; }
+  else {
+    var d = max - min;
+    s = l > 0.5 ? d/(2-max-min) : d/(max+min);
+    switch(max){
+      case r: h = ((g-b)/d + (g<b?6:0))/6; break;
+      case g: h = ((b-r)/d + 2)/6; break;
+      case b: h = ((r-g)/d + 4)/6; break;
+    }
+  }
+  return [h*360, s*100, l*100];
+}
+function hslToRgb(h, s, l) {
+  h /= 360; s /= 100; l /= 100;
+  var r, g, b;
+  if (s === 0) { r = g = b = l; }
+  else {
+    var hue2rgb = function(p,q,t){ if(t<0)t+=1; if(t>1)t-=1; if(t<1/6)return p+(q-p)*6*t; if(t<1/2)return q; if(t<2/3)return p+(q-p)*(2/3-t)*6; return p; };
+    var q = l < 0.5 ? l*(1+s) : l+s-l*s, p = 2*l-q;
+    r = hue2rgb(p,q,h+1/3); g = hue2rgb(p,q,h); b = hue2rgb(p,q,h-1/3);
+  }
+  return [r*255, g*255, b*255];
+}
+function hexToHsl(hex) { var [r,g,b] = hexToRgb(hex); return rgbToHsl(r,g,b); }
+function hslToHex(h, s, l) { var [r,g,b] = hslToRgb(h,s,l); return rgbToHex(r,g,b); }
+
+// ══════════════════════════════════════════════
+// 配色計算（凛ちゃんの技術メモ通りにゃ）
+// ══════════════════════════════════════════════
+function getSchemes(hex) {
+  var [h, s, l] = hexToHsl(hex);
+  return [
+    {
+      type: '補色',
+      icon: '⬤',
+      desc: 'コントラストが強く引き締まる',
+      colors: [hex, hslToHex((h+180)%360, s, l)]
+    },
+    {
+      type: '類似色',
+      icon: '〜',
+      desc: 'まとまりやすくナチュラルな印象',
+      colors: [hslToHex((h-30+360)%360, s, l), hex, hslToHex((h+30)%360, s, l)]
+    },
+    {
+      type: 'トライアド',
+      icon: '▲',
+      desc: '3色で華やかなバランス',
+      colors: [hex, hslToHex((h+120)%360, s, l), hslToHex((h+240)%360, s, l)]
+    },
+    {
+      type: 'スプリット補色',
+      icon: '✦',
+      desc: '補色より柔らかい対比',
+      colors: [hex, hslToHex((h+150)%360, s, l), hslToHex((h+210)%360, s, l)]
+    },
+    {
+      type: 'モノクロマティック',
+      icon: '◐',
+      desc: '同系色で統一感のある配色',
+      colors: [
+        hslToHex(h, s, Math.max(15, l-25)),
+        hex,
+        hslToHex(h, Math.max(10, s-20), Math.min(85, l+25))
+      ]
+    }
+  ];
+}
+
+// ══════════════════════════════════════════════
+// UI
+// ══════════════════════════════════════════════
+function setMode(mode) {
+  currentMode = mode;
+  document.querySelectorAll('.mtab').forEach(function(b){ b.classList.remove('on'); });
+  document.querySelectorAll('.mtab')[mode === 'fabric' ? 0 : 1].classList.add('on');
+  document.getElementById('presetLabel').textContent = mode === 'fabric'
+    ? '▼ よく使う色（布もの・糸向け）'
+    : '▼ よく使う色（アクセサリー向け）';
+  renderPresets();
+}
+
+function renderPresets() {
+  var presets = PRESETS[currentMode];
+  document.getElementById('presetGrid').innerHTML = presets.map(function(p) {
+    var sel = p.hex.toUpperCase() === currentColor.toUpperCase();
+    return '<div class="preset-chip' + (sel?' selected':'') + '" style="background:' + p.hex + '" title="' + p.name + '" onclick="selectPreset(\'' + p.hex + '\')"></div>';
+  }).join('');
+}
+
+function selectPreset(hex) {
+  currentColor = hex.toUpperCase();
+  document.getElementById('colorPicker').value = hex;
+  document.getElementById('colorPreview').style.background = hex;
+  updatePickerInfo(hex);
+  renderPresets();
+  generateSchemes();
+}
+
+function onColorChange(hex) {
+  currentColor = hex.toUpperCase();
+  document.getElementById('colorPreview').style.background = hex;
+  updatePickerInfo(hex);
+  renderPresets();
+}
+
+function updatePickerInfo(hex) {
+  var [r,g,b] = hexToRgb(hex);
+  document.getElementById('pickerHex').textContent = hex.toUpperCase();
+  document.getElementById('pickerRgb').textContent = 'RGB(' + r + ', ' + g + ', ' + b + ')';
+}
+
+function generateSchemes() {
+  var schemes = getSchemes(currentColor);
+  document.getElementById('resultCard').style.display = 'block';
+  document.getElementById('schemeGrid').innerHTML = schemes.map(function(sc, si) {
+    var swatches = sc.colors.map(function(c, ci) {
+      var [r,g,b] = hexToRgb(c);
+      var textColor = (r*0.299 + g*0.587 + b*0.114) > 150 ? '#2c2416' : '#fff';
+      return '<div class="swatch" style="background:' + c + ';min-height:' + (60 + ci*8) + 'px" onclick="copyHex(\'' + c + '\')" title="クリックでコピー"></div>';
+    }).join('');
+    var hexList = sc.colors.map(function(c, ci) {
+      var minneUrl = 'https://minne.com/search?q=' + encodeURIComponent(c.replace('#',''));
+      return '<div class="swatch-row">'
+        + '<span class="swatch-hex">' + c + '</span>'
+        + '<button class="copy-btn" onclick="copyHex(\'' + c + '\')">📋コピー</button>'
+        + '<a class="minne-link" href="' + minneUrl + '" target="_blank">minne →</a>'
+        + '</div>';
+    }).join('');
+    var schemeKey = si + '_' + sc.colors.join('_');
+    var isSaved = savedSchemes.some(function(s){ return s.key === schemeKey; });
+    return '<div class="scheme-card">'
+      + '<div class="scheme-type">' + sc.icon + ' ' + sc.type + '<span style="font-size:11px;color:var(--tx3);margin-left:4px;font-weight:400">' + sc.desc + '</span></div>'
+      + '<div class="scheme-swatches">' + swatches + '</div>'
+      + '<div class="swatch-info">'
+      + hexList
+      + '<button class="save-btn' + (isSaved?' saved':'') + '" onclick="toggleSave(\'' + schemeKey + '\',this)" data-scheme="' + JSON.stringify(sc).replace(/"/g,'&quot;') + '">'
+      + (isSaved ? '★ 保存済み' : '☆ 保存する') + '</button>'
+      + '</div></div>';
+  }).join('');
+  document.getElementById('resultCard').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function copyHex(hex) {
+  navigator.clipboard.writeText(hex).then(function(){
+    // ちらっとフィードバック
+    var el = document.createElement('div');
+    el.style.cssText = 'position:fixed;top:70px;left:50%;transform:translateX(-50%);background:var(--tx);color:#fff;padding:8px 20px;border-radius:30px;font-size:13px;font-weight:700;z-index:9999;transition:opacity .3s';
+    el.textContent = hex + ' をコピーしました';
+    document.body.appendChild(el);
+    setTimeout(function(){ el.style.opacity='0'; setTimeout(function(){ el.remove(); }, 300); }, 1500);
+  });
+}
+
+function toggleSave(key, btn) {
+  var idx = savedSchemes.findIndex(function(s){ return s.key === key; });
+  if (idx >= 0) {
+    savedSchemes.splice(idx, 1);
+    btn.className = 'save-btn';
+    btn.textContent = '☆ 保存する';
+  } else {
+    var schemeData = JSON.parse(btn.dataset.scheme);
+    savedSchemes.push({ key: key, scheme: schemeData, savedAt: new Date().toLocaleDateString('ja-JP') });
+    btn.className = 'save-btn saved';
+    btn.textContent = '★ 保存済み';
+  }
+  localStorage.setItem('color_schemes', JSON.stringify(savedSchemes));
+  renderSaved();
+}
+
+function renderSaved() {
+  var card = document.getElementById('savedCard');
+  var list = document.getElementById('savedList');
+  if (!savedSchemes.length) { card.style.display = 'none'; return; }
+  card.style.display = 'block';
+  list.innerHTML = savedSchemes.map(function(s) {
+    var swatches = s.scheme.colors.map(function(c){
+      return '<div class="saved-swatch" style="background:' + c + '"></div>';
+    }).join('');
+    return '<div class="saved-item">'
+      + '<div class="saved-swatches">' + swatches + '</div>'
+      + '<div class="saved-info"><b>' + s.scheme.type + '</b><br>' + s.scheme.colors.join('  ') + '</div>'
+      + '<div style="font-size:11px;color:var(--tx3)">' + s.savedAt + '</div>'
+      + '<button class="saved-del" onclick="deleteSaved(\'' + s.key + '\')">🗑</button>'
+      + '</div>';
+  }).join('');
+}
+
+function deleteSaved(key) {
+  savedSchemes = savedSchemes.filter(function(s){ return s.key !== key; });
+  localStorage.setItem('color_schemes', JSON.stringify(savedSchemes));
+  renderSaved();
+}
+
+// 初期化
+updatePickerInfo(currentColor);
+renderPresets();
+renderSaved();
+</script>
+</body>
+</html>
