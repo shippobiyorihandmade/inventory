@@ -689,6 +689,20 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
         </div>
         <div><label>管理番号（任意）</label><input type="text" id="mkCode" placeholder="例：MK-001"></div>
       </div>
+      <div id="mkRPrev" style="margin-bottom:9px"></div>
+      <div id="mkCPrev" class="cd" style="margin-bottom:13px"></div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:9px">
+        <div id="mkPhotoPreview" style="width:56px;height:56px;border-radius:8px;border:2px dashed var(--bd);background:var(--sf2);display:flex;align-items:center;justify-content:center;font-size:20px;cursor:pointer;overflow:hidden;flex-shrink:0" onclick="document.getElementById('mkPhotoInput').click()">📷</div>
+        <input type="file" id="mkPhotoInput" accept="image/*" style="display:none" onchange="onMkPhotoSelect(event)">
+        <div>
+          <label class="ts fw7" style="color:var(--tx2);letter-spacing:.04em">写真（任意）</label>
+          <div style="display:flex;gap:5px;margin-top:3px">
+            <button type="button" class="btn bs bsm" onclick="document.getElementById('mkPhotoInput').click()">📁 写真を選択</button>
+            <button type="button" class="btn bs bsm" id="mkPhotoDelBtn" style="display:none" onclick="clearMkPhoto()">🗑</button>
+          </div>
+          <div class="ts tm" style="margin-top:3px" id="mkPhotoStatus">完成品の写真を登録できます</div>
+        </div>
+      </div>
       <div class="fr" style="margin-bottom:9px">
         <div><label>メモ</label><input type="text" id="mkMemo" placeholder="例：マルシェ向け"></div>
       </div>
@@ -762,6 +776,18 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
       <div class="fr c2">
         <div><label>購入先</label><input type="text" id="purSup" placeholder="例：○○手芸店"></div>
         <div><label>管理番号（任意）</label><input type="text" id="purCode" placeholder="例：FAB-001"></div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:9px">
+        <div id="purPhotoPreview" style="width:56px;height:56px;border-radius:8px;border:2px dashed var(--bd);background:var(--sf2);display:flex;align-items:center;justify-content:center;font-size:20px;cursor:pointer;overflow:hidden;flex-shrink:0" onclick="document.getElementById('purPhotoInput').click()">📷</div>
+        <input type="file" id="purPhotoInput" accept="image/*" style="display:none" onchange="onPurPhotoSelect(event)">
+        <div>
+          <label class="ts fw7" style="color:var(--tx2);letter-spacing:.04em">写真（任意）</label>
+          <div style="display:flex;gap:5px;margin-top:3px">
+            <button type="button" class="btn bs bsm" onclick="document.getElementById('purPhotoInput').click()">📁 写真を選択</button>
+            <button type="button" class="btn bs bsm" id="purPhotoDelBtn" style="display:none" onclick="clearPurPhoto()">🗑</button>
+          </div>
+          <div class="ts tm" style="margin-top:3px" id="purPhotoStatus">材料の写真を登録できます</div>
+        </div>
       </div>
       <div class="fr" style="margin-bottom:9px">
         <div><label>メモ</label><input type="text" id="purMemo" placeholder="例：セール品"></div>
@@ -1276,13 +1302,87 @@ function clearPhoto() {
 
 function onPhotoSelect(event) {
   var file = event.target.files[0]; if (!file) return;
-  if (file.size > 2 * 1024 * 1024) { alert('写真のサイズが2MBを超えています。小さい写真を選んでください。'); return; }
   if (!file.type.startsWith('image/')) { alert('画像ファイルを選択してください'); return; }
-  currentPhotoFile = file;
+  var stat = document.getElementById('photoStatus');
+  stat.textContent = '📦 圧縮中...';
+  compressImage(file, function(blob, dataUrl) {
+    currentPhotoFile = blob;
+    showPhotoPreview(dataUrl);
+    var kb = Math.round(blob.size / 1024);
+    stat.textContent = file.name + ' → ' + kb + 'KB（圧縮済み）';
+  });
+}
+
+function compressImage(file, callback) {
   var reader = new FileReader();
-  reader.onload = function(e) { showPhotoPreview(e.target.result); };
+  reader.onload = function(e) {
+    var img = new Image();
+    img.onload = function() {
+      var maxW = 1200, maxH = 1200;
+      var w = img.width, h = img.height;
+      if (w > maxW) { h = Math.round(h * maxW / w); w = maxW; }
+      if (h > maxH) { w = Math.round(w * maxH / h); h = maxH; }
+      var canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      var quality = 0.85;
+      var tryCompress = function() {
+        canvas.toBlob(function(blob) {
+          if (blob.size > 2 * 1024 * 1024 && quality > 0.3) {
+            quality -= 0.1;
+            tryCompress();
+          } else {
+            var reader2 = new FileReader();
+            reader2.onload = function(e2) { callback(blob, e2.target.result); };
+            reader2.readAsDataURL(blob);
+          }
+        }, 'image/jpeg', quality);
+      };
+      tryCompress();
+    };
+    img.src = e.target.result;
+  };
   reader.readAsDataURL(file);
-  document.getElementById('photoStatus').textContent = file.name + ' (' + Math.round(file.size / 1024) + 'KB) — 保存時にアップロードされます';
+}
+
+// ── 仕入れ写真 ──
+var purPhotoFile = null;
+function onPurPhotoSelect(e) {
+  var file = e.target.files[0]; if (!file) return;
+  compressImage(file, function(blob, dataUrl) {
+    purPhotoFile = blob;
+    var prev = document.getElementById('purPhotoPreview');
+    prev.innerHTML = '<img src="' + dataUrl + '" style="width:100%;height:100%;object-fit:cover">';
+    document.getElementById('purPhotoDelBtn').style.display = 'inline-flex';
+    document.getElementById('purPhotoStatus').textContent = Math.round(blob.size/1024) + 'KB（圧縮済み）';
+  });
+}
+function clearPurPhoto() {
+  purPhotoFile = null;
+  document.getElementById('purPhotoPreview').innerHTML = '📷';
+  document.getElementById('purPhotoDelBtn').style.display = 'none';
+  document.getElementById('purPhotoStatus').textContent = '材料の写真を登録できます';
+  document.getElementById('purPhotoInput').value = '';
+}
+
+// ── 製作写真 ──
+var mkPhotoFile = null;
+function onMkPhotoSelect(e) {
+  var file = e.target.files[0]; if (!file) return;
+  compressImage(file, function(blob, dataUrl) {
+    mkPhotoFile = blob;
+    var prev = document.getElementById('mkPhotoPreview');
+    prev.innerHTML = '<img src="' + dataUrl + '" style="width:100%;height:100%;object-fit:cover">';
+    document.getElementById('mkPhotoDelBtn').style.display = 'inline-flex';
+    document.getElementById('mkPhotoStatus').textContent = Math.round(blob.size/1024) + 'KB（圧縮済み）';
+  });
+}
+function clearMkPhoto() {
+  mkPhotoFile = null;
+  document.getElementById('mkPhotoPreview').innerHTML = '📷';
+  document.getElementById('mkPhotoDelBtn').style.display = 'none';
+  document.getElementById('mkPhotoStatus').textContent = '完成品の写真を登録できます';
+  document.getElementById('mkPhotoInput').value = '';
 }
 
 async function uploadPhoto(file, itemId) {
@@ -1863,10 +1963,18 @@ async function recMake(memoOnly) {
       await svItem(mat);
     }
   }
-  if (!memoOnly) { item.stock += qty; addH(item.name, qty, '製作完了（x' + qty + '）', item.stock); await svItem(item); }
+  if (!memoOnly) { item.stock += qty; addH(item.name, qty, '製作完了（x' + qty + '）', item.stock); }
+  // 写真があればアップロードしてアイテムに反映
+  if (mkPhotoFile && !item.photo) {
+    try {
+      var photoUrl = await uploadPhoto(mkPhotoFile, item.id);
+      item.photo = photoUrl;
+    } catch(e) { console.error('写真アップロード失敗:', e); }
+  }
+  await svItem(item);
   var mkObj = { id: uid(), itemId: item.id, itemName: item.name, qty: qty, date: date, memo: memo, code: code, tot: Math.round(tot), memoOnly: memoOnly };
   makes.push(mkObj); await svMake(mkObj);
-  mkRec = []; rMakePg();
+  mkRec = []; clearMkPhoto(); rMakePg();
   alert(memoOnly ? '製作メモを記録しました' : '製作を記録しました\n' + item.name + ' +' + qty + (item.unit || '個'));
 }
 function renderMkHist() {
@@ -1951,11 +2059,19 @@ async function recPurchase() {
   purch.push(purObj); await svPurch(purObj);
   item.stock = Math.round((item.stock + qty) * 100) / 100;
   if (document.getElementById('purUpdCost').checked) item.mc = unit;
+  // 写真があればアップロードしてアイテムに反映
+  if (purPhotoFile && !item.photo) {
+    try {
+      var photoUrl = await uploadPhoto(purPhotoFile, item.id);
+      item.photo = photoUrl;
+    } catch(e) { console.error('写真アップロード失敗:', e); }
+  }
   addH(item.name, qty, '仕入れ' + (sup ? '（' + sup + '）' : ''), item.stock);
   await svItem(item);
   ['purQty', 'purTot', 'purUnit', 'purSup', 'purMemo', 'purCode'].forEach(function(id) { document.getElementById(id).value = ''; });
   if (purMode === 'new') { ['purNName', 'purNCatTxt', 'purNFW'].forEach(function(id) { document.getElementById(id).value = ''; }); document.getElementById('purNUnit').value = '個'; document.getElementById('purNMin').value = 5; }
   document.getElementById('purPrev').innerHTML = '';
+  clearPurPhoto();
   rPurPg(); alert('仕入れを記録しました\n' + item.name + ' +' + qty + (item.unit || '個'));
 }
 function rPurPg() {
@@ -2426,10 +2542,6 @@ function printStocktake(type) {
 function init() {
   var d = new Date();
   document.getElementById('hdate').textContent = d.getFullYear() + '/' + String(d.getMonth() + 1).padStart(2, '0') + '/' + String(d.getDate()).padStart(2, '0');
-  var mkRP = document.createElement('div'); mkRP.id = 'mkRPrev'; mkRP.style.marginBottom = '9px';
-  var mkCP = document.createElement('div'); mkCP.id = 'mkCPrev'; mkCP.className = 'cd'; mkCP.style.marginBottom = '13px';
-  var mkBtn = document.querySelector('#pg-make .btn.bp');
-  if (mkBtn) { mkBtn.parentNode.insertBefore(mkRP, mkBtn); mkBtn.parentNode.insertBefore(mkCP, mkBtn); }
   // Anon Keyがあれば直接起動、なければ設定画面を出す（管理者用）
   if (SB_KEY) {
     initSupabase();
