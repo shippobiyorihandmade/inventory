@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>洗濯表示ジェネレーター｜素材別の洗濯マーク・取扱い方法を自動表示</title>
+<meta name="description" content="コットン・ウール・シルクなど素材を選ぶだけで洗濯表示記号と取扱い方法がすぐわかる。ハンドメイド作家さんのための洗濯表示ジェネレーター。商品説明文コピー機能つき。">
+<link rel="icon" href="favicon.png">
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@300;400;500;700&family=DM+Mono:wght@400;500&family=Shippori+Mincho:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#faf8f5;--sf:#fff;--sf2:#f3efe9;--bd:#e5ddd0;
+  --tx:#2c2416;--tx2:#7a6e60;--tx3:#a89880;
+  --ac:#c0622a;--ac2:#e8a87c;--ac3:#4a7c6f;
+  --r:14px;--rL:24px;
+  --sh:0 2px 12px rgba(44,36,22,.08);
+  --shl:0 8px 32px rgba(44,36,22,.15);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'Zen Kaku Gothic New',sans-serif;background:var(--bg);color:var(--tx);line-height:1.7;overflow-x:hidden;font-size:15px;}
+
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(250,248,245,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--bd);padding:0 20px;height:54px;display:flex;align-items:center;justify-content:space-between;}
+.nav-logo{font-size:14px;font-weight:700;display:flex;align-items:center;gap:6px;color:var(--tx);text-decoration:none;}
+.nav-logo span{color:var(--ac);}
+.nav-link{background:var(--sf2);color:var(--tx);padding:7px 16px;border-radius:30px;font-size:12px;font-weight:700;text-decoration:none;border:1.5px solid var(--bd);transition:all .2s;}
+.nav-link:hover{background:var(--bd);}
+
+.hero{padding:90px 20px 32px;text-align:center;max-width:700px;margin:0 auto;}
+.hero-badge{display:inline-flex;align-items:center;gap:5px;background:var(--sf2);border:1px solid var(--bd);border-radius:30px;padding:4px 14px;font-size:11px;font-weight:700;color:var(--ac);margin-bottom:16px;letter-spacing:.06em;}
+.hero h1{font-family:'Shippori Mincho',serif;font-size:clamp(22px,5vw,38px);font-weight:600;line-height:1.4;margin-bottom:12px;}
+.hero h1 em{font-style:normal;color:var(--ac);}
+.hero p{font-size:14px;color:var(--tx2);margin-bottom:24px;}
+
+.main{max-width:700px;margin:0 auto;padding:0 16px 60px;}
+
+.card{background:var(--sf);border:1px solid var(--bd);border-radius:var(--rL);box-shadow:var(--sh);margin-bottom:16px;overflow:hidden;}
+.card-head{padding:14px 20px;background:var(--sf2);border-bottom:1px solid var(--bd);font-size:13px;font-weight:700;display:flex;align-items:center;gap:8px;}
+.card-body{padding:20px;}
+
+/* 素材選択 */
+.material-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;margin-bottom:16px;}
+.mat-btn{padding:10px 8px;border-radius:12px;border:2px solid var(--bd);background:var(--sf2);font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;color:var(--tx2);transition:all .2s;text-align:center;line-height:1.4;-webkit-tap-highlight-color:transparent;}
+.mat-btn:hover{border-color:var(--ac2);background:#fff8f5;}
+.mat-btn.on{border-color:var(--ac);background:#fff3ed;color:var(--ac);}
+.mat-btn .mat-icon{font-size:20px;display:block;margin-bottom:4px;}
+
+/* 混紡 */
+.blend-section{background:var(--sf2);border-radius:12px;padding:14px 16px;margin-top:12px;}
+.blend-title{font-size:12px;font-weight:700;color:var(--tx2);margin-bottom:10px;}
+.blend-row{display:flex;gap:8px;align-items:center;margin-bottom:8px;}
+.blend-row select{flex:1;padding:8px 10px;border:1.5px solid var(--bd);border-radius:8px;font-family:inherit;font-size:13px;background:var(--sf);color:var(--tx);-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237a6e60' fill='none' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:30px;}
+.blend-row input[type=number]{width:72px;padding:8px 10px;border:1.5px solid var(--bd);border-radius:8px;font-family:'DM Mono',monospace;font-size:13px;text-align:center;-webkit-appearance:none;}
+.blend-row select:focus,.blend-row input:focus{outline:none;border-color:var(--ac);}
+.blend-pct{font-size:12px;color:var(--tx2);min-width:20px;}
+.blend-del{width:28px;height:28px;border:none;background:#fde8e8;border-radius:6px;cursor:pointer;color:#c04a4a;font-size:14px;display:flex;align-items:center;justify-content:center;}
+.add-blend-btn{display:inline-flex;align-items:center;gap:5px;padding:7px 14px;border-radius:20px;border:1.5px dashed var(--bd);background:none;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;color:var(--tx2);transition:all .2s;}
+.add-blend-btn:hover{border-color:var(--ac2);color:var(--ac);}
+.blend-total{font-size:12px;font-weight:700;margin-top:8px;}
+.blend-total.ok{color:var(--ac3);}
+.blend-total.ng{color:#c04a4a;}
+
+.generate-btn{width:100%;padding:14px;border-radius:30px;border:none;background:linear-gradient(135deg,var(--ac),#d4733a);color:#fff;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(192,98,42,.3);transition:all .2s;margin-top:4px;}
+.generate-btn:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(192,98,42,.4);}
+
+/* 広告スペース */
+.ad-space{background:var(--sf2);border:1px dashed var(--bd);border-radius:var(--r);padding:20px;text-align:center;color:var(--tx3);font-size:12px;margin-bottom:16px;min-height:90px;display:flex;align-items:center;justify-content:center;}
+
+/* 洗濯表示結果 */
+.result-card{display:none;}
+.result-header{background:linear-gradient(135deg,#2c2416,#3d3020);color:#faf8f5;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+.result-title{font-size:15px;font-weight:700;}
+.result-material{font-size:12px;color:var(--ac2);}
+
+.symbols-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:12px;padding:20px;}
+.symbol-card{background:var(--sf2);border-radius:var(--r);padding:14px 12px;text-align:center;border:1px solid var(--bd);}
+.symbol-icon{font-size:36px;margin-bottom:6px;line-height:1;}
+.symbol-svg{width:60px;min-height:60px;margin:0 auto 8px;display:flex;align-items:center;justify-content:center;gap:6px;}
+.symbol-label{font-size:10px;font-weight:700;color:var(--tx3);letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px;}
+.symbol-value{font-size:12px;font-weight:700;color:var(--tx);line-height:1.4;}
+.symbol-note{font-size:10px;color:var(--tx3);margin-top:3px;line-height:1.4;}
+
+/* 注意事項 */
+.caution-box{margin:0 20px 16px;background:#fff8f0;border:1.5px solid #f0cdb0;border-radius:12px;padding:13px 16px;}
+.caution-title{font-size:11px;font-weight:700;color:var(--ac);letter-spacing:.06em;margin-bottom:8px;}
+.caution-list{list-style:none;font-size:12px;color:var(--tx);line-height:1.9;}
+.caution-list li::before{content:"⚠️ ";font-size:11px;}
+
+/* コピーエリア */
+.copy-area{margin:0 20px 20px;}
+.copy-label{font-size:11px;font-weight:700;color:var(--tx2);letter-spacing:.06em;margin-bottom:8px;}
+.copy-text{background:var(--sf2);border:1.5px solid var(--bd);border-radius:10px;padding:12px 14px;font-size:12px;line-height:1.9;color:var(--tx);white-space:pre-line;}
+.copy-btn{display:inline-flex;align-items:center;gap:5px;padding:9px 20px;border-radius:30px;border:none;background:var(--ac3);color:#fff;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;margin-top:10px;transition:all .2s;}
+.copy-btn:hover{background:#3a6b5e;transform:translateY(-1px);}
+
+/* 旧JIS対応表 */
+.accordion{border:1px solid var(--bd);border-radius:var(--r);margin-bottom:16px;overflow:hidden;}
+.accordion-head{padding:14px 18px;background:var(--sf2);cursor:pointer;display:flex;align-items:center;justify-content:space-between;font-size:13px;font-weight:700;-webkit-tap-highlight-color:transparent;}
+.accordion-chev{transition:transform .25s;font-size:12px;color:var(--tx3);}
+.accordion-chev.open{transform:rotate(180deg);}
+.accordion-body{max-height:0;overflow:hidden;transition:max-height .35s ease;}
+.accordion-body.open{max-height:2000px;}
+.accordion-inner{padding:16px 18px;}
+
+/* 旧JIS表 */
+.jis-table{width:100%;border-collapse:collapse;font-size:12px;}
+.jis-table th{background:var(--sf2);padding:8px 12px;text-align:center;font-size:11px;font-weight:700;color:var(--tx2);border-bottom:2px solid var(--bd);}
+.jis-table td{padding:10px 12px;text-align:center;border-bottom:1px solid var(--bd);vertical-align:middle;}
+.jis-table tr:last-child td{border-bottom:none;}
+.jis-sym{font-size:20px;}
+
+/* アプリバナー */
+.app-banner{background:linear-gradient(135deg,#2c2416,#3d3020);border-radius:var(--rL);padding:22px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:16px;}
+.app-banner h3{color:#e8a87c;font-size:14px;font-weight:700;margin-bottom:4px;}
+.app-banner p{color:rgba(250,248,245,.7);font-size:12px;}
+.app-banner-btn{background:var(--ac);color:#fff;padding:10px 22px;border-radius:30px;font-size:13px;font-weight:700;text-decoration:none;white-space:nowrap;}
+
+footer{background:var(--tx);color:#faf8f5;padding:32px 20px;text-align:center;}
+.footer-logo{font-size:15px;font-weight:700;margin-bottom:8px;}
+.footer-logo span{color:var(--ac2);}
+footer p{font-size:12px;opacity:.5;margin-top:12px;}
+.footer-links{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-top:12px;}
+.footer-links a{color:#faf8f5;opacity:.7;font-size:12px;text-decoration:none;}
+.footer-links a:hover{opacity:1;}
+
+/* トースト */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--tx);color:#faf8f5;padding:10px 22px;border-radius:30px;font-size:13px;font-weight:700;opacity:0;transition:opacity .3s;pointer-events:none;z-index:999;white-space:nowrap;}
+.toast.show{opacity:1;}
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="lp.html">🧵 <span>ハンドメイド</span>在庫管理</a>
+  <a class="nav-link" href="inventory_supabase.html">アプリを使う →</a>
+</nav>
+
+<div class="hero">
+  <div class="hero-badge">🧺 ハンドメイド作家さん向け 無料ツール</div>
+  <h1>洗濯表示<em>ジェネレーター</em></h1>
+  <p>素材を選ぶだけで洗濯表示記号と取扱い方法がすぐわかる✨<br>商品説明文へのコピー機能つき📋</p>
+  <div style="display:inline-block;background:#fff8f0;border:1.5px solid #f0cdb0;border-radius:12px;padding:10px 16px;font-size:12px;color:#8c5a2a;line-height:1.7;text-align:left;margin-top:4px">
+    ⚠️ 本ツールの表示内容は<b>素材の一般的な特性に基づく目安</b>です。染料・縫製方法・副素材などにより適切な取扱いが異なる場合があります。実際の洗濯表示はご自身の判断と責任でご確認ください。
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- 素材選択 -->
+  <div class="card">
+    <div class="card-head">🧶 素材を選んでください</div>
+    <div class="card-body">
+      <div class="material-grid" id="materialGrid"></div>
+
+      <!-- 混紡モード -->
+      <div id="blendSection" class="blend-section" style="display:none">
+        <div class="blend-title">🔢 混紡比率を入力（合計100%になるように）</div>
+        <div id="blendRows"></div>
+        <button class="add-blend-btn" onclick="addBlendRow()">＋ 素材を追加</button>
+        <div class="blend-total" id="blendTotal"></div>
+      </div>
+
+      <button class="generate-btn" onclick="generate()" style="margin-top:16px">🧺 洗濯表示を見る</button>
+    </div>
+  </div>
+
+  <!-- 広告スペース -->
+  <div class="ad-space">広告スペース</div>
+
+  <!-- 結果 -->
+  <div class="card result-card" id="resultCard">
+    <div class="result-header">
+      <div class="result-title">🧺 洗濯表示</div>
+      <div class="result-material" id="resultMaterial"></div>
+    </div>
+    <div class="symbols-grid" id="symbolsGrid"></div>
+    <div class="caution-box" id="cautionBox">
+      <div class="caution-title">⚠️ 取扱い上の注意点</div>
+      <ul class="caution-list" id="cautionList"></ul>
+    </div>
+    <div class="copy-area">
+      <div style="background:#fff8f0;border:1.5px solid #f0cdb0;border-radius:10px;padding:11px 14px;margin-bottom:14px;font-size:12px;color:#8c5a2a;line-height:1.7">
+        ⚠️ <b>ご注意：</b>表示内容は素材の一般的な特性に基づく<b>参考目安</b>です。同じ素材でも染料・縫製方法・副素材・加工の種類によって適切な取扱いが異なる場合があります。最終的な判断はご自身でお願いします。当ツールの利用により生じた損害について責任を負いかねます。
+      </div>
+      <div class="copy-label">📋 商品説明文テンプレート（minne・Creema向け）</div>
+      <div class="copy-text" id="copyText"></div>
+      <button class="copy-btn" onclick="copyToClipboard()">📋 クリップボードにコピー</button>
+    </div>
+  </div>
+
+  <!-- 旧JIS対応表 -->
+  <div class="accordion">
+    <div class="accordion-head" onclick="toggleAccordion(this)">
+      📖 旧JIS記号との対応表（2016年以前の表示はこちら）
+      <span class="accordion-chev">▼</span>
+    </div>
+    <div class="accordion-body">
+      <div class="accordion-inner">
+        <p style="font-size:12px;color:var(--tx2);margin-bottom:12px">2016年12月より洗濯表示記号はISO（国際規格）に統一されました。旧JIS記号との対応はこちらをご参照ください。</p>
+        <div style="overflow-x:auto">
+          <table class="jis-table">
+            <thead>
+              <tr>
+                <th>項目</th>
+                <th>現行記号（ISO）</th>
+                <th>内容</th>
+                <th>旧JIS記号</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>洗い（水洗い可）</td><td class="jis-sym">🫧</td><td style="font-size:11px;text-align:left">桶マーク＋温度</td><td class="jis-sym">〇</td></tr>
+              <tr><td>洗い（手洗い）</td><td class="jis-sym">🤲</td><td style="font-size:11px;text-align:left">桶に手のマーク</td><td class="jis-sym">⊘手</td></tr>
+              <tr><td>洗い（洗濯禁止）</td><td style="font-size:14px">桶に✕</td><td style="font-size:11px;text-align:left">水洗い不可</td><td class="jis-sym">×</td></tr>
+              <tr><td>漂白（塩素系可）</td><td style="font-size:14px">△</td><td style="font-size:11px;text-align:left">三角マーク</td><td class="jis-sym">△</td></tr>
+              <tr><td>漂白（禁止）</td><td style="font-size:14px">△に✕</td><td style="font-size:11px;text-align:left">三角に×</td><td class="jis-sym">△に✕</td></tr>
+              <tr><td>乾燥機（低温可）</td><td style="font-size:14px">四角に●</td><td style="font-size:11px;text-align:left">丸の数で温度</td><td colspan="1" style="font-size:11px">旧JISに乾燥機記号なし</td></tr>
+              <tr><td>乾燥機（禁止）</td><td style="font-size:14px">四角に✕</td><td style="font-size:11px;text-align:left">乾燥機使用禁止</td><td colspan="1" style="font-size:11px">旧JISに乾燥機記号なし</td></tr>
+              <tr><td>アイロン（低温）</td><td class="jis-sym">🔲</td><td style="font-size:11px;text-align:left">点1つ＝110℃以下</td><td class="jis-sym">・アイロン</td></tr>
+              <tr><td>アイロン（中温）</td><td class="jis-sym">🔲</td><td style="font-size:11px;text-align:left">点2つ＝150℃以下</td><td class="jis-sym">••アイロン</td></tr>
+              <tr><td>アイロン（高温）</td><td class="jis-sym">🔲</td><td style="font-size:11px;text-align:left">点3つ＝200℃以下</td><td class="jis-sym">•••アイロン</td></tr>
+              <tr><td>アイロン禁止</td><td style="font-size:14px">アイロンに✕</td><td style="font-size:11px;text-align:left">アイロン不可</td><td style="font-size:11px">アイロンに✕</td></tr>
+              <tr><td>クリーニング（可）</td><td style="font-size:14px">○にP</td><td style="font-size:11px;text-align:left">ドライクリーニング可</td><td class="jis-sym">ドライ</td></tr>
+              <tr><td>クリーニング（禁止）</td><td style="font-size:14px">○に✕</td><td style="font-size:11px;text-align:left">クリーニング不可</td><td style="font-size:11px">ドライに✕</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- アプリ誘導バナー -->
+  <div class="app-banner">
+    <div>
+      <h3>📦 在庫管理もまとめてかんたんに</h3>
+      <p>材料・完成品・販売記録を一元管理。ハンドメイド作家さんのための無料アプリ。</p>
+    </div>
+    <a class="app-banner-btn" href="inventory_supabase.html">アプリを使う →</a>
+  </div>
+
+</div>
+
+<footer>
+  <div class="footer-logo">🧵 <span>ハンドメイド</span>在庫管理</div>
+  <div class="footer-links">
+    <a href="lp.html">アプリ紹介ページ</a>
+    <a href="inventory_supabase.html">在庫管理アプリ</a>
+    <a href="simulator.html">価格シミュレーター</a>
+    <a href="needle_converter.html">編針変換ツール</a>
+    <a href="material_guide.html">素材・生地早見表</a>
+    <a href="photo_checklist.html">撮影チェックリスト</a>
+    <a href="color_checker.html">色の組み合わせチェッカー</a>
+  </div>
+  <p>© 2026 しっぽ日和. All rights reserved.</p>
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════════
+// 洗濯表示記号（消費者庁公式画像 JIS L0001:2024準拠）
+// ══════════════════════════════════════════════
+var SYM = {
+  wash40weak: '<svg width="52" height="52" xmlns="http://www.w3.org/2000/svg" id="icon" viewBox="0 0 1000 1000"> <defs> <style>.cls-1{fill:none;}</style> </defs> <path d="M411.17,611.6c34.98,0,75.49-22.57,75.49-75.79,0-41.43-27.71-69-67.92-69-18.17,0-37.6,8.72-49.85,22.48,1.56-43.96,20.99-63.77,45.42-63.77,17.55,0,29.08,9.65,32,22.41h34.44c-3.3-31.13-27.58-53.59-66.44-53.59-55.42,0-81.66,48.8-81.66,114.17,0,60.51,26.57,103.09,78.52,103.09ZM411.61,497.02c22.89,0,37.38,17.45,37.38,42.33,0,27-17.7,39.7-37.2,39.7-25.38,0-38.28-18.62-38.28-40.03,0-23.15,10.93-42,38.1-42Z"></path> <path d="M594.76,611.6c29.12,0,78.02-13.27,78.02-109.46s-50.4-107.8-78.02-107.8-78.02,11.61-78.02,107.8,48.89,109.46,78.02,109.46ZM594.76,425.43c11.28,0,41.1,2.69,41.1,76.71s-29.52,77-41.1,77-41.1-2.98-41.1-77,29.82-76.71,41.1-76.71Z"></path> <rect x="180" y="794" width="640" height="58"></rect> <path d="M817.15,738l108.17-570h-61.07l-19.16,102.94h-1.68c-4.78-4.8-10.32-13.07-15.4-19.54-15.43-19.68-38.26-52.91-81.35-52.91s-67.28,29.92-83.84,51.41c-16.28,21.12-23.9,32.09-39.49,32.09s-23.21-10.98-39.49-32.09c-16.56-21.48-39.24-51.41-83.84-51.41s-67.28,29.92-83.84,51.41c-16.28,21.12-23.9,32.09-39.49,32.09s-23.22-10.98-39.49-32.09c-16.56-21.48-39.24-51.41-83.84-51.41s-65.92,33.23-81.35,52.91c-5.07,6.47-10.62,14.74-15.39,19.54h-1.69l-19.16-102.94h-61.07l108.17,570h634.29ZM211.22,285.2c16.58-20.88,26.53-34.2,42.12-34.2s23.22,10.98,39.49,32.09c16.56,21.48,39.24,51.41,83.85,51.41s67.28-29.92,83.84-51.41c16.28-21.12,23.9-32.09,39.49-32.09s23.21,10.98,39.49,32.09c16.56,21.48,39.24,51.41,83.84,51.41s67.28-29.92,83.85-51.41c16.28-21.12,23.9-32.09,39.49-32.09s25.54,13.32,42.12,34.2c16.49,20.77,28.39,35.74,45.62,43.12l-65.45,351.69H231.04l-65.45-351.68c17.23-7.37,29.14-22.35,45.63-43.12Z"></path> <rect class="cls-1" width="1000" height="1000"></rect> </svg>',
+  wash30weak: '<svg width="52" height="52" xmlns="http://www.w3.org/2000/svg" id="icon" viewBox="0 0 1000 1000"> <defs> <style>.cls-1{fill:none;}</style> </defs> <path d="M411.67,578.43c-21.46,0-34.33-10.68-37.97-28.08h-34.79c4.09,31.71,25.75,60.55,72.75,60.55,49.61,0,76.35-33.66,76.35-76.44,0-37.73-23.79-67.02-64.33-67.02-17.68,0-32.76,6.59-41.84,13.76l6.75-51.19h84.23v-32h-111.71l-16.54,114.95,28.23,1.57c14.88-13.64,30.52-17.36,40.86-17.36,26.41,0,37.76,18.74,37.76,37.29,0,27.04-15.1,43.98-39.77,43.98Z"></path> <path d="M594.76,611.6c29.12,0,78.02-13.27,78.02-109.46s-50.4-107.8-78.02-107.8-78.02,11.61-78.02,107.8,48.89,109.46,78.02,109.46ZM594.76,425.43c11.28,0,41.1,2.69,41.1,76.71s-29.52,77-41.1,77-41.1-2.98-41.1-77,29.82-76.71,41.1-76.71Z"></path> <polygon points="180 794 180 792 180 852 180 852 820 852 820 852 820 792 820 794 180 794"></polygon> <path d="M817.15,738l108.17-570h-61.07l-19.16,102.94h-1.68c-4.78-4.8-10.32-13.07-15.39-19.54-15.43-19.68-38.26-52.91-81.35-52.91s-67.28,29.92-83.84,51.41c-16.28,21.12-23.9,32.09-39.49,32.09s-23.21-10.98-39.49-32.09c-16.56-21.48-39.24-51.41-83.84-51.41s-67.28,29.92-83.84,51.41c-16.28,21.12-23.9,32.09-39.49,32.09s-23.22-10.98-39.49-32.09c-16.56-21.48-39.24-51.41-83.84-51.41s-65.92,33.23-81.35,52.91c-5.07,6.47-10.62,14.74-15.39,19.54h-1.69l-19.16-102.94h-61.07l108.17,570h634.29ZM211.22,285.2c16.58-20.88,26.53-34.2,42.12-34.2s23.22,10.98,39.49,32.09c16.56,21.48,39.24,51.41,83.85,51.41s67.28-29.92,83.84-51.41c16.28-21.12,23.9-32.09,39.49-32.09s23.21,10.98,39.49,32.09c16.56,21.48,39.24,51.41,83.84,51.41s67.28-29.92,83.85-51.41c16.28-21.12,23.9-32.09,39.49-32.09s25.54,13.32,42.12,34.2c16.49,20.77,28.39,35.74,45.62,43.12l-65.45,351.69H231.04l-65.45-351.68c17.23-7.37,29.14-22.35,45.63-43.12Z"></path> <rect class="cls-1" width="1000" height="1000"></rect> </svg>',
+  washHand: '<svg width="52" height="52" xmlns="http://www.w3.org/2000/svg" id="icon" viewBox="0 0 1000 1000"> <defs> <style>.cls-1{fill:none;}</style> </defs> <rect class="cls-1" width="1000" height="1000"></rect> <path d="M864.25,230l-19.51,102.81c-5.15-4.89-10.33-11.44-16.6-19.57-16.18-20.99-38.34-49.74-81.46-49.74-57.34,0-78.92,51.98-95.16,67.05v-24.74c0-53.67-24.84-92.83-71.51-124.16v31.23c29.38,23.93,46.51,51.44,46.51,92.93v250.83c0,2.55-.73,10.86-10.09,10.86-10.55,0-11.37-8.31-11.37-10.86h-.02v-136.64h-25v212.31c0,2.21-.6,13.22-12.38,13.22-10.15,0-13.77-6.8-13.79-13.18.1-12.2,0-204.18,0-212.36h-25c0,1.85,0,237.43,0,237.43,0,2.21-.6,13.22-12.38,13.22-10.14,0-13.77-6.8-13.79-13.18.1-12.26,0-228.27,0-237.47h-25c0,1.89.07,156.43.04,215.32h-.04c0,2.21-.6,13.22-12.38,13.22-10.14,0-13.77-6.8-13.79-13.18.1-12.18,0-207.06,0-215.36h-25c0,2.05.1,203.79,0,215.21v.11c0,21.79,16.68,38.22,38.79,38.22,5.48,0,11.83-1.35,14.67-3.78,4.54,15.56,19.24,25.9,36.5,25.9,20.05,0,32.45-12.75,35.99-28.46,4.08,2.25,9.77,3.35,15.18,3.35,24.54,0,37.38-19.23,37.38-38.22v-41.92c3.61,1.67,7.38,2.11,11.4,2.11,22.79,0,35.09-18.47,35.09-35.86v-167.81c25.47-8.98,41.09-29.23,53.3-45.08,15.33-19.89,24.15-30.26,41.87-30.26s26.54,10.38,41.86,30.26c11.02,14.3,24.82,32.19,46.13,42.14l-65.7,356.1H231.04l-65.7-356.1c21.31-9.96,35.11-27.85,46.13-42.14,15.33-19.89,24.15-30.26,41.87-30.26s26.54,10.38,41.87,30.26c10.7,13.88,24.02,31.15,44.29,41.26v112.85c0,18.76,12.68,37.75,36.92,37.75,21.84,0,38.3-16.23,38.3-37.75v-120.43c24.84-2.97,45.22-13.3,60.78-26.48v-35.91c-13.21,17.3-38.27,38.1-71.6,38.1h-14.18v144.72c0,6.16-3.49,12.75-13.3,12.75-11.34,0-11.92-10.62-11.92-12.75v-192.05c0-39.6,16.91-70.04,55.5-98.1v-30.22c-44.17,27.99-80.5,65.57-80.5,128.32v14.19c-18.33-23.11-38.25-56.5-86.16-56.5-43.13,0-65.29,28.75-81.47,49.74-6.27,8.14-11.46,14.68-16.61,19.57l-19.51-102.81h-61.07l108.17,570h634.29l108.17-570h-61.07Z"></path> </svg>',
+  bleachOxygen: '<svg width="52" height="52" xmlns="http://www.w3.org/2000/svg" id="icon" viewBox="0 0 1000 1000"> <defs> <style>.cls-1{fill:none;}</style> </defs> <path d="M500,139.88L84.38,859.75h831.24L500,139.88ZM707.86,639.91l86.52,149.85h-173.03l86.52-149.85ZM552.07,789.75h-144.22l193.27-334.74,72.11,124.9-121.16,209.85ZM500,279.88l66.47,115.13-227.91,394.75h-132.94l294.38-509.88Z"></path> <rect class="cls-1" width="1000" height="1000"></rect> </svg>',
+  bleachNo: '<svg width="52" height="52" xmlns="http://www.w3.org/2000/svg" id="icon" viewBox="0 0 1000 1000"> <defs> <style>.cls-1{fill:none;}</style> </defs> <rect class="cls-1" width="1000" height="1000"></rect> <path d="M836.76,723.04l-164.3-284.58,262.34-184.45-34.51-49.08-257.95,181.36-142.27-246.42-142.27,246.42L99.85,204.93l-34.51,49.08,262.34,184.45-164.3,284.58-98.04,68.93,31.98,45.49-12.87,22.3h831.24l-12.87-22.3,31.98-45.49-98.04-68.93ZM700.7,627.38l-148.47-104.39,62.74-44.11,85.73,148.5ZM500.07,279.88l84.78,146.84-84.78,59.6-84.78-59.6,84.78-146.84ZM385.17,478.88l62.74,44.11-148.47,104.39,85.73-148.5ZM205.69,789.75l22.47-38.91,271.91-191.18,271.91,191.18,22.47,38.91H205.69Z"></path> </svg>',
+  dryLow: '<svg width="52" height="52" xmlns="http://www.w3.org/2000/svg" id="icon" viewBox="0 0 1000 1000"> <defs> <style>.cls-1{fill:none;}</style> </defs> <path d="M85,85v830h830V85H85ZM845,845H155V155h690v690Z"></path> <circle cx="500" cy="500" r="51"></circle> <path d="M500,842.5c189.16,0,342.5-153.34,342.5-342.5s-153.34-342.5-342.5-342.5S157.5,310.84,157.5,500s153.34,342.5,342.5,342.5ZM500,217.5c156.02,0,282.5,126.48,282.5,282.5s-126.48,282.5-282.5,282.5-282.5-126.48-282.5-282.5,126.48-282.5,282.5-282.5Z"></path> <rect class="cls-1" x="0" width="1000" height="1000"></rect> </svg>',
+  dryNo: '<svg width="52" height="52" xmlns="http://www.w3.org/2000/svg" id="icon" viewBox="0 0 1000 1000"> <defs> <style>.cls-1{fill:none;}</style> </defs> <path d="M905,256.47l87.9-61.8-34.51-49.08-53.39,38.54v-89.12H95v88.02l-51.83-37.44-34.51,49.08,86.34,60.71v495.25l-86.34,60.71,34.51,49.08,51.83-37.44v82.04h810v-83.14l53.39,38.54,34.51-49.08-87.9-61.8v-493.05ZM835,702.3l-47.83-34.63c28.81-49.23,45.33-106.52,45.33-167.67s-15.59-115.15-42.88-163.41l45.38-31.91v397.62ZM227.5,500c0-46.87,11.84-90.98,32.68-129.5l188.44,132.49-186.05,130.81c-22.32-39.52-35.07-85.17-35.07-133.8ZM294.37,321.2c49.96-57.41,123.55-93.7,205.63-93.7s156.26,36.58,206.22,94.38l-205.44,144.44-206.41-145.12ZM500.78,539.66l202.18,142.15c-49.89,55.66-122.33,90.69-202.96,90.69s-152.49-34.74-202.36-90.01l203.14-142.82ZM552.94,502.99l187.3-131.69c20.58,38.33,32.26,82.15,32.26,128.7s-12.59,93.67-34.63,133.01l-184.93-130.02ZM165,165h670v66.34l-79.5,55.89c-60.99-73.16-152.8-119.73-255.5-119.73s-193.92,46.28-254.92,119.04l-80.08-56.3v-65.24ZM165,302.58l45.82,33.22c-27.57,48.44-43.32,104.48-43.32,164.2s16.7,119.04,45.79,168.45l-48.29,34.95v-400.82ZM835,835H165v-59.25l83.25-58.53c60.97,70.6,151.14,115.29,251.75,115.29s191.35-44.98,252.33-115.98l82.67,58.13v60.35Z"></path> <rect class="cls-1" width="1000" height="1000"></rect> </svg>',
+  iron1: '<svg width="52" height="52" xmlns="http://www.w3.org/2000/svg" id="icon" viewBox="0 0 1000 1000"> <defs> <style>.cls-1{fill:none;}</style> </defs> <path d="M85,85v830h830V85H85ZM422.57,155L155,422.57V155h267.57ZM845,845H155v-337.57L507.43,155h337.57v690Z"></path> <rect x="230" y="465.88" width="539.39" height="68"></rect> <rect class="cls-1" width="1000" height="1000"></rect> </svg>',
+  iron2: '<svg width="52" height="52" xmlns="http://www.w3.org/2000/svg" id="icon" viewBox="0 0 1000 1000"> <defs> <style>.cls-1{fill:none;}</style> </defs> <path d="M85,85v830h830V85H85ZM845,845H155V155h690v690Z"></path> <rect x="230" y="541.88" width="539.39" height="68"></rect> <rect x="230" y="389.88" width="539.39" height="68"></rect> <rect class="cls-1" x="0" width="1000" height="1000"></rect> </svg>',
+  iron3: '<svg width="52" height="52" xmlns="http://www.w3.org/2000/svg" id="icon" viewBox="0 0 1000 1000"> <defs> <style>.cls-1{fill:none;}</style> </defs> <path d="M85,85v830h830V85H85ZM422.57,155L155,422.57V155h267.57ZM845,845H155v-337.57l75-75v25.46h539.39v-68h-496.84l234.88-234.88h337.57v690Z"></path> <rect x="230" y="541.88" width="539.39" height="68"></rect> <rect class="cls-1" width="1000" height="1000"></rect> </svg>',
+  cleanP: '<svg width="52" height="52" xmlns="http://www.w3.org/2000/svg" id="icon" viewBox="0 0 1000 1000"> <defs> <style>.cls-1{fill:none;}</style> </defs> <path d="M562.84,306h-183.61v434h70v-144h113.61c57.61,0,145-30.41,145-145s-87.39-145-145-145ZM562.84,531h-113.61v-160h113.61c33.26,0,75,12.89,75,80s-45.07,80-75,80Z"></path> <path d="M500,85c-229.2,0-415,185.8-415,415s185.8,415,415,415,415-185.8,415-415S729.2,85,500,85ZM500,845c-190.54,0-345-154.46-345-345S309.46,155,500,155s345,154.46,345,345-154.46,345-345,345Z"></path> <rect class="cls-1" width="1000" height="1000"></rect> </svg>',
+  cleanF: '<svg width="52" height="52" xmlns="http://www.w3.org/2000/svg" id="icon" viewBox="0 0 1000 1000"> <defs> <style>.cls-1{fill:none;}</style> </defs> <polygon points="379.24 740 449.24 740 449.24 561.14 635.84 561.14 635.84 496.14 449.24 496.14 449.24 371 659.84 371 659.84 306 379.24 306 379.24 740"></polygon> <path d="M500,85c-229.2,0-415,185.8-415,415s185.8,415,415,415,415-185.8,415-415S729.2,85,500,85ZM500,845c-190.54,0-345-154.46-345-345S309.46,155,500,155s345,154.46,345,345-154.46,345-345,345Z"></path> <rect class="cls-1" width="1000" height="1000"></rect> </svg>',
+};
+// ══════════════════════════════════════════════
+// 素材データ（JIS L0001準拠）
+// ══════════════════════════════════════════════
+var MATERIALS = {
+  cotton:   { name: 'コットン',     icon: '🌸',
+    wash:   { label: '40℃以下・弱水流', svg: 'wash40weak', detail: '洗濯機可（弱水流）' },
+    bleach: { label: '酸素系漂白剤のみ可', svg: 'bleachOxygen', detail: '塩素系漂白禁止' },
+    dry:    { label: '乾燥機：低温可', svg: 'dryLow', detail: '低温設定で使用可' },
+    iron:   { label: 'アイロン：中温（150℃以下）', svg: 'iron2', detail: '中温・当て布推奨' },
+    clean:  { label: 'ドライクリーニング可（P・F）', svg: 'cleanP', svg2: 'cleanF', detail: 'パークロロ等またはフッ素系溶剤' },
+    cautions: ['縮みやすいため洗濯ネットの使用をおすすめします', '初回洗濯前に水通しをしておくと縮みを軽減できます', '色物は単独洗いで色落ちを防いでください'] },
+  linen:    { name: 'リネン',       icon: '🌿',
+    wash:   { label: '40℃以下・弱水流', svg: 'wash40weak', detail: '洗濯機可（弱水流）' },
+    bleach: { label: '酸素系漂白剤のみ可', svg: 'bleachOxygen', detail: '塩素系漂白禁止' },
+    dry:    { label: '乾燥機：禁止推奨', svg: 'dryNo', detail: '形崩れ・縮みの原因に' },
+    iron:   { label: 'アイロン：高温（200℃以下）', svg: 'iron3', detail: '高温・スチーム可' },
+    clean:  { label: 'ドライクリーニング可（P・F）', svg: 'cleanP', svg2: 'cleanF', detail: 'パークロロ等またはフッ素系溶剤' },
+    cautions: ['初回洗濯で縮みやすいため水通しを忘れずに', 'シワになりやすい素材のためアイロンがけ推奨', '乾燥機使用は縮みの原因になるため自然乾燥を'] },
+  wool:     { name: 'ウール',       icon: '🐑',
+    wash:   { label: '手洗い・30℃以下', svg: 'washHand', detail: '手洗いのみ（30℃以下）' },
+    bleach: { label: '漂白禁止', svg: 'bleachNo', detail: '漂白剤は素材を傷めます' },
+    dry:    { label: '乾燥機：禁止', svg: 'dryNo', detail: '縮み・フェルト化の原因' },
+    iron:   { label: 'アイロン：低温（110℃以下）・当て布', svg: 'iron1', detail: '低温・当て布必須' },
+    clean:  { label: 'ドライクリーニング推奨（P・F）', svg: 'cleanP', svg2: 'cleanF', detail: 'デリケートな素材のためドライ推奨' },
+    cautions: ['ゴシゴシ洗うとフェルト化（縮んで固まる）します', '脱水は短時間にして、形を整えて陰干しを', '防虫剤と一緒に保管してください', '当て布を使って低温でアイロンがけしてください'] },
+  acrylic:  { name: 'アクリル',     icon: '⭐',
+    wash:   { label: '30℃以下・弱水流', svg: 'wash30weak', detail: '洗濯機可（弱水流）' },
+    bleach: { label: '酸素系漂白剤のみ可', svg: 'bleachOxygen', detail: '塩素系は使用不可' },
+    dry:    { label: '乾燥機：低温可', svg: 'dryLow', detail: '低温設定で使用可' },
+    iron:   { label: 'アイロン：低温（110℃以下）', svg: 'iron1', detail: '低温（110℃以下）' },
+    clean:  { label: 'ドライクリーニング可（P・F）', svg: 'cleanP', svg2: 'cleanF', detail: 'パークロロ等またはフッ素系溶剤' },
+    cautions: ['高温で変形・溶ける場合があります', 'アイロンは必ず低温設定で、当て布推奨', '静電気が起きやすいため柔軟剤の使用がおすすめ'] },
+  polyester:{ name: 'ポリエステル', icon: '💎',
+    wash:   { label: '40℃以下・弱水流', svg: 'wash40weak', detail: '洗濯機可（弱水流）' },
+    bleach: { label: '酸素系漂白剤のみ可', svg: 'bleachOxygen', detail: '塩素系は色落ちの原因' },
+    dry:    { label: '乾燥機：低温可', svg: 'dryLow', detail: '低温設定で使用可' },
+    iron:   { label: 'アイロン：低温（110℃以下）', svg: 'iron1', detail: '低温（110℃以下）' },
+    clean:  { label: 'ドライクリーニング可（P・F）', svg: 'cleanP', svg2: 'cleanF', detail: 'パークロロ等またはフッ素系溶剤' },
+    cautions: ['高温のアイロンは変形・溶けの原因になります', '静電気や毛玉が発生しやすい素材です', '柔軟剤を使用すると静電気を軽減できます'] },
+  nylon:    { name: 'ナイロン',     icon: '🪢',
+    wash:   { label: '30℃以下・弱水流', svg: 'wash30weak', detail: '洗濯機可（弱水流）' },
+    bleach: { label: '漂白禁止', svg: 'bleachNo', detail: '漂白剤は素材を傷めます' },
+    dry:    { label: '乾燥機：禁止', svg: 'dryNo', detail: '熱で変形の原因に' },
+    iron:   { label: 'アイロン：低温（110℃以下）', svg: 'iron1', detail: '低温・当て布推奨' },
+    clean:  { label: 'ドライクリーニング可（P・F）', svg: 'cleanP', svg2: 'cleanF', detail: 'パークロロ等またはフッ素系溶剤' },
+    cautions: ['熱に弱いため乾燥機・高温アイロンは禁止です', '直射日光による変色に注意してください', '摩擦に強い素材ですが、鋭利なものには注意を'] },
+  silk:     { name: 'シルク',       icon: '🌺',
+    wash:   { label: '手洗い・30℃以下', svg: 'washHand', detail: '手洗いのみ（30℃以下）' },
+    bleach: { label: '漂白禁止', svg: 'bleachNo', detail: '漂白剤は絶対に使用不可' },
+    dry:    { label: '乾燥機：禁止', svg: 'dryNo', detail: '変形・縮みの原因' },
+    iron:   { label: 'アイロン：低温（110℃以下）・当て布', svg: 'iron1', detail: '低温・当て布必須' },
+    clean:  { label: 'ドライクリーニング推奨（P・F）', svg: 'cleanP', svg2: 'cleanF', detail: 'デリケートな素材のためドライ推奨' },
+    cautions: ['水染みができやすいため濡らすときは全体を均一に', 'ゴシゴシ洗いは厳禁。押し洗いで優しく', '直射日光での乾燥は黄変の原因になります', '非常にデリケートな素材のため取り扱いに注意を'] },
+  double_gauze: { name: 'ダブルガーゼ', icon: '☁️',
+    wash:   { label: '30℃以下・弱水流', svg: 'wash30weak', detail: '洗濯機可（弱水流）' },
+    bleach: { label: '酸素系漂白剤のみ可', svg: 'bleachOxygen', detail: '塩素系は使用不可' },
+    dry:    { label: '乾燥機：禁止推奨', svg: 'dryNo', detail: '縮み・変形の原因に' },
+    iron:   { label: 'アイロン：中温（150℃以下）', svg: 'iron2', detail: '中温・スチーム可' },
+    clean:  { label: 'ドライクリーニング可（P・F）', svg: 'cleanP', svg2: 'cleanF', detail: 'パークロロ等またはフッ素系溶剤' },
+    cautions: ['洗濯で縮みやすいため洗濯ネット使用推奨', '端がほつれやすいので丁寧に扱ってください', '乾燥機は縮みの原因になるため自然乾燥を'] },
+  denim:    { name: 'デニム',       icon: '👖',
+    wash:   { label: '40℃以下・弱水流', svg: 'wash40weak', detail: '洗濯機可（弱水流）' },
+    bleach: { label: '漂白禁止', svg: 'bleachNo', detail: '色落ち・変色の原因' },
+    dry:    { label: '乾燥機：低温可', svg: 'dryLow', detail: '低温設定で使用可' },
+    iron:   { label: 'アイロン：中温（150℃以下）', svg: 'iron2', detail: '中温（150℃以下）' },
+    clean:  { label: 'ドライクリーニング可（P・F）', svg: 'cleanP', svg2: 'cleanF', detail: 'パークロロ等またはフッ素系溶剤' },
+    cautions: ['初回は色落ちが激しいため必ず単独で洗ってください', '裏返して洗うと色落ちを軽減できます', '天日干しは色褪せの原因になるため陰干し推奨'] },
+  felt:     { name: 'フェルト',     icon: '🟥',
+    wash:   { label: '手洗い・30℃以下', svg: 'washHand', detail: '手洗いのみ（30℃以下）' },
+    bleach: { label: '漂白禁止', svg: 'bleachNo', detail: '漂白剤は使用不可' },
+    dry:    { label: '乾燥機：禁止', svg: 'dryNo', detail: '縮み・変形の原因' },
+    iron:   { label: 'アイロン：低温（110℃以下）・当て布', svg: 'iron1', detail: '低温・当て布必須' },
+    clean:  { label: 'ドライクリーニング可（P・F）', svg: 'cleanP', svg2: 'cleanF', detail: 'パークロロ等またはフッ素系溶剤' },
+    cautions: ['ゴシゴシ洗うと縮み・変形します。押し洗いで', '乾燥時は形を整えて陰干ししてください', '水に弱い素材のためなるべく濡らさない保管を'] },
+  blend:    { name: '混紡', icon: '🔀' },
+};
+
+// 繊細な素材の優先順位（高い方が優先）
+var DELICATE_ORDER = ['silk', 'wool', 'felt', 'nylon', 'linen', 'double_gauze', 'cotton', 'acrylic', 'polyester', 'denim'];
+
+var selectedMaterial = null;
+var isBlend = false;
+var blendRows = [];
+
+// ══════════════════════════════════════════════
+// UI初期化
+// ══════════════════════════════════════════════
+function init() {
+  var grid = document.getElementById('materialGrid');
+  var keys = Object.keys(MATERIALS);
+  grid.innerHTML = keys.map(function(k) {
+    var m = MATERIALS[k];
+    return '<button class="mat-btn" id="mat-' + k + '" onclick="selectMaterial(\'' + k + '\')">'
+      + '<span class="mat-icon">' + m.icon + '</span>'
+      + m.name + '</button>';
+  }).join('');
+}
+
+function selectMaterial(key) {
+  selectedMaterial = key;
+  isBlend = key === 'blend';
+  document.querySelectorAll('.mat-btn').forEach(function(b){ b.classList.remove('on'); });
+  document.getElementById('mat-' + key).classList.add('on');
+  var bs = document.getElementById('blendSection');
+  if (isBlend) {
+    bs.style.display = 'block';
+    if (!blendRows.length) { addBlendRow(); addBlendRow(); }
+    renderBlendRows();
+  } else {
+    bs.style.display = 'none';
+  }
+}
+
+// ══════════════════════════════════════════════
+// 混紡
+// ══════════════════════════════════════════════
+function addBlendRow() {
+  blendRows.push({ mat: 'cotton', pct: 0 });
+  renderBlendRows();
+}
+
+function renderBlendRows() {
+  var matOptions = Object.keys(MATERIALS).filter(function(k){ return k !== 'blend'; }).map(function(k){
+    return '<option value="' + k + '">' + MATERIALS[k].icon + ' ' + MATERIALS[k].name + '</option>';
+  }).join('');
+
+  document.getElementById('blendRows').innerHTML = blendRows.map(function(r, i) {
+    return '<div class="blend-row">'
+      + '<select onchange="blendRows[' + i + '].mat=this.value;updateBlendTotal()">' + matOptions.replace('value="' + r.mat + '"', 'value="' + r.mat + '" selected') + '</select>'
+      + '<input type="number" value="' + r.pct + '" min="0" max="100" placeholder="%" onchange="blendRows[' + i + '].pct=parseInt(this.value)||0;updateBlendTotal()">'
+      + '<span class="blend-pct">%</span>'
+      + '<button class="blend-del" onclick="blendRows.splice(' + i + ',1);renderBlendRows()">✕</button>'
+      + '</div>';
+  }).join('');
+  updateBlendTotal();
+}
+
+function updateBlendTotal() {
+  var total = blendRows.reduce(function(a,r){ return a + (r.pct||0); }, 0);
+  var el = document.getElementById('blendTotal');
+  el.textContent = '合計：' + total + '%' + (total === 100 ? ' ✅' : ' （100%になるよう調整してください）');
+  el.className = 'blend-total ' + (total === 100 ? 'ok' : 'ng');
+}
+
+// ══════════════════════════════════════════════
+// 生成
+// ══════════════════════════════════════════════
+function generate() {
+  if (!selectedMaterial) { toast('素材を選択してください'); return; }
+
+  var mat, matLabel;
+  if (isBlend) {
+    var total = blendRows.reduce(function(a,r){ return a+(r.pct||0); }, 0);
+    if (total !== 100) { toast('混紡比率の合計を100%にしてください'); return; }
+    // 最も繊細な素材の基準を採用
+    var sortedBlend = blendRows.slice().sort(function(a,b){
+      return DELICATE_ORDER.indexOf(a.mat) - DELICATE_ORDER.indexOf(b.mat);
+    });
+    mat = MATERIALS[sortedBlend[0].mat];
+    matLabel = blendRows.map(function(r){ return MATERIALS[r.mat].name + r.pct + '%'; }).join('・');
+  } else {
+    mat = MATERIALS[selectedMaterial];
+    matLabel = mat.name + '100%';
+  }
+
+  document.getElementById('resultMaterial').textContent = matLabel;
+
+  // 記号表示（SVG）
+  document.getElementById('symbolsGrid').innerHTML = [
+    { label: '洗い方', key: 'wash' },
+    { label: '漂白', key: 'bleach' },
+    { label: '乾燥機', key: 'dry' },
+    { label: 'アイロン', key: 'iron' },
+    { label: 'クリーニング', key: 'clean' },
+  ].map(function(s) {
+    var info = mat[s.key];
+    var svgHtml = '<div style="display:flex;gap:4px;justify-content:center">' + SYM[info.svg]
+      + (info.svg2 ? SYM[info.svg2] : '')
+      + '</div>';
+    return '<div class="symbol-card">'
+      + '<div class="symbol-svg">' + svgHtml + '</div>'
+      + '<div class="symbol-label">' + s.label + '</div>'
+      + '<div class="symbol-value">' + info.label + '</div>'
+      + '<div class="symbol-note">' + info.detail + '</div>'
+      + '</div>';
+  }).join('');
+
+  // 注意点
+  document.getElementById('cautionList').innerHTML = mat.cautions.map(function(c){
+    return '<li>' + c + '</li>';
+  }).join('');
+
+  // コピーテキスト生成
+  var copyTxt = '【素材】' + matLabel + '\n'
+    + '【洗い方】' + mat.wash.label + '\n'
+    + '【漂白】' + mat.bleach.label + '\n'
+    + '【乾燥機】' + mat.dry.label + '\n'
+    + '【アイロン】' + mat.iron.label + '\n'
+    + '【クリーニング】' + mat.clean.label + '\n'
+    + '\n＜お手入れの注意点＞\n'
+    + mat.cautions.map(function(c){ return '・' + c; }).join('\n');
+  document.getElementById('copyText').textContent = copyTxt;
+
+  var rc = document.getElementById('resultCard');
+  rc.style.display = 'block';
+  rc.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function copyToClipboard() {
+  var text = document.getElementById('copyText').textContent;
+  navigator.clipboard.writeText(text).then(function(){
+    toast('クリップボードにコピーしました✅');
+  });
+}
+
+function toggleAccordion(head) {
+  var body = head.nextElementSibling;
+  var chev = head.querySelector('.accordion-chev');
+  body.classList.toggle('open');
+  chev.classList.toggle('open');
+}
+
+function toast(msg) {
+  var el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('show');
+  setTimeout(function(){ el.classList.remove('show'); }, 2500);
+}
+
+init();
+</script>
+</body>
+</html>
