@@ -664,6 +664,10 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
             <div><label>低在庫アラート</label><input type="number" id="mkNMin" value="3" min="0"></div>
             <div><label>製作数 *</label><input type="number" id="mkNQty" value="1" min="1"></div>
           </div>
+          <div class="fr c2">
+            <div><label>色/柄</label><input type="text" id="mkNColor" placeholder="例：レッド、ドット柄"></div>
+            <div></div>
+          </div>
           <div class="fr">
             <div><label>メモ</label><input type="text" id="mkNMemo" placeholder="色・サイズなど"></div>
           </div>
@@ -683,12 +687,13 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
         <div id="mkRCalc" class="cd m8"></div>
       </div>
       <div class="fr c2" style="margin-bottom:5px">
-        <div><label>製作日</label>
+        <div>
+          <label>製作日</label>
           <div class="df"><button type="button" class="dd" id="mkDate_btn" onclick="dpOpen('mkDate')"><span id="mkDate_lbl" class="ph">日付を選択</span><span>📅</span></button></div>
-          <input type="hidden" id="mkDate">
         </div>
         <div><label>管理番号（任意）</label><input type="text" id="mkCode" placeholder="例：MK-001"></div>
       </div>
+      <input type="hidden" id="mkDate">
       <div id="mkRPrev" style="margin-bottom:9px"></div>
       <div id="mkCPrev" class="cd" style="margin-bottom:13px"></div>
       <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:9px">
@@ -754,6 +759,10 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
           <div class="fr c2">
             <div><label>単位</label><input type="text" id="purNUnit" value="個" placeholder="例：m、g、個"></div>
             <div><label>生地幅（cm）</label><input type="number" id="purNFW" placeholder="例：110"></div>
+          </div>
+          <div class="fr c2">
+            <div><label>色/柄</label><input type="text" id="purNColor" placeholder="例：ネイビー、花柄"></div>
+            <div><label>ブランド/メーカー</label><input type="text" id="purNBrand" placeholder="例：KOKKA、CHECK&STRIPE"></div>
           </div>
           <div class="fr c2">
             <div><label>低在庫アラート</label><input type="number" id="purNMin" value="5" min="0"></div>
@@ -1050,6 +1059,10 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
         <div class="fr c2">
           <div><label>仕入れ単価（円）</label><input type="number" id="imMC"></div>
           <div><label>仕入れ先</label><input type="text" id="imSup"></div>
+        </div>
+        <div class="fr c2">
+          <div><label>色/柄</label><input type="text" id="imColor" placeholder="例：ネイビー、花柄"></div>
+          <div><label>ブランド/メーカー</label><input type="text" id="imBrand" placeholder="例：KOKKA、CHECK&STRIPE"></div>
         </div>
         <div class="fr c2">
           <div><label>生地幅（cm、任意）</label><input type="number" id="imFW"></div>
@@ -1750,7 +1763,7 @@ function rMats() {
       stRow = '<div style="margin-top:9px;padding:9px 11px;background:' + (diff !== null && diff !== 0 ? '#fff9e6' : 'var(--sf2)') + ';border-radius:8px;border:1px solid ' + (diff !== null && diff !== 0 ? '#f0d060' : 'var(--bd)') + ';display:flex;align-items:center;gap:10px;flex-wrap:wrap"><span class="ts fw7" style="color:var(--ac3)">✅ 棚卸</span><span class="ts tm">システム: <b class="mn">' + i.stock + '</b>' + (i.unit || '個') + '</span><div style="display:flex;align-items:center;gap:6px"><span class="ts tm">実数:</span><input type="number" value="' + (actual !== undefined ? actual : '') + '" min="0" step="0.01" placeholder="入力..." data-stid="' + i.id + '" style="width:80px;padding:5px 8px;font-size:13px" onchange="setSTc(\'' + i.id + '\',this.value)"><span class="ts tm">' + (i.unit || '個') + '</span></div>' + (diff !== null ? '<span class="ts stDiff" data-stid="' + i.id + '">差分: ' + diffHtml + '</span>' : '<span class="ts stDiff" data-stid="' + i.id + '"></span>') + '</div>';
     }
     var mthumb = i.photo ? '<img src="' + i.photo + '" style="width:60px;height:60px;object-fit:cover;border-radius:7px;border:1px solid var(--bd)">' : '<div style="width:60px;height:60px;background:var(--sf2);border-radius:7px;border:1px solid var(--bd);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:22px">🧶</div>';
-    return '<div class="ic"><div class="icb"><div class="ict">' + mthumb + '<div class="ici"><div class="icn">' + i.name + (i.cat ? '<span class="ts tm" style="font-weight:400;margin-left:7px">' + i.cat + '</span>' : '') + '</div><div class="icm"><span class="mn fw7" style="font-size:16px;color:' + sc + '">' + i.stock + '<small class="tm" style="font-size:11px;font-weight:400"> ' + (i.unit || '個') + '</small></span><span class="ts tm">最低: ' + (i.min || 0) + (i.unit || '個') + '</span>' + (i.mc ? '<span class="ts tm">単価: ' + yen(i.mc) + '/' + (i.unit || '個') + '</span>' : '') + (i.sup ? '<span class="ts tm">仕入先: ' + i.sup + '</span>' : '') + st + '</div>' + (i.memo ? '<div class="ts tm m8">' + i.memo + '</div>' : '') + stRow + '</div><div class="ica"><button class="bi" onclick="editItem(\'' + i.id + '\')">✏️</button><button class="bi bdl" onclick="delItem(\'' + i.id + '\')">🗑</button></div></div></div></div>';
+    return '<div class="ic"><div class="icb"><div class="ict">' + mthumb + '<div class="ici"><div class="icn">' + i.name + (i.cat ? '<span class="ts tm" style="font-weight:400;margin-left:7px">' + i.cat + '</span>' : '') + '</div><div class="icm"><span class="mn fw7" style="font-size:16px;color:' + sc + '">' + i.stock + '<small class="tm" style="font-size:11px;font-weight:400"> ' + (i.unit || '個') + '</small></span><span class="ts tm">最低: ' + (i.min || 0) + (i.unit || '個') + '</span>' + (i.mc ? '<span class="ts tm">単価: ' + yen(i.mc) + '/' + (i.unit || '個') + '</span>' : '') + (i.color ? '<span class="ts tm">🎨 ' + i.color + '</span>' : '') + (i.brand ? '<span class="ts tm">🏷 ' + i.brand + '</span>' : '') + (i.sup ? '<span class="ts tm">仕入先: ' + i.sup + '</span>' : '') + st + '</div>' + (i.memo ? '<div class="ts tm m8">' + i.memo + '</div>' : '') + stRow + '</div><div class="ica"><button class="bi" onclick="editItem(\'' + i.id + '\')">✏️</button><button class="bi bdl" onclick="delItem(\'' + i.id + '\')">🗑</button></div></div></div></div>';
   }).join('');
 }
 
@@ -1761,7 +1774,7 @@ function openIM(type) {
   editId = null; iRec = []; currentPhoto = null; currentPhotoFile = null;
   document.getElementById('imTitle').textContent = type === 'product' ? '完成品を追加' : '材料を追加';
   document.getElementById('imType').value = type;
-  ['imName', 'imCat', 'imMemo', 'imSup', 'imSP', 'imCost', 'imMC', 'imFW'].forEach(function(id) { document.getElementById(id).value = ''; });
+  ['imName', 'imCat', 'imMemo', 'imSup', 'imSP', 'imCost', 'imMC', 'imFW', 'imColor', 'imBrand'].forEach(function(id) { document.getElementById(id).value = ''; });
   document.getElementById('imUnit').value = type === 'product' ? '個' : '';
   document.getElementById('imStock').value = 0;
   document.getElementById('imMin').value = type === 'product' ? 3 : 5;
@@ -1784,6 +1797,8 @@ function editItem(id) {
   document.getElementById('imMC').value = i.mc || '';
   document.getElementById('imSup').value = i.sup || '';
   document.getElementById('imFW').value = i.fw || '';
+  document.getElementById('imColor').value = i.color || '';
+  document.getElementById('imBrand').value = i.brand || '';
   document.getElementById('imMemo').value = i.memo || '';
   if (i.photo) { showPhotoPreview(i.photo); } else { resetPhotoUI(); }
   togImF(); rImRL(); openMod('itemOv');
@@ -1827,6 +1842,8 @@ async function saveItem() {
     mc: parseFloat(document.getElementById('imMC').value) || 0,
     sup: document.getElementById('imSup').value.trim(),
     fw: parseFloat(document.getElementById('imFW').value) || 0,
+    color: document.getElementById('imColor').value.trim(),
+    brand: document.getElementById('imBrand').value.trim(),
     memo: document.getElementById('imMemo').value.trim(),
     recipe: recipe, photo: photoUrl || null
   };
@@ -1941,7 +1958,7 @@ async function recMake(memoOnly) {
     qty = parseInt(document.getElementById('mkNQty').value) || 1;
     recipe = mkRec.filter(function(r) { return r.mid && r.qty > 0; });
     var ac = recipe.reduce(function(a, r) { var m = items.find(function(x) { return x.id === r.mid; }); return a + (m ? m.mc || 0 : 0) * r.qty; }, 0);
-    item = { id: uid(), type: 'product', name: name, cat: document.getElementById('mkNCat').value.trim(), unit: document.getElementById('mkNUnit').value.trim() || '個', stock: 0, min: parseInt(document.getElementById('mkNMin').value) || 3, sp: parseFloat(document.getElementById('mkNPrice').value) || 0, cost: Math.round(ac), mc: 0, sup: '', fw: 0, memo: document.getElementById('mkNMemo').value.trim(), recipe: recipe, photo: null };
+    item = { id: uid(), type: 'product', name: name, cat: document.getElementById('mkNCat').value.trim(), unit: document.getElementById('mkNUnit').value.trim() || '個', stock: 0, min: parseInt(document.getElementById('mkNMin').value) || 3, sp: parseFloat(document.getElementById('mkNPrice').value) || 0, cost: Math.round(ac), mc: 0, sup: '', fw: 0, color: document.getElementById('mkNColor').value.trim(), brand: '', memo: document.getElementById('mkNMemo').value.trim(), recipe: recipe, photo: null };
     items.push(item); await svItem(item);
   } else {
     item = items.find(function(i) { return i.id === document.getElementById('mkProd').value; });
@@ -2049,7 +2066,9 @@ async function recPurchase() {
     if (!name) { alert('材料名を入力してください'); return; }
     var cat = document.getElementById('purNCatTxt').value.trim() || document.getElementById('purNCatSel').value;
     var nUnit = document.getElementById('purNUnit').value.trim() || '個';
-    item = { id: uid(), type: 'material', name: name, cat: cat, unit: nUnit, stock: 0, min: parseInt(document.getElementById('purNMin').value) || 5, sp: 0, cost: 0, mc: unit, sup: sup, fw: parseFloat(document.getElementById('purNFW').value) || 0, memo: '', recipe: [], photo: null };
+    var nColor = document.getElementById('purNColor').value.trim();
+    var nBrand = document.getElementById('purNBrand').value.trim();
+    item = { id: uid(), type: 'material', name: name, cat: cat, unit: nUnit, stock: 0, min: parseInt(document.getElementById('purNMin').value) || 5, sp: 0, cost: 0, mc: unit, sup: sup, fw: parseFloat(document.getElementById('purNFW').value) || 0, color: nColor, brand: nBrand, memo: '', recipe: [], photo: null };
     items.push(item); await svItem(item);
   } else {
     item = items.find(function(i) { return i.id === document.getElementById('purItem').value; });
@@ -2069,7 +2088,7 @@ async function recPurchase() {
   addH(item.name, qty, '仕入れ' + (sup ? '（' + sup + '）' : ''), item.stock);
   await svItem(item);
   ['purQty', 'purTot', 'purUnit', 'purSup', 'purMemo', 'purCode'].forEach(function(id) { document.getElementById(id).value = ''; });
-  if (purMode === 'new') { ['purNName', 'purNCatTxt', 'purNFW'].forEach(function(id) { document.getElementById(id).value = ''; }); document.getElementById('purNUnit').value = '個'; document.getElementById('purNMin').value = 5; }
+  if (purMode === 'new') { ['purNName', 'purNCatTxt', 'purNFW', 'purNColor', 'purNBrand'].forEach(function(id) { document.getElementById(id).value = ''; }); document.getElementById('purNUnit').value = '個'; document.getElementById('purNMin').value = 5; }
   document.getElementById('purPrev').innerHTML = '';
   clearPurPhoto();
   rPurPg(); alert('仕入れを記録しました\n' + item.name + ' +' + qty + (item.unit || '個'));
