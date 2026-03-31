@@ -199,8 +199,8 @@ var MATERIALS = {
       ],
       stars: { ease: 5, wash: 5, breath: 3, stretch: 1 },
       uses: 'ポーチ・バッグ・小物全般',
-      season: '通年',
-      price: '低〜中',
+      season: '通年', price: '低〜中',
+      needle: '11〜14号', thread: '60番（普通地用）',
       filters: ['wash_machine', 'beginner', 'bag', 'pouch', 'easy'],
       desc: 'ハンドメイドの定番素材。適度な厚みと張りがあり、初心者でも扱いやすいのが特徴です。柄の種類も豊富で、作品のデザインの幅が広がります。洗濯に強く、肌触りも良いため幅広いアイテムに使えます。',
       cautions: ['縮みやすいため、裁断前に水通しをおすすめします', '薄手のものはほつれやすいので端処理を丁寧に', '色落ちするものがあるため、初回は単独で洗濯を'],
@@ -215,8 +215,8 @@ var MATERIALS = {
       ],
       stars: { ease: 3, wash: 3, breath: 5, stretch: 1 },
       uses: 'バッグ・エコバッグ・夏小物',
-      season: '春夏',
-      price: '中',
+      season: '春夏', price: '中',
+      needle: '11〜14号', thread: '60番（普通地用）',
       filters: ['hand_wash', 'bag', 'summer'],
       desc: '麻素材の生地で、通気性と吸水性に優れています。使い込むほどに柔らかくなる風合いが魅力。ナチュラルな雰囲気の作品に最適です。シワになりやすいですが、それもリネンらしい味になります。',
       cautions: ['シワになりやすいためアイロンがけが必要なことも', '洗濯で縮みやすいため水通し必須', '端がほつれやすく、ロック処理か三つ折りで対応を'],
@@ -231,8 +231,8 @@ var MATERIALS = {
       ],
       stars: { ease: 2, wash: 3, breath: 5, stretch: 2 },
       uses: 'スタイ・ハンカチ・マスク・ベビー用品',
-      season: '通年',
-      price: '低〜中',
+      season: '通年', price: '低〜中',
+      needle: '9〜11号', thread: '90番（薄地用）',
       filters: ['hand_wash', 'baby', 'summer'],
       desc: '2枚のガーゼ生地を重ね合わせた素材。柔らかく肌触りが抜群で、赤ちゃん用品に大人気です。洗うほどにふんわり柔らかくなります。ズレやすく縫いにくいのが難点ですが、仕上がりの質感は格別です。',
       cautions: ['ズレやすいため、まち針やクリップで丁寧に固定して', '端がほつれやすいので端処理は必須', '初心者には少し難しいため、慣れてからチャレンジを'],
@@ -247,8 +247,8 @@ var MATERIALS = {
       ],
       stars: { ease: 5, wash: 4, breath: 3, stretch: 1 },
       uses: 'ポーチ・トートバッグ・小物',
-      season: '通年',
-      price: '低〜中',
+      season: '通年', price: '低〜中',
+      needle: '11〜14号', thread: '60番（普通地用）',
       filters: ['wash_machine', 'beginner', 'bag', 'pouch', 'easy'],
       desc: 'コットンより少し厚めの平織り生地。適度な張りがあり、ポーチやバッグ作りに最適です。縫いやすさはコットンと同等で、初心者にもおすすめ。柄の種類も豊富です。',
       cautions: ['厚めなので、ミシンの針は14号以上を推奨', '重ね縫い部分が厚くなりやすいので注意'],
@@ -263,8 +263,8 @@ var MATERIALS = {
       ],
       stars: { ease: 3, wash: 4, breath: 3, stretch: 1 },
       uses: 'バッグ・底布・エコバッグ',
-      season: '通年',
-      price: '低〜中',
+      season: '通年', price: '低〜中',
+      needle: '14〜16号', thread: '30番（厚地用）',
       filters: ['wash_machine', 'bag'],
       desc: '厚手でしっかりとした帆布素材。耐久性が高くバッグ作りに最適です。重ねが多いとミシンに負担がかかりますが、丈夫な作品に仕上がります。無地が多くシンプルな作品に向いています。',
       cautions: ['厚みがあるためミシンの針は16号以上を推奨', '手縫いは難しいためミシン推奨', '重ね縫い部分は手動でゆっくり縫うと安心'],
@@ -279,26 +279,11 @@ var MATERIALS = {
       ],
       stars: { ease: 2, wash: 2, breath: 4, stretch: 5 },
       uses: '帽子・小物カバー・子供服',
-      season: '秋冬',
-      price: '中',
+      season: '秋冬', price: '中',
+      needle: 'ニット専用針11〜14号', thread: '60番またはレジロン',
       filters: ['hand_wash', 'winter'],
       desc: '伸縮性が高く、着心地の良い作品に仕上がります。Tシャツやニット帽など、体にフィットするアイテムに最適。ただし伸縮素材のため、普通のミシンでは縫い目が切れることがあります。',
       cautions: ['ニット用のミシン針・伸縮縫い機能が必要', '切りっぱなしでもほつれにくいが端処理があると安心', '洗濯時に形崩れしやすいため手洗いかネット使用を'],
-    },
-    {
-      id: 'interfacing', name: '接着芯', icon: '📋', color: '#f5f5f5', iconBg: '#e0e0e0',
-      cat: '補助素材',
-      tags: [
-        { label: '補助素材', color: '#f3efe9', tx: '#7a6e60' },
-        { label: '形を整える', color: '#edf5f3', tx: '#3a6b5e' },
-      ],
-      stars: { ease: 4, wash: 2, breath: 1, stretch: 1 },
-      uses: 'バッグ・ポーチの芯材・見返し',
-      season: '通年',
-      price: '低',
-      filters: ['bag', 'pouch'],
-      desc: 'アイロンで生地に貼り付ける補助素材。バッグやポーチに張りを出したり、形を安定させるために使います。薄手・厚手・伸縮タイプなど種類が豊富で、用途に合わせて選びましょう。',
-      cautions: ['アイロンの温度が高すぎると剥がれやすくなることも', '洗濯を繰り返すと剥がれることがあるため高品質なものを選んで', '生地の端まで貼るとほつれ防止になります'],
     },
     {
       id: 'sheeting', name: 'シーチング', icon: '🌾', color: '#fffde8', iconBg: '#f5e8c0',
@@ -310,11 +295,75 @@ var MATERIALS = {
       ],
       stars: { ease: 5, wash: 4, breath: 4, stretch: 1 },
       uses: '試し縫い・マスク・ライナー',
-      season: '通年',
-      price: '低',
+      season: '通年', price: '低',
+      needle: '9〜11号', thread: '90番（薄地用）',
       filters: ['wash_machine', 'beginner', 'easy'],
       desc: '薄手で安価なコットン生地。試し縫いや型紙確認の練習用としてよく使われます。薄い分やや透け感がありますが、縫いやすく扱いやすいため初心者の練習にも最適です。',
       cautions: ['薄いため多重縫いでは透け感が出ることも', '耐久性は高くないため本番作品には厚手のものを推奨'],
+    },
+    {
+      id: 'denim', name: 'デニム', icon: '👖', color: '#e8f0ff', iconBg: '#b8d0f0',
+      cat: '厚手素材',
+      tags: [
+        { label: '丈夫', color: '#edf5f3', tx: '#3a6b5e' },
+        { label: '厚手', color: '#f3efe9', tx: '#7a6e60' },
+        { label: 'バッグ向き', color: '#e8f0ff', tx: '#3a5a9f' },
+      ],
+      stars: { ease: 2, wash: 4, breath: 2, stretch: 1 },
+      uses: 'バッグ・ポーチ・小物・リメイク',
+      season: '通年', price: '低〜中',
+      needle: '16号（デニム専用針推奨）', thread: '30番（厚地用）',
+      filters: ['wash_machine', 'bag', 'pouch'],
+      desc: '丈夫でカジュアルな雰囲気が魅力の厚手生地。バッグやポーチに使うと耐久性抜群の作品に仕上がります。古着デニムのリメイクにも人気。厚みがあるためミシンへの負担が大きく、上級者向けの素材です。',
+      cautions: ['厚みがあるためデニム用の太い針を使って', '色落ちしやすいため初回は単独で洗濯を', '重ね縫い部分（8枚以上）はミシンが止まることがあるため手動で'],
+    },
+    {
+      id: 'quilting', name: 'キルティング', icon: '🛏️', color: '#fff0f8', iconBg: '#f0d0e8',
+      cat: '複合素材',
+      tags: [
+        { label: '保温性', color: '#fff8e0', tx: '#8c6b00' },
+        { label: 'クッション性', color: '#fdf0f7', tx: '#8c3a6b' },
+        { label: 'バッグ向き', color: '#e8f0ff', tx: '#3a5a9f' },
+      ],
+      stars: { ease: 4, wash: 3, breath: 2, stretch: 1 },
+      uses: 'バッグ・レッスンバッグ・ランチマット・ポーチ',
+      season: '通年', price: '低〜中',
+      needle: '11〜14号', thread: '60番（普通地用）',
+      filters: ['wash_machine', 'beginner', 'bag', 'pouch'],
+      desc: '表生地と裏生地の間に綿（わた）を挟んでキルト縫いした生地。保温性とクッション性があり、入園・入学グッズの定番素材です。縫い目が既にあるため縫いやすく、初心者にも人気があります。',
+      cautions: ['洗濯で縮みやすいため水通しをおすすめ', '厚みがあるためファスナーつけや角の縫い合わせは丁寧に', '中の綿がヨレないよう裁断は正確に'],
+    },
+    {
+      id: 'heavy_canvas', name: '帆布（厚手）', icon: '⛵', color: '#f5f0e8', iconBg: '#e0d0b0',
+      cat: '厚手素材',
+      tags: [
+        { label: '超丈夫', color: '#edf5f3', tx: '#3a6b5e' },
+        { label: '厚手', color: '#f3efe9', tx: '#7a6e60' },
+        { label: 'バッグ向き', color: '#e8f0ff', tx: '#3a5a9f' },
+      ],
+      stars: { ease: 1, wash: 4, breath: 2, stretch: 1 },
+      uses: 'トートバッグ・ショルダーバッグ・工具入れ',
+      season: '通年', price: '中',
+      needle: '16〜18号', thread: '20〜30番（極厚地用）',
+      filters: ['wash_machine', 'bag'],
+      desc: 'キャンバスよりさらに厚く丈夫な素材。何年も使えるしっかりしたバッグが作れます。素材に張りがあるため形崩れしにくく、本格的な作品向き。上級者向けですが、仕上がりの満足度は高いです。',
+      cautions: ['家庭用ミシンでは縫えないことがあるため事前に試し縫いを', '針が折れやすいため必ず専用の厚地用針を使って', '手縫いはほぼ不可。職業用・工業用ミシン推奨'],
+    },
+    {
+      id: 'synthetic_leather', name: '合皮（フェイクレザー）', icon: '👜', color: '#f5f0f0', iconBg: '#e8d0d0',
+      cat: '合成素材',
+      tags: [
+        { label: '高見え', color: '#fdf0f7', tx: '#8c3a6b' },
+        { label: '水に強い', color: '#e8f0ff', tx: '#3a5a9f' },
+        { label: '上級者向け', color: '#fde8e8', tx: '#c04a4a' },
+      ],
+      stars: { ease: 2, wash: 4, breath: 1, stretch: 1 },
+      uses: 'バッグ・ポーチ・財布・スマホケース',
+      season: '通年', price: '中',
+      needle: '14〜16号（革用針推奨）', thread: '30〜60番・革用糸',
+      filters: ['bag', 'pouch'],
+      desc: '本革の風合いを再現した合成素材。水に強く汚れも拭き取りやすいため実用的なアイテムに最適。高見えするためプレゼント用にも人気。まち針が使えないためクリップで固定が基本です。',
+      cautions: ['まち針を使うと穴が残るためクリップやテープで固定して', 'ミシン押さえはテフロン押さえ（滑り押さえ）を使うとスムーズ', '一度縫った穴は目立つため、縫い直しは慎重に'],
     },
   ],
   yarn: [
@@ -532,6 +581,7 @@ function renderCards() {
       + '<div class="mat-card-body">'
       + '<div class="mat-tags">' + tags + '</div>'
       + stars
+      + (isFabric && m.needle ? '<div style="font-size:11px;color:var(--tx2);background:var(--sf2);border-radius:7px;padding:5px 9px;margin-bottom:6px">🪡 針：' + m.needle + '　糸：' + m.thread + '</div>' : '')
       + '<div class="mat-uses-label">向いている作品</div>'
       + '<div class="mat-uses">' + m.uses + '</div>'
       + '</div></div>';
@@ -564,10 +614,13 @@ function showDetail(type, id) {
 
   var tags = m.tags.map(function(t){ return '<span class="mat-tag" style="background:' + t.color + ';color:' + t.tx + ';font-size:12px;padding:4px 12px">' + t.label + '</span>'; }).join('');
 
+  var needleHtml = (isFabric && m.needle) ? '<div class="modal-section"><div class="modal-section-title">🪡 ミシン設定の目安</div><div style="display:flex;gap:8px;flex-wrap:wrap"><div style="flex:1;min-width:140px;background:var(--sf2);border-radius:10px;padding:11px 14px"><div style="font-size:10px;font-weight:700;color:var(--tx3);letter-spacing:.06em;margin-bottom:4px">ミシン針</div><div style="font-size:14px;font-weight:700">' + m.needle + '</div></div><div style="flex:1;min-width:140px;background:var(--sf2);border-radius:10px;padding:11px 14px"><div style="font-size:10px;font-weight:700;color:var(--tx3);letter-spacing:.06em;margin-bottom:4px">ミシン糸</div><div style="font-size:14px;font-weight:700">' + m.thread + '</div></div></div><p style="font-size:11px;color:var(--tx3);margin-top:8px">※生地の厚みや重ね枚数によって調整してください。</p></div>' : '';
+
   var cautions = m.cautions.map(function(c){ return '<li>' + c + '</li>'; }).join('');
 
   document.getElementById('modBody').innerHTML =
     '<div class="modal-section"><div class="mat-tags" style="margin-bottom:12px">' + tags + '</div>' + stars + '</div>'
+    + needleHtml
     + '<div class="modal-section"><div class="modal-section-title">📝 特徴・説明</div><p class="detail-text">' + m.desc + '</p></div>'
     + '<div class="modal-section"><div class="modal-section-title">📌 向いている作品</div><p class="detail-text">👉 ' + m.uses + '</p></div>'
     + '<div class="modal-section"><div class="modal-section-title">⚠️ 扱う際の注意点</div><div class="caution-box"><ul>' + cautions + '</ul></div></div>';
