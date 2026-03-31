@@ -93,22 +93,6 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(250,248,245,
 .copy-btn{display:inline-flex;align-items:center;gap:5px;padding:9px 20px;border-radius:30px;border:none;background:var(--ac3);color:#fff;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;margin-top:10px;transition:all .2s;}
 .copy-btn:hover{background:#3a6b5e;transform:translateY(-1px);}
 
-/* 旧JIS対応表 */
-.accordion{border:1px solid var(--bd);border-radius:var(--r);margin-bottom:16px;overflow:hidden;}
-.accordion-head{padding:14px 18px;background:var(--sf2);cursor:pointer;display:flex;align-items:center;justify-content:space-between;font-size:13px;font-weight:700;-webkit-tap-highlight-color:transparent;}
-.accordion-chev{transition:transform .25s;font-size:12px;color:var(--tx3);}
-.accordion-chev.open{transform:rotate(180deg);}
-.accordion-body{max-height:0;overflow:hidden;transition:max-height .35s ease;}
-.accordion-body.open{max-height:2000px;}
-.accordion-inner{padding:16px 18px;}
-
-/* 旧JIS表 */
-.jis-table{width:100%;border-collapse:collapse;font-size:12px;}
-.jis-table th{background:var(--sf2);padding:8px 12px;text-align:center;font-size:11px;font-weight:700;color:var(--tx2);border-bottom:2px solid var(--bd);}
-.jis-table td{padding:10px 12px;text-align:center;border-bottom:1px solid var(--bd);vertical-align:middle;}
-.jis-table tr:last-child td{border-bottom:none;}
-.jis-sym{font-size:20px;}
-
 /* アプリバナー */
 .app-banner{background:linear-gradient(135deg,#2c2416,#3d3020);border-radius:var(--rL);padding:22px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:16px;}
 .app-banner h3{color:#e8a87c;font-size:14px;font-weight:700;margin-bottom:4px;}
@@ -188,45 +172,6 @@ footer p{font-size:12px;opacity:.5;margin-top:12px;}
     </div>
   </div>
 
-  <!-- 旧JIS対応表 -->
-  <div class="accordion">
-    <div class="accordion-head" onclick="toggleAccordion(this)">
-      📖 旧JIS記号との対応表（2016年以前の表示はこちら）
-      <span class="accordion-chev">▼</span>
-    </div>
-    <div class="accordion-body">
-      <div class="accordion-inner">
-        <p style="font-size:12px;color:var(--tx2);margin-bottom:12px">2016年12月より洗濯表示記号はISO（国際規格）に統一されました。旧JIS記号との対応はこちらをご参照ください。</p>
-        <div style="overflow-x:auto">
-          <table class="jis-table">
-            <thead>
-              <tr>
-                <th>項目</th>
-                <th>現行記号（ISO）</th>
-                <th>内容</th>
-                <th>旧JIS記号</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr><td>洗い（水洗い可）</td><td class="jis-sym">🫧</td><td style="font-size:11px;text-align:left">桶マーク＋温度</td><td class="jis-sym">〇</td></tr>
-              <tr><td>洗い（手洗い）</td><td class="jis-sym">🤲</td><td style="font-size:11px;text-align:left">桶に手のマーク</td><td class="jis-sym">⊘手</td></tr>
-              <tr><td>洗い（洗濯禁止）</td><td style="font-size:14px">桶に✕</td><td style="font-size:11px;text-align:left">水洗い不可</td><td class="jis-sym">×</td></tr>
-              <tr><td>漂白（塩素系可）</td><td style="font-size:14px">△</td><td style="font-size:11px;text-align:left">三角マーク</td><td class="jis-sym">△</td></tr>
-              <tr><td>漂白（禁止）</td><td style="font-size:14px">△に✕</td><td style="font-size:11px;text-align:left">三角に×</td><td class="jis-sym">△に✕</td></tr>
-              <tr><td>乾燥機（低温可）</td><td style="font-size:14px">四角に●</td><td style="font-size:11px;text-align:left">丸の数で温度</td><td colspan="1" style="font-size:11px">旧JISに乾燥機記号なし</td></tr>
-              <tr><td>乾燥機（禁止）</td><td style="font-size:14px">四角に✕</td><td style="font-size:11px;text-align:left">乾燥機使用禁止</td><td colspan="1" style="font-size:11px">旧JISに乾燥機記号なし</td></tr>
-              <tr><td>アイロン（低温）</td><td class="jis-sym">🔲</td><td style="font-size:11px;text-align:left">点1つ＝110℃以下</td><td class="jis-sym">・アイロン</td></tr>
-              <tr><td>アイロン（中温）</td><td class="jis-sym">🔲</td><td style="font-size:11px;text-align:left">点2つ＝150℃以下</td><td class="jis-sym">••アイロン</td></tr>
-              <tr><td>アイロン（高温）</td><td class="jis-sym">🔲</td><td style="font-size:11px;text-align:left">点3つ＝200℃以下</td><td class="jis-sym">•••アイロン</td></tr>
-              <tr><td>アイロン禁止</td><td style="font-size:14px">アイロンに✕</td><td style="font-size:11px;text-align:left">アイロン不可</td><td style="font-size:11px">アイロンに✕</td></tr>
-              <tr><td>クリーニング（可）</td><td style="font-size:14px">○にP</td><td style="font-size:11px;text-align:left">ドライクリーニング可</td><td class="jis-sym">ドライ</td></tr>
-              <tr><td>クリーニング（禁止）</td><td style="font-size:14px">○に✕</td><td style="font-size:11px;text-align:left">クリーニング不可</td><td style="font-size:11px">ドライに✕</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  </div>
 
   <!-- アプリ誘導バナー -->
   <div class="app-banner">
@@ -519,12 +464,6 @@ function copyToClipboard() {
   });
 }
 
-function toggleAccordion(head) {
-  var body = head.nextElementSibling;
-  var chev = head.querySelector('.accordion-chev');
-  body.classList.toggle('open');
-  chev.classList.toggle('open');
-}
 
 function toast(msg) {
   var el = document.getElementById('toast');
