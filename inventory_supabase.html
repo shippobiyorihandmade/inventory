@@ -76,7 +76,7 @@ header{background:linear-gradient(135deg,#2c2416 0%,#3d3020 60%,#4a3828 100%);co
   .sl{font-size:10px;}
   /* テーブルをスマホ用カードリストに切替 */
   .tw table{display:none;}
-  .dash-mobile-list{display:block;}
+  .dash-mobile-list{display:block!important;}
   /* グリッド */
   .sg{gap:6px;}
   /* フォーム */
@@ -555,7 +555,7 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
   <div id="alrt"></div>
   <div class="card">
     <div class="ch">
-      <span class="ct">🎨 完成品 在庫</span>
+      <span class="ct">🎨 完成品 <span style="font-size:11px;font-weight:400;color:var(--tx2)">新着5件</span></span>
       <span class="ts tm">タップで詳細</span>
     </div>
     <div class="tw"><table><thead><tr><th>名前</th><th>在庫</th><th>売価</th><th>原価</th><th>状態</th></tr></thead><tbody id="dProds"></tbody></table></div>
@@ -563,7 +563,7 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
   </div>
   <div class="card">
     <div class="ch">
-      <span class="ct">🧶 材料 在庫</span>
+      <span class="ct">🧶 材料 <span style="font-size:11px;font-weight:400;color:var(--wn)">要補充</span></span>
       <span class="ts tm">タップで詳細</span>
     </div>
     <div class="tw"><table><thead><tr><th>名前</th><th>在庫</th><th>単価</th><th>状態</th></tr></thead><tbody id="dMats"></tbody></table></div>
@@ -1694,16 +1694,20 @@ function rDash() {
   document.getElementById('sgrid').innerHTML = sc(prods.length, '完成品 種類') + sc(mats.length, '材料 種類') + sc(low.length, '要補充', 'var(--wn)') + sc(ms.length, '今月の販売件数', 'var(--ac3)');
   document.getElementById('alrt').innerHTML = low.length ? '<div class="al"><h4>低在庫アラート（' + low.length + '件）</h4><ul>' + low.map(function(i) { return '<li>' + i.name + '：残り ' + i.stock + (i.unit || '個') + '</li>'; }).join('') + '</ul></div>' : '';
 
+  // 完成品：新着順（ID降順）で上位5件 / 材料：低在庫・在庫切れのみ
+  var recentProds = prods.slice().sort(function(a,b){ return b.id > a.id ? 1 : -1; }).slice(0, 5);
+  var lowMats = mats.filter(function(i){ return isLow(i) || i.stock === 0; });
+
   // テーブル（PC用）
-  document.getElementById('dProds').innerHTML = prods.length ? prods.map(function(i) {
+  document.getElementById('dProds').innerHTML = recentProds.length ? recentProds.map(function(i) {
     var cost = calcCost(i);
     var st = i.stock === 0 ? '<span class="bak bzr">在庫切れ</span>' : isLow(i) ? '<span class="bak bwn">低在庫</span>' : '<span class="bak bok">在庫あり</span>';
     return '<tr style="cursor:pointer" onclick="showDetail(\'' + i.id + '\')"><td class="fw7">' + i.name + '</td><td class="mn fw7">' + i.stock + '<small class="tm"> ' + (i.unit || '個') + '</small></td><td class="mn">' + (i.sp ? yen(i.sp) : '—') + '</td><td class="mn tm">' + (cost ? yen(cost) : '—') + '</td><td>' + st + '</td></tr>';
   }).join('') : '<tr><td colspan="5"><div class="empty"><div class="ei">🎨</div><p>完成品がまだありません</p></div></td></tr>';
-  document.getElementById('dMats').innerHTML = mats.length ? mats.map(function(i) {
-    var st = i.stock === 0 ? '<span class="bak bzr">在庫切れ</span>' : isLow(i) ? '<span class="bak bwn">低在庫</span>' : '<span class="bak bok">在庫あり</span>';
+  document.getElementById('dMats').innerHTML = lowMats.length ? lowMats.map(function(i) {
+    var st = i.stock === 0 ? '<span class="bak bzr">在庫切れ</span>' : '<span class="bak bwn">低在庫</span>';
     return '<tr style="cursor:pointer" onclick="showDetail(\'' + i.id + '\')"><td class="fw7">' + i.name + '</td><td class="mn fw7">' + i.stock + '<small class="tm"> ' + (i.unit || '個') + '</small></td><td class="mn tm">' + (i.mc ? yen(i.mc) + '/' + i.unit : '—') + '</td><td>' + st + '</td></tr>';
-  }).join('') : '<tr><td colspan="4"><div class="empty" style="padding:13px"><p>材料がまだありません</p></div></td></tr>';
+  }).join('') : '<tr><td colspan="4"><div class="empty" style="padding:13px"><p>低在庫・在庫切れの材料はありません ✅</p></div></td></tr>';
 
   // カードリスト（スマホ用）
   function mobileCard(i, type) {
@@ -1722,12 +1726,12 @@ function rDash() {
       + '<div style="text-align:right;flex-shrink:0"><div class="mn fw7" style="font-size:15px;color:' + stColor + '">' + i.stock + '<small class="tm" style="font-size:10px"> ' + (i.unit||'個') + '</small></div><div style="margin-top:2px">' + stLabel + '</div></div>'
       + '</div>';
   }
-  document.getElementById('dProdsMobile').innerHTML = prods.length
-    ? prods.map(function(i){ return mobileCard(i,'product'); }).join('')
+  document.getElementById('dProdsMobile').innerHTML = recentProds.length
+    ? recentProds.map(function(i){ return mobileCard(i,'product'); }).join('')
     : '<div class="empty" style="padding:20px"><div class="ei">🎨</div><p>完成品がまだありません</p></div>';
-  document.getElementById('dMatsMobile').innerHTML = mats.length
-    ? mats.map(function(i){ return mobileCard(i,'material'); }).join('')
-    : '<div class="empty" style="padding:20px"><p>材料がまだありません</p></div>';
+  document.getElementById('dMatsMobile').innerHTML = lowMats.length
+    ? lowMats.map(function(i){ return mobileCard(i,'material'); }).join('')
+    : '<div class="empty" style="padding:20px"><p>低在庫・在庫切れの材料はありません ✅</p></div>';
 
   document.getElementById('dSales').textContent = yen(ms.reduce(function(a, s) { return a + s.total; }, 0));
   document.getElementById('dProfit').textContent = yen(ms.reduce(function(a, s) { return a + s.profit; }, 0));
