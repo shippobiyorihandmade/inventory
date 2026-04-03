@@ -1402,7 +1402,7 @@ async function uploadPhoto(file, itemId) {
   var path = 'items/' + itemId + '.' + ext;
   var res = await fetch(SB_URL + '/storage/v1/object/item-photos/' + path, {
     method: 'POST',
-    headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': file.type, 'x-upsert': 'true' },
+    headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + (accessToken || SB_KEY), 'Content-Type': file.type, 'x-upsert': 'true' },
     body: file
   });
   if (!res.ok) throw new Error('Storage upload failed: ' + (await res.text()));
