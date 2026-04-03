@@ -452,6 +452,7 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
   <button class="tab" onclick="showPage('adjust')">± 在庫調整</button>
   <button class="tab" onclick="showPage('history')">📋 履歴</button>
   <button class="tab" onclick="showPage('contact')">💬 問い合わせ</button>
+  <button class="tab" onclick="showPage('account')">⚙️ アカウント設定</button>
 </nav>
 
 <!-- ボトムナビ（スマホ専用） -->
@@ -512,6 +513,10 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
       <button class="bn-sheet-item" onclick="bnNav('contact');closeBnMore()">
         <span style="font-size:28px">💬</span>
         <span>問い合わせ</span>
+      </button>
+      <button class="bn-sheet-item" onclick="bnNav('account');closeBnMore()">
+        <span style="font-size:28px">⚙️</span>
+        <span>アカウント</span>
       </button>
     </div>
   </div>
@@ -968,6 +973,70 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
   <div class="card">
     <div class="ch"><span class="ct">📬 送信履歴</span></div>
     <div class="cb" style="padding:0 16px"><div id="contactHistList"></div></div>
+  </div>
+</div>
+
+<!-- ACCOUNT SETTINGS -->
+<div class="pg" id="pg-account">
+  <div class="card">
+    <div class="ch"><span class="ct">👤 アカウント情報</span></div>
+    <div class="cb">
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div style="display:flex;gap:10px;align-items:center">
+          <span style="font-size:12px;font-weight:700;color:var(--tx2);min-width:110px">メールアドレス</span>
+          <span style="font-size:14px" id="acEmail">—</span>
+        </div>
+        <div style="display:flex;gap:10px;align-items:center">
+          <span style="font-size:12px;font-weight:700;color:var(--tx2);min-width:110px">ログイン方式</span>
+          <span style="font-size:12px;font-weight:700;padding:2px 10px;border-radius:20px" id="acProvider">—</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- メール/パスワードユーザー向け -->
+  <div id="acEmailSection">
+    <div class="card">
+      <div class="ch"><span class="ct">✉️ メールアドレスを変更</span></div>
+      <div class="cb">
+        <div class="fr c2">
+          <div><label>新しいメールアドレス</label><input type="email" id="acNewEmail" placeholder="new@example.com"></div>
+          <div><label>現在のパスワード（確認）</label><input type="password" id="acEmailPass" placeholder="パスワードを入力"></div>
+        </div>
+        <button class="btn bp" onclick="changeEmail()">✉️ 変更メールを送信</button>
+        <div id="acEmailMsg" style="margin-top:8px;font-size:12px;display:none"></div>
+        <div style="margin-top:12px;padding:10px 12px;background:var(--sf2);border-radius:8px;border-left:3px solid var(--bd);font-size:12px;color:var(--tx2);line-height:1.7">
+          変更先のアドレスに確認メールが届きます。メール内のリンクをクリックすると変更が完了します。<br>データはそのまま引き継がれます。
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="ch"><span class="ct">🔑 パスワードを変更</span></div>
+      <div class="cb">
+        <div class="fr">
+          <div><label>新しいパスワード（8文字以上）</label><input type="password" id="acNewPass" placeholder="新しいパスワード"></div>
+        </div>
+        <div class="fr">
+          <div><label>新しいパスワード（確認）</label><input type="password" id="acNewPass2" placeholder="もう一度入力"></div>
+        </div>
+        <button class="btn bp" onclick="changePassword()">🔑 パスワードを変更</button>
+        <div id="acPassMsg" style="margin-top:8px;font-size:12px;display:none"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Googleユーザー向け -->
+  <div id="acGoogleSection" style="display:none">
+    <div class="card">
+      <div class="ch"><span class="ct">🔗 Googleアカウント</span></div>
+      <div class="cb">
+        <p class="ts tm" style="margin-bottom:14px;line-height:1.7">メールアドレスやパスワードの変更はGoogleアカウントの設定ページから行ってください。</p>
+        <a href="https://myaccount.google.com" target="_blank" class="btn bs" style="display:inline-flex;align-items:center;gap:6px;text-decoration:none">
+          <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="16" height="16">
+          Googleアカウント設定を開く
+        </a>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -1513,7 +1582,7 @@ function mstr() { var n = new Date(); return n.getFullYear() + '-' + String(n.ge
 // ══════════════════════════════════════════════
 // PAGE ROUTING
 // ══════════════════════════════════════════════
-var PAGES = ['dash', 'products', 'materials', 'make', 'purchase', 'sales', 'adjust', 'history', 'contact'];
+var PAGES = ['dash', 'products', 'materials', 'make', 'purchase', 'sales', 'adjust', 'history', 'contact', 'account'];
 var BN_MAIN = ['dash', 'products', 'materials', 'make']; // ボトムナビのメインページ
 var currentPageId = 'dash';
 
@@ -1524,7 +1593,7 @@ function showPage(id) {
   document.querySelectorAll('.tab')[PAGES.indexOf(id)].classList.add('on');
   syncBnNav(id);
   currentPageId = id;
-  var m = { dash: rDash, products: rProds, materials: rMats, make: rMakePg, purchase: rPurPg, adjust: rAdj, sales: rSales, history: rHist, contact: rContact };
+  var m = { dash: rDash, products: rProds, materials: rMats, make: rMakePg, purchase: rPurPg, adjust: rAdj, sales: rSales, history: rHist, contact: rContact, account: rAccountPg };
   if (m[id]) m[id]();
 }
 
@@ -2579,6 +2648,66 @@ function init() {
     document.getElementById('setupScreen').style.display = 'flex';
   }
 }
+
+// ══════════════════════════════════════════════
+// アカウント設定
+// ══════════════════════════════════════════════
+function rAccountPg() {
+  if (!currentUser) return;
+  document.getElementById('acEmail').textContent = currentUser.email || '—';
+  var isGoogle = currentUser.app_metadata && currentUser.app_metadata.provider === 'google';
+  var badge = document.getElementById('acProvider');
+  if (isGoogle) {
+    badge.textContent = 'Google';
+    badge.style.background = '#e8f0fe';
+    badge.style.color = '#1a73e8';
+    document.getElementById('acEmailSection').style.display = 'none';
+    document.getElementById('acGoogleSection').style.display = 'block';
+  } else {
+    badge.textContent = 'メール / パスワード';
+    badge.style.background = 'var(--ob)';
+    badge.style.color = 'var(--ok)';
+    document.getElementById('acEmailSection').style.display = 'block';
+    document.getElementById('acGoogleSection').style.display = 'none';
+  }
+}
+
+function acMsg(elId, msg, isOk) {
+  var el = document.getElementById(elId);
+  el.textContent = msg;
+  el.style.display = 'block';
+  el.style.color = isOk ? 'var(--ok)' : '#c04a4a';
+  setTimeout(function() { el.style.display = 'none'; }, 5000);
+}
+
+async function changeEmail() {
+  var newEmail = document.getElementById('acNewEmail').value.trim();
+  var pass = document.getElementById('acEmailPass').value;
+  if (!newEmail) { acMsg('acEmailMsg', 'メールアドレスを入力してください', false); return; }
+  if (!pass) { acMsg('acEmailMsg', '現在のパスワードを入力してください', false); return; }
+  // パスワード確認のため再認証
+  var reauth = await sbClient.auth.signInWithPassword({ email: currentUser.email, password: pass });
+  if (reauth.error) { acMsg('acEmailMsg', 'パスワードが正しくありません', false); return; }
+  var res = await sbClient.auth.updateUser({ email: newEmail });
+  if (res.error) { acMsg('acEmailMsg', 'エラー: ' + res.error.message, false); return; }
+  acMsg('acEmailMsg', '確認メールを送信しました。メール内のリンクをクリックして変更を完了してください。', true);
+  document.getElementById('acNewEmail').value = '';
+  document.getElementById('acEmailPass').value = '';
+}
+
+async function changePassword() {
+  var newPass = document.getElementById('acNewPass').value;
+  var newPass2 = document.getElementById('acNewPass2').value;
+  if (!newPass) { acMsg('acPassMsg', '新しいパスワードを入力してください', false); return; }
+  if (newPass.length < 8) { acMsg('acPassMsg', 'パスワードは8文字以上にしてください', false); return; }
+  if (newPass !== newPass2) { acMsg('acPassMsg', 'パスワードが一致しません', false); return; }
+  var res = await sbClient.auth.updateUser({ password: newPass });
+  if (res.error) { acMsg('acPassMsg', 'エラー: ' + res.error.message, false); return; }
+  acMsg('acPassMsg', 'パスワードを変更しました', true);
+  document.getElementById('acNewPass').value = '';
+  document.getElementById('acNewPass2').value = '';
+}
+
 init();
 </script>
 </body>
