@@ -661,7 +661,7 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
             <div><label>販売価格（円）</label><input type="number" id="mkNPrice" placeholder="例：1800"></div>
           </div>
           <div class="fr c2">
-            <div><label>低在庫アラート<label style="font-weight:400;margin-left:8px;cursor:pointer"><input type="checkbox" id="mkNMinOff" style="width:auto;padding:0;margin-right:3px" onchange="document.getElementById('mkNMin').disabled=this.checked">なし</label></label><input type="number" id="mkNMin" value="3" min="0"></div>
+            <div><label>低在庫アラート</label><div style="display:flex;gap:6px;align-items:center"><select id="mkNMinMode" style="width:auto;flex-shrink:0" onchange="var off=this.value==='off';document.getElementById('mkNMin').style.display=off?'none':'block'"><option value="on">設定する</option><option value="off">なし</option></select><input type="number" id="mkNMin" value="3" min="0" style="flex:1"></div></div>
             <div><label>製作数 *</label><input type="number" id="mkNQty" value="1" min="1"></div>
           </div>
           <div class="fr c2">
@@ -762,7 +762,7 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
             <div><label>ブランド/メーカー</label><input type="text" id="purNBrand" placeholder="例：KOKKA、CHECK&STRIPE"></div>
           </div>
           <div class="fr c2">
-            <div><label>低在庫アラート<label style="font-weight:400;margin-left:8px;cursor:pointer"><input type="checkbox" id="purNMinOff" style="width:auto;padding:0;margin-right:3px" onchange="document.getElementById('purNMin').disabled=this.checked">なし</label></label><input type="number" id="purNMin" value="5" min="0"></div>
+            <div><label>低在庫アラート</label><div style="display:flex;gap:6px;align-items:center"><select id="purNMinMode" style="width:auto;flex-shrink:0" onchange="var off=this.value==='off';document.getElementById('purNMin').style.display=off?'none':'block'"><option value="on">設定する</option><option value="off">なし</option></select><input type="number" id="purNMin" value="5" min="0" style="flex:1"></div></div>
             <div><label>購入日</label>
               <div class="df"><button type="button" class="dd" id="purNDate_btn" onclick="dpOpen('purNDate')"><span id="purNDate_lbl" class="ph">日付を選択</span><span>📅</span></button></div>
               <input type="hidden" id="purNDate">
@@ -1039,7 +1039,7 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
       </div>
       <div class="fr c2">
         <div><label>現在の在庫数 *</label><input type="number" id="imStock" value="0" min="0" step="0.01"></div>
-        <div><label>低在庫アラート（以下で警告）<label style="font-weight:400;margin-left:8px;cursor:pointer"><input type="checkbox" id="imMinOff" style="width:auto;padding:0;margin-right:3px" onchange="document.getElementById('imMin').disabled=this.checked">なし</label></label><input type="number" id="imMin" value="3" min="0"></div>
+        <div><label>低在庫アラート（以下で警告）</label><div style="display:flex;gap:6px;align-items:center"><select id="imMinMode" style="width:auto;flex-shrink:0" onchange="var off=this.value==='off';document.getElementById('imMin').style.display=off?'none':'block'"><option value="on">設定する</option><option value="off">なし</option></select><input type="number" id="imMin" value="3" min="0" style="flex:1"></div></div>
       </div>
       <div id="imProd">
         <div class="fr c2">
@@ -1780,7 +1780,7 @@ function openIM(type) {
   document.getElementById('imTitle').textContent = type === 'product' ? '完成品を追加' : '材料を追加';
   document.getElementById('imType').value = type;
   ['imName', 'imCat', 'imMemo', 'imSup', 'imSP', 'imCost', 'imMC', 'imFW', 'imColor', 'imBrand'].forEach(function(id) { document.getElementById(id).value = ''; });
-  document.getElementById('imMinOff').checked = false; document.getElementById('imMin').disabled = false;
+  document.getElementById('imMinMode').value = 'on'; document.getElementById('imMin').style.display = 'block';
   document.getElementById('imUnit').value = type === 'product' ? '個' : '';
   document.getElementById('imStock').value = 0;
   document.getElementById('imMin').value = type === 'product' ? 3 : 5;
@@ -1798,9 +1798,9 @@ function editItem(id) {
   document.getElementById('imUnit').value = i.unit || '個';
   document.getElementById('imStock').value = i.stock;
   var minIsNull = i.min === null || i.min === undefined || i.min === '';
-  document.getElementById('imMinOff').checked = minIsNull;
+  document.getElementById('imMinMode').value = minIsNull ? 'off' : 'on';
   document.getElementById('imMin').value = minIsNull ? '' : i.min;
-  document.getElementById('imMin').disabled = minIsNull;
+  document.getElementById('imMin').style.display = minIsNull ? 'none' : 'block';
   document.getElementById('imSP').value = i.sp || '';
   document.getElementById('imCost').value = i.cost || '';
   document.getElementById('imMC').value = i.mc || '';
@@ -1845,7 +1845,7 @@ async function saveItem() {
     cat: document.getElementById('imCat').value.trim(),
     unit: document.getElementById('imUnit').value.trim() || '個',
     stock: parseFloat(document.getElementById('imStock').value) || 0,
-    min: document.getElementById('imMinOff').checked ? null : (parseFloat(document.getElementById('imMin').value) ?? 0),
+    min: document.getElementById('imMinMode').value === 'off' ? null : (parseFloat(document.getElementById('imMin').value) ?? 0),
     sp: parseFloat(document.getElementById('imSP').value) || 0,
     cost: recipe.length ? Math.round(ac) : mc,
     mc: parseFloat(document.getElementById('imMC').value) || 0,
@@ -1967,7 +1967,7 @@ async function recMake(memoOnly) {
     qty = parseInt(document.getElementById('mkNQty').value) || 1;
     recipe = mkRec.filter(function(r) { return r.mid && r.qty > 0; });
     var ac = recipe.reduce(function(a, r) { var m = items.find(function(x) { return x.id === r.mid; }); return a + (m ? m.mc || 0 : 0) * r.qty; }, 0);
-    var mkNMinOff = document.getElementById('mkNMinOff').checked;
+    var mkNMinOff = document.getElementById('mkNMinMode').value === 'off';
     item = { id: uid(), type: 'product', name: name, cat: document.getElementById('mkNCat').value.trim(), unit: document.getElementById('mkNUnit').value.trim() || '個', stock: 0, min: mkNMinOff ? null : (parseInt(document.getElementById('mkNMin').value) ?? 3), sp: parseFloat(document.getElementById('mkNPrice').value) || 0, cost: Math.round(ac), mc: 0, sup: '', fw: 0, color: document.getElementById('mkNColor').value.trim(), brand: '', memo: '', recipe: recipe, photo: null };
     items.push(item); await svItem(item);
   } else {
@@ -2078,7 +2078,7 @@ async function recPurchase() {
     var nUnit = document.getElementById('purNUnit').value.trim() || '個';
     var nColor = document.getElementById('purNColor').value.trim();
     var nBrand = document.getElementById('purNBrand').value.trim();
-    var purNMinOff = document.getElementById('purNMinOff').checked;
+    var purNMinOff = document.getElementById('purNMinMode').value === 'off';
     item = { id: uid(), type: 'material', name: name, cat: cat, unit: nUnit, stock: 0, min: purNMinOff ? null : (parseInt(document.getElementById('purNMin').value) ?? 5), sp: 0, cost: 0, mc: unit, sup: sup, fw: parseFloat(document.getElementById('purNFW').value) || 0, color: nColor, brand: nBrand, memo: '', recipe: [], photo: null };
     items.push(item); await svItem(item);
   } else {
@@ -2099,7 +2099,7 @@ async function recPurchase() {
   addH(item.name, qty, '仕入れ' + (sup ? '（' + sup + '）' : ''), item.stock);
   await svItem(item);
   ['purQty', 'purTot', 'purUnit', 'purSup', 'purMemo', 'purCode'].forEach(function(id) { document.getElementById(id).value = ''; });
-  if (purMode === 'new') { ['purNName', 'purNCatTxt', 'purNFW', 'purNColor', 'purNBrand'].forEach(function(id) { document.getElementById(id).value = ''; }); document.getElementById('purNUnit').value = '個'; document.getElementById('purNMin').value = 5; document.getElementById('purNMinOff').checked = false; document.getElementById('purNMin').disabled = false; }
+  if (purMode === 'new') { ['purNName', 'purNCatTxt', 'purNFW', 'purNColor', 'purNBrand'].forEach(function(id) { document.getElementById(id).value = ''; }); document.getElementById('purNUnit').value = '個'; document.getElementById('purNMin').value = 5; document.getElementById('purNMinMode').value = 'on'; document.getElementById('purNMin').style.display = 'block'; }
   document.getElementById('purPrev').innerHTML = '';
   clearPurPhoto();
   rPurPg(); alert('仕入れを記録しました\n' + item.name + ' +' + qty + (item.unit || '個'));
