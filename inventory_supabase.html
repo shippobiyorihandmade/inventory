@@ -668,9 +668,6 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
             <div><label>色/柄</label><input type="text" id="mkNColor" placeholder="例：レッド、ドット柄"></div>
             <div></div>
           </div>
-          <div class="fr">
-            <div><label>メモ</label><input type="text" id="mkNMemo" placeholder="色・サイズなど"></div>
-          </div>
         </div>
       </div>
       <div style="background:var(--sf2);border-radius:10px;padding:13px;margin-bottom:11px">
@@ -1341,6 +1338,7 @@ function compressImage(file, callback) {
       var quality = 0.85;
       var tryCompress = function() {
         canvas.toBlob(function(blob) {
+          if (!blob) { callback(file, e.target.result); return; }
           if (blob.size > 2 * 1024 * 1024 && quality > 0.3) {
             quality -= 0.1;
             tryCompress();
@@ -1399,7 +1397,8 @@ function clearMkPhoto() {
 }
 
 async function uploadPhoto(file, itemId) {
-  var ext = file.name.split('.').pop().toLowerCase() || 'jpg';
+  var mimeToExt = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp', 'image/gif': 'gif' };
+  var ext = mimeToExt[file.type] || 'jpg';
   var path = 'items/' + itemId + '.' + ext;
   var res = await fetch(SB_URL + '/storage/v1/object/item-photos/' + path, {
     method: 'POST',
@@ -1958,7 +1957,7 @@ async function recMake(memoOnly) {
     qty = parseInt(document.getElementById('mkNQty').value) || 1;
     recipe = mkRec.filter(function(r) { return r.mid && r.qty > 0; });
     var ac = recipe.reduce(function(a, r) { var m = items.find(function(x) { return x.id === r.mid; }); return a + (m ? m.mc || 0 : 0) * r.qty; }, 0);
-    item = { id: uid(), type: 'product', name: name, cat: document.getElementById('mkNCat').value.trim(), unit: document.getElementById('mkNUnit').value.trim() || '個', stock: 0, min: parseInt(document.getElementById('mkNMin').value) || 3, sp: parseFloat(document.getElementById('mkNPrice').value) || 0, cost: Math.round(ac), mc: 0, sup: '', fw: 0, color: document.getElementById('mkNColor').value.trim(), brand: '', memo: document.getElementById('mkNMemo').value.trim(), recipe: recipe, photo: null };
+    item = { id: uid(), type: 'product', name: name, cat: document.getElementById('mkNCat').value.trim(), unit: document.getElementById('mkNUnit').value.trim() || '個', stock: 0, min: parseInt(document.getElementById('mkNMin').value) || 3, sp: parseFloat(document.getElementById('mkNPrice').value) || 0, cost: Math.round(ac), mc: 0, sup: '', fw: 0, color: document.getElementById('mkNColor').value.trim(), brand: '', memo: '', recipe: recipe, photo: null };
     items.push(item); await svItem(item);
   } else {
     item = items.find(function(i) { return i.id === document.getElementById('mkProd').value; });
