@@ -1341,6 +1341,7 @@ var mkMode = 'exist';
 var mkQMode = 'per1';
 var purMode = 'exist';
 var stMode = { products: false, materials: false };
+var stAppliedDate = { products: null, materials: null }; // 差分を反映した日付
 var currentPhoto = null;
 var currentPhotoFile = null;
 
@@ -2413,6 +2414,8 @@ async function applyST(page) {
     i.stock = actual; delete stCounts[i.id];
     await svItem(i);
   }
+  var d = new Date();
+  stAppliedDate[page] = d.getFullYear() + '年' + (d.getMonth() + 1) + '月' + d.getDate() + '日';
   if (page === 'products') rProds(); else rMats();
   alert('在庫を更新しました（' + diffs.length + '件）');
 }
@@ -2610,10 +2613,14 @@ document.addEventListener('click', function(e) {
 // ══════════════════════════════════════════════
 function printStocktake(type) {
   var isProduct = type === 'product';
+  var pageKey = isProduct ? 'products' : 'materials';
+  var inStMode = stMode[pageKey]; // 棚卸モード中かどうか
   var list = items.filter(function(i) { return i.type === type; });
   var title = isProduct ? '完成品 棚卸表' : '材料・素材 棚卸表';
   var now2 = new Date();
   var dateStr = now2.getFullYear() + '年' + (now2.getMonth() + 1) + '月' + now2.getDate() + '日';
+  // 棚卸モード中はその日の日付を棚卸実施日にするにゃ
+  var jissiDate = inStMode ? dateStr : '　　　　年　　月　　日';
   var cats = {};
   list.forEach(function(i) { var c = i.cat || '未分類'; if (!cats[c]) cats[c] = []; cats[c].push(i); });
   var totalAsset = list.reduce(function(a, i) { var uv = isProduct ? (calcCost(i) || i.sp || 0) : (i.mc || 0); return a + uv * i.stock; }, 0);
@@ -2623,11 +2630,31 @@ function printStocktake(type) {
     var tbody = rows.map(function(i, idx) {
       var unitVal = isProduct ? (calcCost(i) || i.sp || 0) : (i.mc || 0);
       var assetVal = unitVal * i.stock;
-      return '<tr><td>' + (idx + 1) + '</td><td><b>' + i.name + '</b>' + (i.memo ? '<br><span style="font-size:10px;color:#888">' + i.memo + '</span>' : '') + '</td><td>' + (i.unit || '個') + '</td><td class="num">' + (unitVal ? '¥' + unitVal.toLocaleString() : '—') + '</td><td class="num">' + i.stock + '</td><td class="num">' + (unitVal && i.stock ? '¥' + Math.round(assetVal).toLocaleString() : '—') + '</td><td class="act"></td></tr>';
+      // 棚卸モード中なら実数・差分を自動入力するにゃ
+      var jissCell = '';
+      if (inStMode && stCounts[i.id] !== undefined) {
+        var actual = stCounts[i.id];
+        var diff = actual - i.stock;
+        var diffStr = diff === 0 ? '±0' : (diff > 0 ? '+' + diff : '' + diff);
+        var diffColor = diff === 0 ? '#888' : (diff > 0 ? '#2a7a4a' : '#c04a4a');
+        jissCell = '<span style="font-weight:700">' + actual + '</span>'
+          + '<br><span style="font-size:9px;color:' + diffColor + '">(' + diffStr + ')</span>';
+      }
+      return '<tr>'
+        + '<td>' + (idx + 1) + '</td>'
+        + '<td><b>' + i.name + '</b>' + (i.memo ? '<br><span style="font-size:10px;color:#888">' + i.memo + '</span>' : '') + '</td>'
+        + '<td>' + (i.unit || '個') + '</td>'
+        + '<td class="num">' + (unitVal ? '¥' + unitVal.toLocaleString() : '—') + '</td>'
+        + '<td class="num">' + i.stock + '</td>'
+        + '<td class="num">' + (unitVal && i.stock ? '¥' + Math.round(assetVal).toLocaleString() : '—') + '</td>'
+        + '<td class="act" style="text-align:center;font-size:12px">' + jissCell + '</td>'
+        + '</tr>';
     }).join('');
-    return '<div class="pr-section"><div class="pr-section-title">' + cat + '</div><table class="pr-table"><thead><tr><th style="width:28px">No.</th><th>' + (isProduct ? '商品名' : '材料名') + '</th><th style="width:36px">単位</th><th style="width:72px">' + (isProduct ? '原価' : '単価') + '</th><th style="width:60px">実在庫</th><th style="width:80px">棚卸資産額</th><th style="width:60px">実数(確認)</th></tr></thead><tbody>' + tbody + '<tr class="pr-total-row"><td colspan="5" style="text-align:right">「' + cat + '」小計</td><td class="num">' + (catAsset ? '¥' + Math.round(catAsset).toLocaleString() : '—') + '</td><td></td></tr></tbody></table></div>';
+    // 棚卸モード中は列ヘッダーを変えるにゃ
+    var jissHeader = inStMode ? '実数（差分）' : '実数(確認)';
+    return '<div class="pr-section"><div class="pr-section-title">' + cat + '</div><table class="pr-table"><thead><tr><th style="width:28px">No.</th><th>' + (isProduct ? '商品名' : '材料名') + '</th><th style="width:36px">単位</th><th style="width:72px">' + (isProduct ? '原価' : '単価') + '</th><th style="width:60px">実在庫</th><th style="width:80px">棚卸資産額</th><th style="width:64px">' + jissHeader + '</th></tr></thead><tbody>' + tbody + '<tr class="pr-total-row"><td colspan="5" style="text-align:right">「' + cat + '」小計</td><td class="num">' + (catAsset ? '¥' + Math.round(catAsset).toLocaleString() : '—') + '</td><td></td></tr></tbody></table></div>';
   }).join('');
-  var html = '<div class="pr-header"><div><div class="pr-title">' + title + '</div><div class="pr-sub">棚卸実施日: 　　　　年　　月　　日</div></div><div class="pr-date">出力日: ' + dateStr + '<br>アイテム数: ' + list.length + '件</div></div>' + sectionsHtml + '<div class="pr-summary">棚卸資産合計: <b>¥' + Math.round(totalAsset).toLocaleString() + '</b></div>';
+  var html = '<div class="pr-header"><div><div class="pr-title">' + title + '</div><div class="pr-sub">棚卸実施日: ' + jissiDate + '</div></div><div class="pr-date">出力日: ' + dateStr + '<br>アイテム数: ' + list.length + '件</div></div>' + sectionsHtml + '<div class="pr-summary">棚卸資産合計: <b>¥' + Math.round(totalAsset).toLocaleString() + '</b></div>';
   document.getElementById('print-area').innerHTML = html;
   window.print();
 }
