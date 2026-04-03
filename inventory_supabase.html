@@ -54,7 +54,7 @@ header{background:linear-gradient(135deg,#2c2416 0%,#3d3020 60%,#4a3828 100%);co
 @media(max-width:559px){
   .nav-tabs{display:none;}
   .bottom-nav{display:block;}
-  .main{padding:10px 10px 78px;max-width:100%;overflow-x:hidden;}
+  .main{padding:10px 10px calc(78px + env(safe-area-inset-bottom, 0px));max-width:100%;overflow-x:hidden;}
   .fab{bottom:74px;right:12px;width:46px;height:46px;font-size:20px;}
   /* タップターゲット拡大 */
   .btn{padding:10px 14px;min-height:40px;}
