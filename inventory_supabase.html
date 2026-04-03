@@ -661,7 +661,7 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
             <div><label>販売価格（円）</label><input type="number" id="mkNPrice" placeholder="例：1800"></div>
           </div>
           <div class="fr c2">
-            <div><label>低在庫アラート</label><input type="number" id="mkNMin" value="3" min="0"></div>
+            <div><label>低在庫アラート<label style="font-weight:400;margin-left:8px;cursor:pointer"><input type="checkbox" id="mkNMinOff" style="width:auto;padding:0;margin-right:3px" onchange="document.getElementById('mkNMin').disabled=this.checked">なし</label></label><input type="number" id="mkNMin" value="3" min="0"></div>
             <div><label>製作数 *</label><input type="number" id="mkNQty" value="1" min="1"></div>
           </div>
           <div class="fr c2">
@@ -762,7 +762,7 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
             <div><label>ブランド/メーカー</label><input type="text" id="purNBrand" placeholder="例：KOKKA、CHECK&STRIPE"></div>
           </div>
           <div class="fr c2">
-            <div><label>低在庫アラート</label><input type="number" id="purNMin" value="5" min="0"></div>
+            <div><label>低在庫アラート<label style="font-weight:400;margin-left:8px;cursor:pointer"><input type="checkbox" id="purNMinOff" style="width:auto;padding:0;margin-right:3px" onchange="document.getElementById('purNMin').disabled=this.checked">なし</label></label><input type="number" id="purNMin" value="5" min="0"></div>
             <div><label>購入日</label>
               <div class="df"><button type="button" class="dd" id="purNDate_btn" onclick="dpOpen('purNDate')"><span id="purNDate_lbl" class="ph">日付を選択</span><span>📅</span></button></div>
               <input type="hidden" id="purNDate">
@@ -1039,7 +1039,7 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
       </div>
       <div class="fr c2">
         <div><label>現在の在庫数 *</label><input type="number" id="imStock" value="0" min="0" step="0.01"></div>
-        <div><label>低在庫アラート（以下で警告）</label><input type="number" id="imMin" value="3" min="0"></div>
+        <div><label>低在庫アラート（以下で警告）<label style="font-weight:400;margin-left:8px;cursor:pointer"><input type="checkbox" id="imMinOff" style="width:auto;padding:0;margin-right:3px" onchange="document.getElementById('imMin').disabled=this.checked">なし</label></label><input type="number" id="imMin" value="3" min="0"></div>
       </div>
       <div id="imProd">
         <div class="fr c2">
@@ -1607,10 +1607,16 @@ function calcCost(item) {
 // ══════════════════════════════════════════════
 // DASHBOARD
 // ══════════════════════════════════════════════
+// 低在庫判定ヘルパー（min が null/undefined/'' のときはアラートなし）
+function isLow(item) {
+  if (item.min === null || item.min === undefined || item.min === '') return false;
+  return item.stock <= item.min;
+}
+
 function rDash() {
   var prods = items.filter(function(i) { return i.type === 'product'; });
   var mats = items.filter(function(i) { return i.type === 'material'; });
-  var low = items.filter(function(i) { return i.stock <= (i.min || 0); });
+  var low = items.filter(function(i) { return isLow(i); });
   var mk = mstr();
   var ms = sales.filter(function(s) { return s.date && s.date.startsWith(mk); });
   var mp = purch.filter(function(p) { return p.date && p.date.startsWith(mk); });
@@ -1622,19 +1628,19 @@ function rDash() {
   // テーブル（PC用）
   document.getElementById('dProds').innerHTML = prods.length ? prods.map(function(i) {
     var cost = calcCost(i);
-    var st = i.stock === 0 ? '<span class="bak bzr">在庫切れ</span>' : i.stock <= (i.min || 0) ? '<span class="bak bwn">低在庫</span>' : '<span class="bak bok">在庫あり</span>';
+    var st = i.stock === 0 ? '<span class="bak bzr">在庫切れ</span>' : isLow(i) ? '<span class="bak bwn">低在庫</span>' : '<span class="bak bok">在庫あり</span>';
     return '<tr style="cursor:pointer" onclick="showDetail(\'' + i.id + '\')"><td class="fw7">' + i.name + '</td><td class="mn fw7">' + i.stock + '<small class="tm"> ' + (i.unit || '個') + '</small></td><td class="mn">' + (i.sp ? yen(i.sp) : '—') + '</td><td class="mn tm">' + (cost ? yen(cost) : '—') + '</td><td>' + st + '</td></tr>';
   }).join('') : '<tr><td colspan="5"><div class="empty"><div class="ei">🎨</div><p>完成品がまだありません</p></div></td></tr>';
   document.getElementById('dMats').innerHTML = mats.length ? mats.map(function(i) {
-    var st = i.stock === 0 ? '<span class="bak bzr">在庫切れ</span>' : i.stock <= (i.min || 0) ? '<span class="bak bwn">低在庫</span>' : '<span class="bak bok">在庫あり</span>';
+    var st = i.stock === 0 ? '<span class="bak bzr">在庫切れ</span>' : isLow(i) ? '<span class="bak bwn">低在庫</span>' : '<span class="bak bok">在庫あり</span>';
     return '<tr style="cursor:pointer" onclick="showDetail(\'' + i.id + '\')"><td class="fw7">' + i.name + '</td><td class="mn fw7">' + i.stock + '<small class="tm"> ' + (i.unit || '個') + '</small></td><td class="mn tm">' + (i.mc ? yen(i.mc) + '/' + i.unit : '—') + '</td><td>' + st + '</td></tr>';
   }).join('') : '<tr><td colspan="4"><div class="empty" style="padding:13px"><p>材料がまだありません</p></div></td></tr>';
 
   // カードリスト（スマホ用）
   function mobileCard(i, type) {
     var cost = type === 'product' ? calcCost(i) : 0;
-    var stColor = i.stock === 0 ? 'var(--wn)' : i.stock <= (i.min || 0) ? '#d97c2a' : 'var(--ac3)';
-    var stLabel = i.stock === 0 ? '<span class="bak bzr">在庫切れ</span>' : i.stock <= (i.min || 0) ? '<span class="bak bwn">低在庫</span>' : '<span class="bak bok">在庫あり</span>';
+    var stColor = i.stock === 0 ? 'var(--wn)' : isLow(i) ? '#d97c2a' : 'var(--ac3)';
+    var stLabel = i.stock === 0 ? '<span class="bak bzr">在庫切れ</span>' : isLow(i) ? '<span class="bak bwn">低在庫</span>' : '<span class="bak bok">在庫あり</span>';
     var sub = type === 'product'
       ? (i.sp ? '<span class="ts tm">売価 ' + yen(i.sp) + '</span>' : '') + (cost ? '<span class="ts tm">原価 ' + yen(cost) + '</span>' : '')
       : (i.mc ? '<span class="ts tm">単価 ' + yen(i.mc) + '/' + (i.unit||'個') + '</span>' : '');
@@ -1686,10 +1692,10 @@ function showDetail(id) {
   var i = items.find(function(x) { return x.id === id; }); if (!i) return;
   var cost = calcCost(i);
   var margin = (i.sp && cost) ? Math.round(((i.sp - cost) / i.sp) * 100) : null;
-  var st = i.stock === 0 ? '<span class="bak bzr">在庫切れ</span>' : i.stock <= (i.min || 0) ? '<span class="bak bwn">低在庫</span>' : '<span class="bak bok">在庫あり</span>';
+  var st = i.stock === 0 ? '<span class="bak bzr">在庫切れ</span>' : isLow(i) ? '<span class="bak bwn">低在庫</span>' : '<span class="bak bok">在庫あり</span>';
   var rows = [];
   rows.push(['在庫', '<span class="mn fw7" style="font-size:16px">' + i.stock + '</span> ' + (i.unit || '個') + '  ' + st]);
-  rows.push(['最低在庫', (i.min || 0) + (i.unit || '個')]);
+  if (i.min !== null && i.min !== undefined && i.min !== '') rows.push(['最低在庫', i.min + (i.unit || '個')]);
   if (i.cat) rows.push(['カテゴリ', i.cat]);
   if (i.type === 'product') {
     if (i.sp) rows.push(['販売価格', '<span class="mn">' + yen(i.sp) + '</span>']);
@@ -1724,8 +1730,8 @@ function rProds() {
   document.getElementById('prodList').innerHTML = list.map(function(i) {
     var cost = calcCost(i);
     var margin = (i.sp && cost) ? Math.round(((i.sp - cost) / i.sp) * 100) : null;
-    var sc = i.stock === 0 ? 'var(--wn)' : i.stock <= i.min ? '#d97c2a' : 'var(--tx)';
-    var st = i.stock === 0 ? '<span class="bak bzr">在庫切れ</span>' : i.stock <= i.min ? '<span class="bak bwn">低在庫</span>' : '<span class="bak bok">在庫あり</span>';
+    var sc = i.stock === 0 ? 'var(--wn)' : isLow(i) ? '#d97c2a' : 'var(--tx)';
+    var st = i.stock === 0 ? '<span class="bak bzr">在庫切れ</span>' : isLow(i) ? '<span class="bak bwn">低在庫</span>' : '<span class="bak bok">在庫あり</span>';
     var hasR = i.recipe && i.recipe.length;
     var rh = hasR ? '<div style="margin-top:7px;padding:7px 9px;background:var(--sf2);border-radius:7px;font-size:12px"><b style="color:var(--tx2)">レシピ：</b>' + i.recipe.map(function(r) { var m = items.find(function(x) { return x.id === r.mid; }); return m ? m.name + ' x' + r.qty + (m.unit || '') : '（削除済み）'; }).join('  ') + (cost ? '  → 原価 <b>' + yen(cost) + '</b>' : '') + '</div>' : '';
     var stRow = '';
@@ -1752,8 +1758,8 @@ function rMats() {
   var list = items.filter(function(i) { return i.type === 'material' && (!cat || i.cat === cat) && (!q || i.name.toLowerCase().includes(q)); });
   if (!list.length) { document.getElementById('matList').innerHTML = '<div class="empty"><div class="ei">🧶</div><p>材料がありません</p></div>'; return; }
   document.getElementById('matList').innerHTML = list.map(function(i) {
-    var sc = i.stock === 0 ? 'var(--wn)' : i.stock <= i.min ? '#d97c2a' : 'var(--tx)';
-    var st = i.stock === 0 ? '<span class="bak bzr">在庫切れ</span>' : i.stock <= i.min ? '<span class="bak bwn">低在庫</span>' : '<span class="bak bok">在庫あり</span>';
+    var sc = i.stock === 0 ? 'var(--wn)' : isLow(i) ? '#d97c2a' : 'var(--tx)';
+    var st = i.stock === 0 ? '<span class="bak bzr">在庫切れ</span>' : isLow(i) ? '<span class="bak bwn">低在庫</span>' : '<span class="bak bok">在庫あり</span>';
     var stRow = '';
     if (stMode.materials) {
       var actual = stCounts[i.id];
@@ -1774,6 +1780,7 @@ function openIM(type) {
   document.getElementById('imTitle').textContent = type === 'product' ? '完成品を追加' : '材料を追加';
   document.getElementById('imType').value = type;
   ['imName', 'imCat', 'imMemo', 'imSup', 'imSP', 'imCost', 'imMC', 'imFW', 'imColor', 'imBrand'].forEach(function(id) { document.getElementById(id).value = ''; });
+  document.getElementById('imMinOff').checked = false; document.getElementById('imMin').disabled = false;
   document.getElementById('imUnit').value = type === 'product' ? '個' : '';
   document.getElementById('imStock').value = 0;
   document.getElementById('imMin').value = type === 'product' ? 3 : 5;
@@ -1790,7 +1797,10 @@ function editItem(id) {
   document.getElementById('imCat').value = i.cat || '';
   document.getElementById('imUnit').value = i.unit || '個';
   document.getElementById('imStock').value = i.stock;
-  document.getElementById('imMin').value = i.min;
+  var minIsNull = i.min === null || i.min === undefined || i.min === '';
+  document.getElementById('imMinOff').checked = minIsNull;
+  document.getElementById('imMin').value = minIsNull ? '' : i.min;
+  document.getElementById('imMin').disabled = minIsNull;
   document.getElementById('imSP').value = i.sp || '';
   document.getElementById('imCost').value = i.cost || '';
   document.getElementById('imMC').value = i.mc || '';
@@ -1835,7 +1845,7 @@ async function saveItem() {
     cat: document.getElementById('imCat').value.trim(),
     unit: document.getElementById('imUnit').value.trim() || '個',
     stock: parseFloat(document.getElementById('imStock').value) || 0,
-    min: parseFloat(document.getElementById('imMin').value) || 0,
+    min: document.getElementById('imMinOff').checked ? null : (parseFloat(document.getElementById('imMin').value) ?? 0),
     sp: parseFloat(document.getElementById('imSP').value) || 0,
     cost: recipe.length ? Math.round(ac) : mc,
     mc: parseFloat(document.getElementById('imMC').value) || 0,
@@ -1957,7 +1967,8 @@ async function recMake(memoOnly) {
     qty = parseInt(document.getElementById('mkNQty').value) || 1;
     recipe = mkRec.filter(function(r) { return r.mid && r.qty > 0; });
     var ac = recipe.reduce(function(a, r) { var m = items.find(function(x) { return x.id === r.mid; }); return a + (m ? m.mc || 0 : 0) * r.qty; }, 0);
-    item = { id: uid(), type: 'product', name: name, cat: document.getElementById('mkNCat').value.trim(), unit: document.getElementById('mkNUnit').value.trim() || '個', stock: 0, min: parseInt(document.getElementById('mkNMin').value) || 3, sp: parseFloat(document.getElementById('mkNPrice').value) || 0, cost: Math.round(ac), mc: 0, sup: '', fw: 0, color: document.getElementById('mkNColor').value.trim(), brand: '', memo: '', recipe: recipe, photo: null };
+    var mkNMinOff = document.getElementById('mkNMinOff').checked;
+    item = { id: uid(), type: 'product', name: name, cat: document.getElementById('mkNCat').value.trim(), unit: document.getElementById('mkNUnit').value.trim() || '個', stock: 0, min: mkNMinOff ? null : (parseInt(document.getElementById('mkNMin').value) ?? 3), sp: parseFloat(document.getElementById('mkNPrice').value) || 0, cost: Math.round(ac), mc: 0, sup: '', fw: 0, color: document.getElementById('mkNColor').value.trim(), brand: '', memo: '', recipe: recipe, photo: null };
     items.push(item); await svItem(item);
   } else {
     item = items.find(function(i) { return i.id === document.getElementById('mkProd').value; });
@@ -2067,7 +2078,8 @@ async function recPurchase() {
     var nUnit = document.getElementById('purNUnit').value.trim() || '個';
     var nColor = document.getElementById('purNColor').value.trim();
     var nBrand = document.getElementById('purNBrand').value.trim();
-    item = { id: uid(), type: 'material', name: name, cat: cat, unit: nUnit, stock: 0, min: parseInt(document.getElementById('purNMin').value) || 5, sp: 0, cost: 0, mc: unit, sup: sup, fw: parseFloat(document.getElementById('purNFW').value) || 0, color: nColor, brand: nBrand, memo: '', recipe: [], photo: null };
+    var purNMinOff = document.getElementById('purNMinOff').checked;
+    item = { id: uid(), type: 'material', name: name, cat: cat, unit: nUnit, stock: 0, min: purNMinOff ? null : (parseInt(document.getElementById('purNMin').value) ?? 5), sp: 0, cost: 0, mc: unit, sup: sup, fw: parseFloat(document.getElementById('purNFW').value) || 0, color: nColor, brand: nBrand, memo: '', recipe: [], photo: null };
     items.push(item); await svItem(item);
   } else {
     item = items.find(function(i) { return i.id === document.getElementById('purItem').value; });
@@ -2087,7 +2099,7 @@ async function recPurchase() {
   addH(item.name, qty, '仕入れ' + (sup ? '（' + sup + '）' : ''), item.stock);
   await svItem(item);
   ['purQty', 'purTot', 'purUnit', 'purSup', 'purMemo', 'purCode'].forEach(function(id) { document.getElementById(id).value = ''; });
-  if (purMode === 'new') { ['purNName', 'purNCatTxt', 'purNFW', 'purNColor', 'purNBrand'].forEach(function(id) { document.getElementById(id).value = ''; }); document.getElementById('purNUnit').value = '個'; document.getElementById('purNMin').value = 5; }
+  if (purMode === 'new') { ['purNName', 'purNCatTxt', 'purNFW', 'purNColor', 'purNBrand'].forEach(function(id) { document.getElementById(id).value = ''; }); document.getElementById('purNUnit').value = '個'; document.getElementById('purNMin').value = 5; document.getElementById('purNMinOff').checked = false; document.getElementById('purNMin').disabled = false; }
   document.getElementById('purPrev').innerHTML = '';
   clearPurPhoto();
   rPurPg(); alert('仕入れを記録しました\n' + item.name + ' +' + qty + (item.unit || '個'));
