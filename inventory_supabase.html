@@ -55,7 +55,6 @@ header{background:linear-gradient(135deg,#2c2416 0%,#3d3020 60%,#4a3828 100%);co
   .nav-tabs{display:none;}
   .bottom-nav{display:block;}
   .main{padding:10px 10px 88px!important;max-width:100%;overflow-x:hidden;}
-  .fab{bottom:74px;right:12px;width:46px;height:46px;font-size:20px;}
   /* タップターゲット拡大 */
   .btn{padding:10px 14px;min-height:40px;}
   .bsm{padding:8px 12px;min-height:36px;}
@@ -189,8 +188,6 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
 .sb select{width:auto;flex-shrink:0;}
 .empty{text-align:center;padding:32px 16px;color:var(--tx2);}
 .ei{font-size:34px;margin-bottom:8px;}
-.fab{position:fixed;bottom:22px;right:18px;width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--ac),#d4733a);color:#fff;border:none;font-size:24px;cursor:pointer;box-shadow:0 4px 20px rgba(192,98,42,.45);display:flex;align-items:center;justify-content:center;z-index:51;transition:all .2s;}
-.fab:hover{background:#a8531f;transform:scale(1.1) rotate(90deg);}
 .stl{font-size:12px;font-weight:700;color:var(--tx2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:9px;padding-bottom:6px;border-bottom:1px solid var(--bd);}
 .df{position:relative;display:block;}
 .dd{width:100%;padding:9px 11px;border:1.5px solid var(--bd);border-radius:8px;font-family:inherit;font-size:14px;background:var(--sf);color:var(--tx);cursor:pointer;text-align:left;display:flex;align-items:center;justify-content:space-between;transition:border-color .2s;}
@@ -260,7 +257,7 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
 
 @media print {
   body { background: #fff !important; }
-  header, .nav-tabs, .fab, .ov, #dpp, .no-print { display: none !important; }
+  header, .nav-tabs, .ov, #dpp, .no-print { display: none !important; }
   .main { padding: 0 !important; max-width: 100% !important; }
   .pg { display: none !important; }
   #print-area { display: block !important; }
@@ -295,8 +292,6 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
 .bak{display:inline-block;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:.02em;}
 .bok{background:var(--ob);color:var(--ok);}.bwn{background:var(--wb);color:var(--wn);}.bzr{background:#fde8e8;color:#c04a4a;}
 /* フローティングアクションボタン改善 */
-.fab{position:fixed;bottom:22px;right:18px;width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--ac),#d4733a);color:#fff;border:none;font-size:24px;cursor:pointer;box-shadow:0 4px 20px rgba(192,98,42,.45);display:flex;align-items:center;justify-content:center;z-index:50;transition:all .2s;}
-.fab:hover{transform:scale(1.1) rotate(90deg);box-shadow:0 6px 24px rgba(192,98,42,.55);}
 .sc{background:var(--sf);border:1px solid var(--bd);border-radius:var(--r);padding:14px;text-align:center;transition:box-shadow .2s;}
 .sc:hover{box-shadow:var(--shl);}
 /* ボトムシートアイテム */
@@ -617,7 +612,6 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
     </div>
   </div>
   <div id="prodList"></div>
-  <button class="fab" onclick="openIM('product')">＋</button>
 </div>
 
 <!-- MATERIALS -->
@@ -636,7 +630,6 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
     </div>
   </div>
   <div id="matList"></div>
-  <button class="fab" onclick="openIM('material')">＋</button>
 </div>
 
 <!-- MAKE -->
