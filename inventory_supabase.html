@@ -891,6 +891,7 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
       <input type="month" id="saleMF" onchange="renderSaleHist()" style="width:auto;font-size:12px;padding:5px 9px;border:1px solid var(--bd);border-radius:6px">
     </div>
     <div class="tw"><table><thead><tr><th>日付</th><th>商品</th><th>数</th><th>売上</th><th>利益</th><th>率</th><th>販売場所</th><th>メモ</th><th></th></tr></thead><tbody id="saleTbody"></tbody></table></div>
+    <div class="dash-mobile-list" id="saleMobileList" style="padding:0 4px"></div>
   </div>
   <!-- 広告スペース（AdSense用） -->
   <div class="ad-banner" id="adBanner2">
@@ -2405,11 +2406,41 @@ function renderSaleHist() {
   var month = document.getElementById('saleMF').value;
   var list = [...sales].filter(function(s) { return !month || s.date.startsWith(month); }).reverse();
   var tbody = document.getElementById('saleTbody');
-  if (!list.length) { tbody.innerHTML = '<tr><td colspan="8"><div class="empty"><div class="ei">💴</div><p>販売記録がありません</p></div></td></tr>'; return; }
+  var mobileEl = document.getElementById('saleMobileList');
+  if (!list.length) {
+    tbody.innerHTML = '<tr><td colspan="8"><div class="empty"><div class="ei">💴</div><p>販売記録がありません</p></div></td></tr>';
+    if (mobileEl) mobileEl.innerHTML = '<div class="empty" style="padding:20px"><div class="ei">💴</div><p>販売記録がありません</p></div>';
+    return;
+  }
   tbody.innerHTML = list.map(function(s) {
     var m = s.total > 0 ? Math.round((s.profit / s.total) * 100) : 0;
     return '<tr><td class="mn ts">' + s.date + '</td><td class="fw7">' + s.itemName + '</td><td class="mn">' + s.qty + '</td><td class="mn fw7">' + yen(s.total) + '</td><td class="mn" style="color:' + (s.profit > 0 ? 'var(--ac3)' : 'var(--wn)') + '">' + yen(s.profit) + '</td><td><span class="mgb ' + (m >= 40 ? 'mgg' : 'mgr') + '">' + m + '%</span></td><td class="ts">' + (s.loc || '') + '</td><td class="ts tm">' + (s.memo || '') + '</td><td><button class="bi bdl" onclick="delSale(\'' + s.id + '\')">🗑</button></td></tr>';
   }).join('');
+  // スマホ用カードリスト
+  if (mobileEl) {
+    mobileEl.innerHTML = list.map(function(s) {
+      var m = s.total > 0 ? Math.round((s.profit / s.total) * 100) : 0;
+      var profitColor = s.profit > 0 ? 'var(--ac3)' : 'var(--wn)';
+      return '<div style="display:flex;gap:9px;padding:11px 0;border-bottom:1px solid var(--bd);align-items:flex-start">'
+        + '<div style="width:42px;height:42px;background:var(--sf2);border-radius:8px;border:1px solid var(--bd);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:16px">💴</div>'
+        + '<div style="flex:1;min-width:0">'
+        + '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:3px">'
+        + '<span class="fw7" style="font-size:13px">' + s.itemName + '</span>'
+        + '<span class="mn fw7" style="color:var(--ac)">' + yen(s.total) + '</span>'
+        + '</div>'
+        + '<div style="display:flex;gap:8px;flex-wrap:wrap;font-size:12px;color:var(--tx2)">'
+        + '<span>📅 ' + s.date + '</span>'
+        + '<span>📦 ' + s.qty + '点</span>'
+        + '<span style="color:' + profitColor + '">利益 ' + yen(s.profit) + '</span>'
+        + '<span><span class="mgb ' + (m >= 40 ? 'mgg' : 'mgr') + '">' + m + '%</span></span>'
+        + (s.loc ? '<span>🏪 ' + s.loc + '</span>' : '')
+        + (s.memo ? '<span>' + s.memo + '</span>' : '')
+        + '</div>'
+        + '</div>'
+        + '<button class="bi bdl" onclick="delSale(\'' + s.id + '\')">🗑</button>'
+        + '</div>';
+    }).join('');
+  }
 }
 async function delSale(id) {
   if (!confirm('この販売記録を削除しますか？（在庫は戻りません）')) return;
