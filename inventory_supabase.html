@@ -1762,14 +1762,17 @@ function showDetail(id) {
   var st = i.stock === 0 ? '<span class="bak bzr">在庫切れ</span>' : isLow(i) ? '<span class="bak bwn">低在庫</span>' : '<span class="bak bok">在庫あり</span>';
   var rows = [];
   rows.push(['在庫', '<span class="mn fw7" style="font-size:16px">' + i.stock + '</span> ' + (i.unit || '個') + '  ' + st]);
-  if (i.min !== null && i.min !== undefined && i.min !== '') rows.push(['最低在庫', i.min + (i.unit || '個')]);
   if (i.cat) rows.push(['カテゴリ', i.cat]);
   if (i.type === 'product') {
     if (i.sp) rows.push(['販売価格', '<span class="mn">' + yen(i.sp) + '</span>']);
     if (cost) rows.push(['原価', '<span class="mn">' + yen(cost) + '</span>']);
     if (margin !== null) rows.push(['粗利率', '<span class="mgb ' + (margin >= 40 ? 'mgg' : 'mgr') + '">' + margin + '%</span>']);
   } else {
-    if (i.mc) rows.push(['仕入れ単価', '<span class="mn">' + yen(i.mc) + '</span>/' + i.unit]);
+    if (i.mc) rows.push(['仕入れ単価', '<span class="mn">' + yen(i.mc) + '</span>/' + (i.unit || '個')]);
+    var asset = i.mc && i.stock ? Math.round(i.mc * i.stock) : 0;
+    if (asset) rows.push(['棚卸資産額', '<span class="mn fw7" style="color:var(--ac3)">' + yen(asset) + '</span><span class="ts tm">（' + i.stock + (i.unit||'個') + ' × ' + yen(i.mc) + '/' + (i.unit||'個') + '）</span>']);
+    if (i.color) rows.push(['色/柄', i.color]);
+    if (i.brand) rows.push(['ブランド/メーカー', i.brand]);
     if (i.sup) rows.push(['購入先', i.sup]);
   }
   if (i.memo) rows.push(['メモ', i.memo]);
