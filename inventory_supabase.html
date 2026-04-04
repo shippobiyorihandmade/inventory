@@ -2570,9 +2570,12 @@ function dpOpen(fid) {
   dpY = d.getFullYear(); dpM = d.getMonth();
   var btn = document.getElementById(fid + '_btn');
   var rect = btn.getBoundingClientRect();
-  var sy = window.scrollY || window.pageYOffset;
-  pop.style.top = (rect.bottom + sy + 4) + 'px';
-  pop.style.left = Math.min(rect.left, window.innerWidth - 284) + 'px';
+  var top = rect.bottom + 4;
+  var left = Math.min(rect.left, window.innerWidth - 284);
+  // 画面下にはみ出る場合は上に表示するにゃ
+  if (top + 300 > window.innerHeight) top = rect.top - 300;
+  pop.style.top = Math.max(0, top) + 'px';
+  pop.style.left = Math.max(0, left) + 'px';
   document.body.appendChild(pop);
   pop.classList.add('open'); btn.classList.add('open'); dpRender();
 }
