@@ -1295,7 +1295,7 @@ function setSyncing(state) {
 }
 
 async function sbGet(table) {
-  var res = await fetch(SB_URL + '/rest/v1/' + table + '?select=*', { headers: sbHeaders() });
+  var res = await fetch(SB_URL + '/rest/v1/' + table + '?select=*&order=id.asc', { headers: sbHeaders() });
   if (!res.ok) throw new Error(await res.text());
   var rows = await res.json();
   return rows.map(function(r) { return Object.assign({ id: r.id }, r.data); });
