@@ -1483,7 +1483,10 @@ async function loadAll() {
     makes = await sbGet('makes');
     locs  = await sbGetDirect('locations');
     setSyncing('ok');
-    rDash();
+    // 現在開いてるページを再描画するにゃ（ダッシュボードに強制移動しない）
+    var pageMap = { dash: rDash, products: rProds, materials: rMats, make: rMakePg, purchase: rPurPg, adjust: rAdj, sales: rSales, history: rHist, contact: rContact, account: rAccountPg };
+    var fn = pageMap[currentPageId];
+    if (fn) fn(); else rDash();
     checkAnnouncements();
   } catch(e) {
     setSyncing('error');
