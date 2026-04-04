@@ -1774,6 +1774,8 @@ function showDetail(id) {
     if (i.color) rows.push(['色/柄', i.color]);
     if (i.brand) rows.push(['ブランド/メーカー', i.brand]);
     if (i.sup) rows.push(['購入先', i.sup]);
+    var lastPurch = purch.filter(function(p) { return p.itemId === i.id && p.code; }).sort(function(a,b){ return b.date > a.date ? 1 : -1; })[0];
+    if (lastPurch) rows.push(['管理番号', '<span class="mn">' + lastPurch.code + '</span><span class="ts tm">（' + lastPurch.date + '）</span>']);
   }
   if (i.memo) rows.push(['メモ', i.memo]);
   var tableHtml = '<table style="width:100%;border-collapse:collapse">' + rows.map(function(r) {
