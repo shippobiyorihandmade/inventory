@@ -1944,7 +1944,38 @@ async function saveItem() {
   if (obj.type === 'product') rProds(); else rMats();
 }
 async function delItem(id) {
-  if (!confirm('このアイテムを削除しますか？')) return;
+  var i = items.find(function(x) { return x.id === id; }); if (!i) return;
+  // 完成品でレシピ＆在庫がある場合は材料を戻すか選択するにゃ
+  var hasRecipe = i.type === 'product' && i.recipe && i.recipe.length > 0 && i.stock > 0;
+  if (hasRecipe) {
+    var recipeStr = i.recipe.map(function(r) {
+      var m = items.find(function(x) { return x.id === r.mid; });
+      return m ? m.name + ' +' + Math.round(r.qty * i.stock * 100) / 100 + (m.unit || '個') : null;
+    }).filter(Boolean).join('、');
+    var choice = window.confirm(
+      '「' + i.name + '」を削除しますか？\n\n' +
+      '在庫数: ' + i.stock + (i.unit || '個') + '\n\n' +
+      '【OK】材料在庫を戻して削除\n' + recipeStr + '\n\n' +
+      '【キャンセル】→ 別の確認が出ます'
+    );
+    if (choice) {
+      // 材料在庫を戻すにゃ
+      for (var r of i.recipe) {
+        var mat = items.find(function(x) { return x.id === r.mid; });
+        if (mat) {
+          var restoreQty = Math.round(r.qty * i.stock * 100) / 100;
+          mat.stock = Math.round((mat.stock + restoreQty) * 100) / 100;
+          addH(mat.name, restoreQty, '完成品削除による戻し（' + i.name + '）', mat.stock);
+          await svItem(mat);
+        }
+      }
+    } else {
+      // 材料を戻さずに削除するか最終確認にゃ
+      if (!confirm('材料在庫を戻さずに削除しますか？')) return;
+    }
+  } else {
+    if (!confirm('このアイテムを削除しますか？')) return;
+  }
   items = items.filter(function(i) { return i.id !== id; });
   setSyncing('syncing');
   try { await sbDelete('items', id); setSyncing('ok'); } catch(e) { setSyncing('error'); }
