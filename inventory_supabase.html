@@ -1125,7 +1125,7 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
         </div>
         <div class="fr c2">
           <div><label>生地幅（cm、任意）</label><input type="number" id="imFW"></div>
-          <div></div>
+          <div><label>管理番号（任意）</label><input type="text" id="imCode" placeholder="例：FAB-001"></div>
         </div>
       </div>
       <div class="fr"><div><label>メモ</label><textarea id="imMemo" rows="2"></textarea></div></div>
@@ -1774,8 +1774,8 @@ function showDetail(id) {
     if (i.color) rows.push(['色/柄', i.color]);
     if (i.brand) rows.push(['ブランド/メーカー', i.brand]);
     if (i.sup) rows.push(['購入先', i.sup]);
-    var lastPurch = purch.filter(function(p) { return p.itemId === i.id && p.code; }).sort(function(a,b){ return b.date > a.date ? 1 : -1; })[0];
-    if (lastPurch) rows.push(['管理番号', '<span class="mn">' + lastPurch.code + '</span><span class="ts tm">（' + lastPurch.date + '）</span>']);
+    if (i.code) rows.push(['管理番号', '<span class="mn">' + i.code + '</span>']);
+
   }
   if (i.memo) rows.push(['メモ', i.memo]);
   var tableHtml = '<table style="width:100%;border-collapse:collapse">' + rows.map(function(r) {
@@ -1851,7 +1851,7 @@ function openIM(type) {
   editId = null; iRec = []; currentPhoto = null; currentPhotoFile = null;
   document.getElementById('imTitle').textContent = type === 'product' ? '完成品を追加' : '材料を追加';
   document.getElementById('imType').value = type;
-  ['imName', 'imCat', 'imMemo', 'imSup', 'imSP', 'imCost', 'imMC', 'imFW', 'imColor', 'imBrand'].forEach(function(id) { document.getElementById(id).value = ''; });
+  ['imName', 'imCat', 'imMemo', 'imSup', 'imSP', 'imCost', 'imMC', 'imFW', 'imColor', 'imBrand', 'imCode'].forEach(function(id) { document.getElementById(id).value = ''; });
   document.getElementById('imMinMode').value = 'on'; document.getElementById('imMin').style.display = 'block';
   document.getElementById('imUnit').value = type === 'product' ? '個' : '';
   document.getElementById('imStock').value = 0;
@@ -1880,6 +1880,7 @@ function editItem(id) {
   document.getElementById('imFW').value = i.fw || '';
   document.getElementById('imColor').value = i.color || '';
   document.getElementById('imBrand').value = i.brand || '';
+  document.getElementById('imCode').value = i.code || '';
   document.getElementById('imMemo').value = i.memo || '';
   if (i.photo) { showPhotoPreview(i.photo); } else { resetPhotoUI(); }
   togImF(); rImRL(); openMod('itemOv');
@@ -1925,6 +1926,7 @@ async function saveItem() {
     fw: parseFloat(document.getElementById('imFW').value) || 0,
     color: document.getElementById('imColor').value.trim(),
     brand: document.getElementById('imBrand').value.trim(),
+    code: document.getElementById('imCode').value.trim(),
     memo: document.getElementById('imMemo').value.trim(),
     recipe: recipe, photo: photoUrl || null
   };
@@ -2151,7 +2153,7 @@ async function recPurchase() {
     var nColor = document.getElementById('purNColor').value.trim();
     var nBrand = document.getElementById('purNBrand').value.trim();
     var purNMinOff = document.getElementById('purNMinMode').value === 'off';
-    item = { id: uid(), type: 'material', name: name, cat: cat, unit: nUnit, stock: 0, min: purNMinOff ? null : (parseInt(document.getElementById('purNMin').value) ?? 5), sp: 0, cost: 0, mc: unit, sup: sup, fw: parseFloat(document.getElementById('purNFW').value) || 0, color: nColor, brand: nBrand, memo: '', recipe: [], photo: null };
+    item = { id: uid(), type: 'material', name: name, cat: cat, unit: nUnit, stock: 0, min: purNMinOff ? null : (parseInt(document.getElementById('purNMin').value) ?? 5), sp: 0, cost: 0, mc: unit, sup: sup, fw: parseFloat(document.getElementById('purNFW').value) || 0, color: nColor, brand: nBrand, code: code, memo: '', recipe: [], photo: null };
     items.push(item); await svItem(item);
   } else {
     item = items.find(function(i) { return i.id === document.getElementById('purItem').value; });
@@ -2161,6 +2163,8 @@ async function recPurchase() {
   purch.push(purObj); await svPurch(purObj);
   item.stock = Math.round((item.stock + qty) * 100) / 100;
   if (document.getElementById('purUpdCost').checked) item.mc = unit;
+  // 管理番号があればアイテムに反映するにゃ
+  if (code) item.code = code;
   // 写真があればアップロードしてアイテムに反映
   if (purPhotoFile && !item.photo) {
     try {
