@@ -256,6 +256,8 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
 .btn-logout:hover{background:rgba(255,255,255,.2);}
 
 @media print {
+  #delivery-print-area { display: block !important; }
+  #pg-delivery { display: none !important; }
   body { background: #fff !important; }
   header, .nav-tabs, .bottom-nav, .ov, #dpp, .no-print { display: none !important; }
   .main { padding: 0 !important; max-width: 100% !important; }
@@ -448,6 +450,7 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
   <button class="tab" onclick="showPage('history')">📋 履歴</button>
   <button class="tab" onclick="showPage('contact')">💬 問い合わせ</button>
   <button class="tab" onclick="showPage('account')">⚙️ アカウント設定</button>
+  <button class="tab" onclick="showPage('delivery')">📦 納品書</button>
 </nav>
 
 <!-- ボトムナビ（スマホ専用） -->
@@ -512,6 +515,10 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
       <button class="bn-sheet-item" onclick="bnNav('account');closeBnMore()">
         <span style="font-size:28px">⚙️</span>
         <span>アカウント</span>
+      </button>
+      <button class="bn-sheet-item" onclick="bnNav('delivery');closeBnMore()">
+        <span style="font-size:28px">📦</span>
+        <span>納品書</span>
       </button>
     </div>
   </div>
@@ -969,6 +976,53 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
     <div class="cb" style="padding:0 16px"><div id="contactHistList"></div></div>
   </div>
 </div>
+
+<!-- DELIVERY NOTE PAGE -->
+<div class="pg" id="pg-delivery">
+  <div class="card">
+    <div class="ch"><span class="ct">📦 納品書を作成</span></div>
+    <div class="cb">
+      <div class="fr c2">
+        <div>
+          <label>納品先 *</label>
+          <select id="dlvDest"></select>
+        </div>
+        <div>
+          <label>納品日 *</label>
+          <div class="df"><button type="button" class="dd" id="dlvDate_btn" onclick="dpOpen('dlvDate')"><span id="dlvDate_lbl" class="ph">日付を選択</span><span>📅</span></button></div>
+          <input type="hidden" id="dlvDate">
+        </div>
+      </div>
+      <div class="fr">
+        <div><label>備考</label><input type="text" id="dlvNote" placeholder="例：春夏新作など"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ch">
+      <span class="ct">📋 納品明細</span>
+      <button class="btn bg bsm" onclick="addDlvLine()">＋ 商品を追加</button>
+    </div>
+    <div class="cb" id="dlvLines">
+      <p class="ts tm">「商品を追加」ボタンから追加してください</p>
+    </div>
+    <div class="cb" style="border-top:1px solid var(--bd);padding-top:12px">
+      <div style="display:flex;justify-content:flex-end;align-items:center;gap:12px">
+        <span class="ts tm">合計金額</span>
+        <span class="mn fw7" style="font-size:20px;color:var(--ac)" id="dlvTotal">¥0</span>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:flex;gap:10px;margin-bottom:20px">
+    <button class="btn bp" style="flex:1" onclick="printDelivery()">🖨️ PDF出力</button>
+    <button class="btn bs" style="flex:1" onclick="clearDelivery()">🗑 リセット</button>
+  </div>
+</div>
+
+<!-- 納品書印刷エリア -->
+<div id="delivery-print-area" style="display:none"></div>
 
 <!-- ACCOUNT SETTINGS -->
 <div class="pg" id="pg-account">
@@ -1484,7 +1538,7 @@ async function loadAll() {
     locs  = await sbGetDirect('locations');
     setSyncing('ok');
     // 現在開いてるページを再描画するにゃ（ダッシュボードに強制移動しない）
-    var pageMap = { dash: rDash, products: rProds, materials: rMats, make: rMakePg, purchase: rPurPg, adjust: rAdj, sales: rSales, history: rHist, contact: rContact, account: rAccountPg };
+    var pageMap = { dash: rDash, products: rProds, materials: rMats, make: rMakePg, purchase: rPurPg, adjust: rAdj, sales: rSales, history: rHist, contact: rContact, account: rAccountPg, delivery: rDeliveryPg };
     var fn = pageMap[currentPageId];
     if (fn) fn(); else rDash();
     checkAnnouncements();
@@ -1580,7 +1634,7 @@ function mstr() { var n = new Date(); return n.getFullYear() + '-' + String(n.ge
 // ══════════════════════════════════════════════
 // PAGE ROUTING
 // ══════════════════════════════════════════════
-var PAGES = ['dash', 'products', 'materials', 'make', 'purchase', 'sales', 'adjust', 'history', 'contact', 'account'];
+var PAGES = ['dash', 'products', 'materials', 'make', 'purchase', 'sales', 'adjust', 'history', 'contact', 'account', 'delivery'];
 var BN_MAIN = ['dash', 'products', 'materials', 'make']; // ボトムナビのメインページ
 var currentPageId = 'dash';
 
@@ -1591,7 +1645,7 @@ function showPage(id) {
   document.querySelectorAll('.tab')[PAGES.indexOf(id)].classList.add('on');
   syncBnNav(id);
   currentPageId = id;
-  var m = { dash: rDash, products: rProds, materials: rMats, make: rMakePg, purchase: rPurPg, adjust: rAdj, sales: rSales, history: rHist, contact: rContact, account: rAccountPg };
+  var m = { dash: rDash, products: rProds, materials: rMats, make: rMakePg, purchase: rPurPg, adjust: rAdj, sales: rSales, history: rHist, contact: rContact, account: rAccountPg, delivery: rDeliveryPg };
   if (m[id]) m[id]();
 }
 
@@ -1768,6 +1822,10 @@ function showDetail(id) {
   rows.push(['在庫', '<span class="mn fw7" style="font-size:16px">' + i.stock + '</span> ' + (i.unit || '個') + '  ' + st]);
   if (i.cat) rows.push(['カテゴリ', i.cat]);
   if (i.type === 'product') {
+    if (i.locations && Object.keys(i.locations).length) {
+      var locStr = Object.entries(i.locations).filter(function(e){ return e[1] > 0; }).map(function(e){ return e[0] + ': ' + e[1] + (i.unit||'個'); }).join(' / ');
+      if (locStr) rows.push(['現在地', locStr]);
+    }
     if (i.sp) rows.push(['販売価格', '<span class="mn">' + yen(i.sp) + '</span>']);
     if (cost) rows.push(['原価', '<span class="mn">' + yen(cost) + '</span>']);
     if (margin !== null) rows.push(['粗利率', '<span class="mgb ' + (margin >= 40 ? 'mgg' : 'mgr') + '">' + margin + '%</span>']);
@@ -2753,6 +2811,145 @@ function init() {
 // ══════════════════════════════════════════════
 // アカウント設定
 // ══════════════════════════════════════════════
+
+// ══════════════════════════════════════════════
+// 納品書
+// ══════════════════════════════════════════════
+var dlvLines = []; // { itemId, qty, price }
+
+function rDeliveryPg() {
+  // 納品先セレクト構築
+  var sel = document.getElementById('dlvDest');
+  var prev = sel ? sel.value : '';
+  var opts = DEFAULT_LOCS.filter(function(l) {
+    return l.id !== 'hand' && l.id !== 'minne' && l.id !== 'creema' && l.id !== 'netother';
+  }).map(function(l) {
+    return '<option value="' + l.name + '"' + (l.name === prev ? ' selected' : '') + '>' + l.name + '</option>';
+  });
+  locs.forEach(function(l) {
+    opts.push('<option value="' + l.name + '"' + (l.name === prev ? ' selected' : '') + '>✨ ' + l.name + '</option>');
+  });
+  if (sel) sel.innerHTML = opts.join('');
+  if (!document.getElementById('dlvDate').value) dpSet('dlvDate', tod());
+  renderDlvLines();
+}
+
+function addDlvLine() {
+  var prods = items.filter(function(i) { return i.type === 'product'; });
+  if (!prods.length) { alert('完成品が登録されていません'); return; }
+  dlvLines.push({ itemId: prods[0].id, qty: 1, price: prods[0].sp || 0 });
+  renderDlvLines();
+}
+
+function renderDlvLines() {
+  var el = document.getElementById('dlvLines');
+  var prods = items.filter(function(i) { return i.type === 'product'; });
+  if (!dlvLines.length) {
+    el.innerHTML = '<p class="ts tm">「商品を追加」ボタンから追加してください</p>';
+    document.getElementById('dlvTotal').textContent = '¥0';
+    return;
+  }
+  var opts = prods.map(function(i) { return '<option value="' + i.id + '">' + i.name + (i.color ? ' (' + i.color + ')' : '') + '</option>'; }).join('');
+  el.innerHTML = dlvLines.map(function(line, idx) {
+    var item = items.find(function(i) { return i.id === line.itemId; }) || prods[0];
+    var selOpts = prods.map(function(i) {
+      return '<option value="' + i.id + '"' + (i.id === line.itemId ? ' selected' : '') + '>' + i.name + (i.color ? ' (' + i.color + ')' : '') + '</option>';
+    }).join('');
+    return '<div style="display:flex;gap:8px;align-items:center;padding:9px 0;border-bottom:1px solid var(--bd);flex-wrap:wrap">'
+      + '<select style="flex:2;min-width:140px" onchange="dlvLines[' + idx + '].itemId=this.value;dlvLines[' + idx + '].price=(items.find(function(i){return i.id===this.value;})||{}).sp||0;renderDlvLines()">' + selOpts + '</select>'
+      + '<div style="display:flex;align-items:center;gap:4px"><label class="ts tm">数量</label><input type="number" style="width:64px" value="' + line.qty + '" min="1" onchange="dlvLines[' + idx + '].qty=parseInt(this.value)||1;renderDlvLines()"></div>'
+      + '<div style="display:flex;align-items:center;gap:4px"><label class="ts tm">単価</label><input type="number" style="width:80px" value="' + line.price + '" min="0" onchange="dlvLines[' + idx + '].price=parseFloat(this.value)||0;renderDlvLines()"><span class="ts tm">円</span></div>'
+      + '<span class="mn ts" style="min-width:70px;text-align:right">' + yen(line.qty * line.price) + '</span>'
+      + '<button class="bi bdl" onclick="dlvLines.splice(' + idx + ',1);renderDlvLines()">✕</button>'
+      + '</div>';
+  }).join('');
+  var total = dlvLines.reduce(function(a, l) { return a + l.qty * l.price; }, 0);
+  document.getElementById('dlvTotal').textContent = yen(total);
+}
+
+function clearDelivery() {
+  if (!confirm('納品書の内容をリセットしますか？')) return;
+  dlvLines = [];
+  document.getElementById('dlvNote').value = '';
+  renderDlvLines();
+}
+
+function printDelivery() {
+  var dest = document.getElementById('dlvDest').value;
+  var date = document.getElementById('dlvDate').value;
+  var note = document.getElementById('dlvNote').value;
+  if (!dest) { alert('納品先を選択してください'); return; }
+  if (!date) { alert('納品日を選択してください'); return; }
+  if (!dlvLines.length) { alert('商品を追加してください'); return; }
+
+  var now2 = new Date();
+  var outDate = now2.getFullYear() + '年' + (now2.getMonth() + 1) + '月' + now2.getDate() + '日';
+  var dlvDateFmt = date.replace(/-/g, '/');
+  var total = dlvLines.reduce(function(a, l) { return a + l.qty * l.price; }, 0);
+
+  var rows = dlvLines.map(function(line, idx) {
+    var item = items.find(function(i) { return i.id === line.itemId; }) || {};
+    var amt = line.qty * line.price;
+    return '<tr>'
+      + '<td>' + (idx + 1) + '</td>'
+      + '<td>' + (item.code || '—') + '</td>'
+      + '<td><b>' + (item.name || '') + '</b></td>'
+      + '<td>' + (item.color || '—') + '</td>'
+      + '<td class="num">' + line.qty + '</td>'
+      + '<td class="num">¥' + (line.price || 0).toLocaleString() + '</td>'
+      + '<td class="num">¥' + Math.round(amt).toLocaleString() + '</td>'
+      + '</tr>';
+  }).join('');
+
+  var html = ''
+    + '<div class="pr-header">'
+    + '<div><div class="pr-title">納 品 書</div>'
+    + '<div class="pr-sub">納品先: <b>' + dest + '</b></div>'
+    + (note ? '<div class="pr-sub">備考: ' + note + '</div>' : '')
+    + '</div>'
+    + '<div class="pr-date">出力日: ' + outDate + '<br>納品日: ' + dlvDateFmt + '</div>'
+    + '</div>'
+    + '<div class="pr-section">'
+    + '<table class="pr-table">'
+    + '<thead><tr><th style="width:28px">No.</th><th style="width:72px">管理番号</th><th>商品名</th><th style="width:72px">色/柄</th><th style="width:44px">数量</th><th style="width:80px">単価</th><th style="width:80px">金額</th></tr></thead>'
+    + '<tbody>' + rows + '</tbody>'
+    + '</table>'
+    + '</div>'
+    + '<div class="pr-summary">合計金額: <b>¥' + Math.round(total).toLocaleString() + '</b></div>';
+
+  document.getElementById('delivery-print-area').innerHTML = html;
+  window.print();
+
+  // 印刷後に在庫移動を確認するにゃ
+  setTimeout(function() {
+    if (confirm('納品書を出力しました。\n在庫を「' + dest + '」に移動しますか？\n\n移動すると各商品の現在地が「' + dest + '」に変わります。')) {
+      applyDeliveryLocation(dest);
+    }
+  }, 500);
+}
+
+function applyDeliveryLocation(dest) {
+  var updated = 0;
+  dlvLines.forEach(function(line) {
+    var item = items.find(function(i) { return i.id === line.itemId; });
+    if (!item) return;
+    // 現在地ごとの在庫を更新するにゃ
+    if (!item.locations) item.locations = {};
+    var hand = (item.locations['手元'] || item.stock);
+    if (!item.locations['手元'] && item.stock) item.locations['手元'] = item.stock;
+    var handStock = item.locations['手元'] || 0;
+    var move = Math.min(line.qty, handStock);
+    item.locations['手元'] = Math.max(0, handStock - move);
+    item.locations[dest] = (item.locations[dest] || 0) + move;
+    svItem(item);
+    updated++;
+  });
+  alert(updated + '件の在庫を「' + dest + '」に移動しました');
+  rDeliveryPg();
+  // 完成品リストも更新するにゃ
+  if (typeof rProds === 'function') rProds();
+}
+
 function rAccountPg() {
   if (!currentUser) return;
   document.getElementById('acEmail').textContent = currentUser.email || '—';
