@@ -1826,6 +1826,7 @@ function showDetail(id) {
   rows.push(['在庫', '<span class="mn fw7" style="font-size:16px">' + i.stock + '</span> ' + (i.unit || '個') + '  ' + st]);
   if (i.cat) rows.push(['カテゴリ', i.cat]);
   if (i.type === 'product') {
+    if (i.code) rows.push(['管理番号', '<span class="mn">' + i.code + '</span>']);
     if (i.locations && Object.keys(i.locations).length) {
       var locStr = Object.entries(i.locations).filter(function(e){ return e[1] > 0; }).map(function(e){ return e[0] + ': ' + e[1] + (i.unit||'個'); }).join(' / ');
       if (locStr) rows.push(['現在地', locStr]);
