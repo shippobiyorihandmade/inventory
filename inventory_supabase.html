@@ -1180,8 +1180,12 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
         </div>
         <div class="fr c2">
           <div><label>生地幅（cm、任意）</label><input type="number" id="imFW"></div>
-          <div><label>管理番号（任意）</label><input type="text" id="imCode" placeholder="例：FAB-001"></div>
+          <div></div>
         </div>
+      </div>
+      <div class="fr c2">
+        <div><label>管理番号（任意）</label><input type="text" id="imCode" placeholder="例：FAB-001、MK-001"></div>
+        <div></div>
       </div>
       <div class="fr"><div><label>メモ</label><textarea id="imMemo" rows="2"></textarea></div></div>
     </div>
@@ -2166,6 +2170,8 @@ async function recMake(memoOnly) {
     } catch(e) { console.error('写真アップロード失敗:', e); }
   }
   await svItem(item);
+  // 製作記録の管理番号を完成品アイテムにも反映するにゃ
+  if (code && !memoOnly) { item.code = code; await svItem(item); }
   var mkObj = { id: uid(), itemId: item.id, itemName: item.name, qty: qty, date: date, memo: memo, code: code, tot: Math.round(tot), memoOnly: memoOnly };
   makes.push(mkObj); await svMake(mkObj);
   mkRec = []; clearMkPhoto(); rMakePg();
