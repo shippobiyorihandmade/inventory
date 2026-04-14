@@ -3004,7 +3004,7 @@ function renderDlvLines() {
       return '<option value="' + i.id + '"' + (i.id === line.itemId ? ' selected' : '') + '>' + i.name + (i.color ? ' (' + i.color + ')' : '') + '</option>';
     }).join('');
     return '<div style="display:flex;gap:8px;align-items:center;padding:9px 0;border-bottom:1px solid var(--bd);flex-wrap:wrap">'
-      + '<select style="flex:2;min-width:140px" onchange="dlvLines[' + idx + '].itemId=this.value;dlvLines[' + idx + '].price=(items.find(function(i){return i.id===this.value;})||{}).sp||0;renderDlvLines()">' + selOpts + '</select>'
+      + '<select style="flex:2;min-width:140px" onchange="dlvLines[' + idx + '].itemId=this.value;dlvLines[' + idx + '].price=(items.find(function(i){return i.id===event.target.value;})||{}).sp||0;renderDlvLines()">' + selOpts + '</select>'
       + '<div style="display:flex;align-items:center;gap:4px"><label class="ts tm">数量</label><input type="number" style="width:64px" value="' + line.qty + '" min="1" onchange="dlvLines[' + idx + '].qty=parseInt(this.value)||1;renderDlvLines()"></div>'
       + '<div style="display:flex;align-items:center;gap:4px"><label class="ts tm">単価</label><input type="number" style="width:80px" value="' + line.price + '" min="0" onchange="dlvLines[' + idx + '].price=parseFloat(this.value)||0;renderDlvLines()"><span class="ts tm">円</span></div>'
       + '<span class="mn ts" style="min-width:70px;text-align:right">' + yen(line.qty * line.price) + '</span>'
