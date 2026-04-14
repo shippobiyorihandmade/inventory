@@ -2431,7 +2431,9 @@ async function addLocation() {
   var name = document.getElementById('locNewName').value.trim();
   if (!name) { alert('販売場所名を入力してください'); return; }
   if (locs.find(function(l) { return l.name === name; })) { alert('同じ名前がすでにあります'); return; }
-  var obj = { id: uid(), name: name, user_id: currentUser ? currentUser.id : null };
+  // locationsテーブルはUUID型が必要なのでcrypto.randomUUIDを使うにゃ
+  var newId = crypto.randomUUID ? crypto.randomUUID() : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) { var r = Math.random() * 16 | 0; return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16); });
+  var obj = { id: newId, name: name, user_id: currentUser ? currentUser.id : null };
   locs.push(obj);
   setSyncing('syncing');
   try {
