@@ -1015,9 +1015,39 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
     </div>
   </div>
 
-  <div style="display:flex;gap:10px;margin-bottom:20px">
+  <div style="display:flex;gap:10px;margin-bottom:14px">
     <button class="btn bp" style="flex:1" onclick="printDelivery()">🖨️ PDF出力</button>
     <button class="btn bs" style="flex:1" onclick="clearDelivery()">🗑 リセット</button>
+  </div>
+
+  <!-- 委託先在庫一覧 -->
+  <div class="card">
+    <div class="ch"><span class="ct">🏪 委託先在庫一覧</span></div>
+    <div class="cb" id="dlvStockList">
+      <p class="ts tm">委託中の商品がありません</p>
+    </div>
+  </div>
+
+  <!-- 返品フォーム -->
+  <div class="card">
+    <div class="ch"><span class="ct">↩️ 返品（委託先→手元）</span></div>
+    <div class="cb">
+      <div class="fr c2">
+        <div>
+          <label>返品元（委託先）</label>
+          <select id="retSrc" onchange="renderRetLines(this.value)"></select>
+        </div>
+        <div>
+          <label>返品日</label>
+          <div class="df"><button type="button" class="dd" id="retDate_btn" onclick="dpOpen('retDate')"><span id="retDate_lbl" class="ph">日付を選択</span><span>📅</span></button></div>
+          <input type="hidden" id="retDate">
+        </div>
+      </div>
+      <div class="cb" id="retLines" style="padding:0;margin-top:8px">
+        <p class="ts tm">返品元を選択してください</p>
+      </div>
+      <button class="btn bp m8" onclick="execReturn()">↩️ 返品を実行</button>
+    </div>
   </div>
 </div>
 
@@ -2828,17 +2858,128 @@ function rDeliveryPg() {
   // 納品先セレクト構築
   var sel = document.getElementById('dlvDest');
   var prev = sel ? sel.value : '';
-  var opts = DEFAULT_LOCS.filter(function(l) {
+  var destOpts = DEFAULT_LOCS.filter(function(l) {
     return l.id !== 'hand' && l.id !== 'minne' && l.id !== 'creema' && l.id !== 'netother';
   }).map(function(l) {
     return '<option value="' + l.name + '"' + (l.name === prev ? ' selected' : '') + '>' + l.name + '</option>';
   });
   locs.forEach(function(l) {
-    opts.push('<option value="' + l.name + '"' + (l.name === prev ? ' selected' : '') + '>✨ ' + l.name + '</option>');
+    destOpts.push('<option value="' + l.name + '"' + (l.name === prev ? ' selected' : '') + '>✨ ' + l.name + '</option>');
   });
-  if (sel) sel.innerHTML = opts.join('');
+  if (sel) sel.innerHTML = destOpts.join('');
   if (!document.getElementById('dlvDate').value) dpSet('dlvDate', tod());
+  if (!document.getElementById('retDate').value) dpSet('retDate', tod());
   renderDlvLines();
+  renderDlvStockList();
+  renderRetSrc();
+}
+
+// 委託先在庫一覧を描画するにゃ
+function renderDlvStockList() {
+  var el = document.getElementById('dlvStockList');
+  if (!el) return;
+  // locationsを持つ完成品を集めて委託先ごとにまとめるにゃ
+  var byDest = {};
+  items.filter(function(i) { return i.type === 'product' && i.locations; }).forEach(function(i) {
+    Object.entries(i.locations).forEach(function(e) {
+      var dest = e[0], qty = e[1];
+      if (dest === '手元' || !qty || qty <= 0) return;
+      if (!byDest[dest]) byDest[dest] = [];
+      byDest[dest].push({ item: i, qty: qty });
+    });
+  });
+  var destKeys = Object.keys(byDest);
+  if (!destKeys.length) {
+    el.innerHTML = '<p class="ts tm" style="padding:8px 0">委託中の商品がありません</p>';
+    return;
+  }
+  el.innerHTML = destKeys.map(function(dest) {
+    var rows = byDest[dest].map(function(r) {
+      return '<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--bd)">'
+        + '<div><div class="fw7" style="font-size:13px">' + r.item.name + (r.item.color ? ' <span class="ts tm">(' + r.item.color + ')</span>' : '') + '</div>'
+        + (r.item.code ? '<div class="ts tm" style="font-size:11px">管理番号: ' + r.item.code + '</div>' : '')
+        + '</div>'
+        + '<span class="mn fw7" style="color:var(--ac)">' + r.qty + '<small class="tm" style="font-size:11px"> ' + (r.item.unit || '個') + '</small></span>'
+        + '</div>';
+    }).join('');
+    var total = byDest[dest].reduce(function(a, r) { return a + r.qty; }, 0);
+    return '<div style="margin-bottom:14px">'
+      + '<div class="stl" style="color:var(--ac3);margin-bottom:6px">🏪 ' + dest + '（計 ' + total + '点）</div>'
+      + rows
+      + '</div>';
+  }).join('');
+}
+
+// 返品元セレクトを構築するにゃ
+function renderRetSrc() {
+  var sel = document.getElementById('retSrc');
+  if (!sel) return;
+  var prevSrc = sel.value;
+  // locationsに在庫がある委託先を集めるにゃ
+  var dests = new Set();
+  items.filter(function(i) { return i.type === 'product' && i.locations; }).forEach(function(i) {
+    Object.entries(i.locations).forEach(function(e) {
+      if (e[0] !== '手元' && e[1] > 0) dests.add(e[0]);
+    });
+  });
+  if (!dests.size) {
+    sel.innerHTML = '<option value="">委託中の商品がありません</option>';
+    document.getElementById('retLines').innerHTML = '<p class="ts tm">委託中の商品がありません</p>';
+    return;
+  }
+  sel.innerHTML = '<option value="">返品元を選択...</option>' + Array.from(dests).map(function(d) {
+    return '<option value="' + d + '"' + (d === prevSrc ? ' selected' : '') + '>' + d + '</option>';
+  }).join('');
+  if (prevSrc) renderRetLines(prevSrc);
+}
+
+// 返品明細を描画するにゃ
+function renderRetLines(src) {
+  var el = document.getElementById('retLines');
+  if (!src) { el.innerHTML = '<p class="ts tm">返品元を選択してください</p>'; return; }
+  var list = items.filter(function(i) {
+    return i.type === 'product' && i.locations && i.locations[src] > 0;
+  });
+  if (!list.length) { el.innerHTML = '<p class="ts tm">この委託先に在庫がありません</p>'; return; }
+  el.innerHTML = list.map(function(i) {
+    var srcQty = i.locations[src] || 0;
+    return '<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--bd);flex-wrap:wrap">'
+      + '<div style="flex:1;min-width:100px"><div class="fw7" style="font-size:13px">' + i.name + (i.color ? ' <span class="ts tm">(' + i.color + ')</span>' : '') + '</div>'
+      + '<div class="ts tm">委託中: ' + srcQty + (i.unit || '個') + '</div></div>'
+      + '<div style="display:flex;align-items:center;gap:4px"><label class="ts tm">返品数</label>'
+      + '<input type="number" id="ret_' + i.id + '" value="' + srcQty + '" min="0" max="' + srcQty + '" style="width:68px">'
+      + '<span class="ts tm">' + (i.unit || '個') + '</span></div>'
+      + '</div>';
+  }).join('');
+}
+
+async function execReturn() {
+  var src = document.getElementById('retSrc').value;
+  if (!src) { alert('返品元を選択してください'); return; }
+  var date = document.getElementById('retDate').value || tod();
+  var targets = items.filter(function(i) {
+    return i.type === 'product' && i.locations && i.locations[src] > 0;
+  });
+  var changes = [];
+  targets.forEach(function(i) {
+    var inp = document.getElementById('ret_' + i.id);
+    if (!inp) return;
+    var qty = parseFloat(inp.value) || 0;
+    if (qty <= 0) return;
+    changes.push({ item: i, qty: qty });
+  });
+  if (!changes.length) { alert('返品数を入力してください'); return; }
+  var msg = changes.map(function(c) { return c.item.name + ' ' + c.qty + (c.item.unit || '個'); }).join('\n');
+  if (!confirm(src + ' から手元に返品しますか？\n\n' + msg)) return;
+  for (var c of changes) {
+    var i = c.item;
+    i.locations[src] = Math.max(0, (i.locations[src] || 0) - c.qty);
+    i.locations['手元'] = (i.locations['手元'] || 0) + c.qty;
+    addH(i.name, 0, '返品（' + src + '→手元）× ' + c.qty + (i.unit || '個') + ' ' + date, i.stock);
+    await svItem(i);
+  }
+  alert(changes.length + '件を手元に返品しました');
+  rDeliveryPg();
 }
 
 function addDlvLine() {
