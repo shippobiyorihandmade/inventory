@@ -1116,6 +1116,58 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
       </div>
     </div>
   </div>
+
+  <!-- 事業者情報 -->
+  <div class="card">
+    <div class="ch"><span class="ct">🏪 事業者情報</span></div>
+    <div class="cb">
+      <p class="ts tm" style="margin-bottom:14px;line-height:1.7">登録した情報は納品書PDFに自動で反映されます。</p>
+      <div class="fr c2">
+        <div><label>屋号</label><input type="text" id="prfShop" placeholder="例：しっぽ日和"></div>
+        <div><label>氏名</label><input type="text" id="prfName" placeholder="例：山田 花子"></div>
+      </div>
+      <div class="fr c2">
+        <div><label>郵便番号</label><input type="text" id="prfZip" placeholder="例：123-4567"></div>
+        <div><label>電話番号</label><input type="text" id="prfPhone" placeholder="例：090-1234-5678"></div>
+      </div>
+      <div class="fr">
+        <div><label>住所</label><input type="text" id="prfAddr" placeholder="例：大阪府大阪市○○区○○1-2-3"></div>
+      </div>
+      <div class="fr">
+        <div><label>メールアドレス（連絡先）</label><input type="email" id="prfEmail" placeholder="例：info@example.com"></div>
+      </div>
+      <button class="btn bp" onclick="saveProfile()" style="margin-top:4px">💾 事業者情報を保存</button>
+      <div id="prfMsg" style="margin-top:8px;font-size:12px;display:none"></div>
+    </div>
+  </div>
+
+  <!-- デジタル印鑑 -->
+  <div class="card">
+    <div class="ch"><span class="ct">🔴 デジタル印鑑</span></div>
+    <div class="cb">
+      <p class="ts tm" style="margin-bottom:14px;line-height:1.7">印鑑画像を登録すると納品書PDFに自動で入ります。PNG（背景透過）推奨。</p>
+      <div style="display:flex;align-items:flex-start;gap:16px;flex-wrap:wrap">
+        <div style="flex:1;min-width:160px">
+          <label>印鑑画像をアップロード</label>
+          <div style="margin-top:6px">
+            <label class="btn bs" style="cursor:pointer;display:inline-flex;align-items:center;gap:6px">
+              📁 画像を選択
+              <input type="file" id="stampFile" accept="image/png,image/jpeg,image/webp" style="display:none" onchange="onStampFileChange(this)">
+            </label>
+          </div>
+          <div id="stampStatus" style="font-size:12px;color:var(--tx2);margin-top:6px"></div>
+          <button class="btn bp bsm" onclick="uploadStamp()" id="stampUploadBtn" style="margin-top:8px;display:none">💾 印鑑を保存</button>
+        </div>
+        <div style="flex-shrink:0">
+          <div style="font-size:12px;color:var(--tx2);margin-bottom:6px">プレビュー</div>
+          <div id="stampPreview" style="width:80px;height:80px;border:1px dashed var(--bd);border-radius:8px;display:flex;align-items:center;justify-content:center;background:var(--sf2)">
+            <span style="font-size:11px;color:var(--tx2)">未設定</span>
+          </div>
+          <button class="btn bs bsm" onclick="deleteStamp()" id="stampDelBtn" style="margin-top:6px;display:none;font-size:11px">🗑 削除</button>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- 販売場所管理モーダル -->
@@ -3053,11 +3105,19 @@ function printDelivery() {
 
   var html = ''
     + '<div class="pr-header">'
-    + '<div><div class="pr-title">納 品 書</div>'
+    + '<div>'
+    + '<div class="pr-title">納 品 書</div>'
     + '<div class="pr-sub">納品先: <b>' + dest + '</b></div>'
     + (note ? '<div class="pr-sub">備考: ' + note + '</div>' : '')
     + '</div>'
-    + '<div class="pr-date">出力日: ' + outDate + '<br>納品日: ' + dlvDateFmt + '</div>'
+    + '<div class="pr-date" style="text-align:right">'
+    + '出力日: ' + outDate + '<br>納品日: ' + dlvDateFmt
+    + (userProfile && (userProfile.shop_name || userProfile.owner_name) ? '<br><br><b>' + (userProfile.shop_name || '') + (userProfile.owner_name ? ' ' + userProfile.owner_name : '') + '</b>' : '')
+    + (userProfile && userProfile.zip ? '<br>〒' + userProfile.zip : '')
+    + (userProfile && userProfile.address ? '<br>' + userProfile.address : '')
+    + (userProfile && userProfile.phone ? '<br>TEL: ' + userProfile.phone : '')
+    + (userProfile && userProfile.email ? '<br>' + userProfile.email : '')
+    + '</div>'
     + '</div>'
     + '<div class="pr-section">'
     + '<table class="pr-table">'
@@ -3065,7 +3125,12 @@ function printDelivery() {
     + '<tbody>' + rows + '</tbody>'
     + '</table>'
     + '</div>'
-    + '<div class="pr-summary">合計金額: <b>¥' + Math.round(total).toLocaleString() + '</b></div>';
+    + '<div style="display:flex;justify-content:space-between;align-items:flex-end;margin-top:10px">'
+    + '<div>'
+    + (userProfile && userProfile.stamp_url ? '<img src="' + userProfile.stamp_url + '" style="width:70px;height:70px;object-fit:contain" onerror="this.style.display=\'none\'">' : '')
+    + '</div>'
+    + '<div class="pr-summary">合計金額: <b>¥' + Math.round(total).toLocaleString() + '</b></div>'
+    + '</div>';
 
   document.getElementById('delivery-print-area').innerHTML = html;
   window.print();
@@ -3100,9 +3165,127 @@ function applyDeliveryLocation(dest) {
   if (typeof rProds === 'function') rProds();
 }
 
+
+// ══════════════════════════════════════════════
+// 事業者情報 (profiles)
+// ══════════════════════════════════════════════
+var userProfile = null;
+var stampFileObj = null;
+
+async function loadProfile() {
+  if (!currentUser) return;
+  try {
+    var res = await fetch(SB_URL + '/rest/v1/profiles?user_id=eq.' + currentUser.id + '&select=*', {
+      headers: sbHeaders()
+    });
+    if (!res.ok) return;
+    var data = await res.json();
+    userProfile = data && data.length ? data[0] : null;
+  } catch(e) { console.error('loadProfile error:', e); }
+}
+
+function rProfileForm() {
+  if (!userProfile) return;
+  document.getElementById('prfShop').value  = userProfile.shop_name  || '';
+  document.getElementById('prfName').value  = userProfile.owner_name || '';
+  document.getElementById('prfZip').value   = userProfile.zip        || '';
+  document.getElementById('prfAddr').value  = userProfile.address    || '';
+  document.getElementById('prfPhone').value = userProfile.phone      || '';
+  document.getElementById('prfEmail').value = userProfile.email      || '';
+  // 印鑑プレビュー
+  if (userProfile.stamp_url) {
+    document.getElementById('stampPreview').innerHTML = '<img src="' + userProfile.stamp_url + '" style="width:76px;height:76px;object-fit:contain;border-radius:6px">';
+    document.getElementById('stampDelBtn').style.display = 'block';
+  }
+}
+
+async function saveProfile() {
+  if (!currentUser) return;
+  var obj = {
+    user_id:    currentUser.id,
+    shop_name:  document.getElementById('prfShop').value.trim(),
+    owner_name: document.getElementById('prfName').value.trim(),
+    zip:        document.getElementById('prfZip').value.trim(),
+    address:    document.getElementById('prfAddr').value.trim(),
+    phone:      document.getElementById('prfPhone').value.trim(),
+    email:      document.getElementById('prfEmail').value.trim(),
+    stamp_url:  userProfile ? (userProfile.stamp_url || null) : null,
+    updated_at: new Date().toISOString()
+  };
+  try {
+    var res = await fetch(SB_URL + '/rest/v1/profiles', {
+      method: 'POST',
+      headers: Object.assign({}, sbHeaders(), { 'Prefer': 'resolution=merge-duplicates,return=representation' }),
+      body: JSON.stringify(obj)
+    });
+    if (!res.ok) throw new Error(await res.text());
+    var data = await res.json();
+    userProfile = Array.isArray(data) ? data[0] : data;
+    prfMsg('prfMsg', '事業者情報を保存しました ✅', true);
+  } catch(e) {
+    prfMsg('prfMsg', '保存に失敗しました: ' + e.message, false);
+  }
+}
+
+function prfMsg(elId, msg, isOk) {
+  var el = document.getElementById(elId);
+  el.textContent = msg;
+  el.style.display = 'block';
+  el.style.color = isOk ? 'var(--ok)' : '#c04a4a';
+  setTimeout(function() { el.style.display = 'none'; }, 4000);
+}
+
+function onStampFileChange(input) {
+  if (!input.files || !input.files[0]) return;
+  stampFileObj = input.files[0];
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    document.getElementById('stampPreview').innerHTML = '<img src="' + e.target.result + '" style="width:76px;height:76px;object-fit:contain;border-radius:6px">';
+  };
+  reader.readAsDataURL(stampFileObj);
+  document.getElementById('stampStatus').textContent = stampFileObj.name;
+  document.getElementById('stampUploadBtn').style.display = 'inline-flex';
+}
+
+async function uploadStamp() {
+  if (!stampFileObj || !currentUser) return;
+  var ext = stampFileObj.type === 'image/png' ? 'png' : stampFileObj.type === 'image/webp' ? 'webp' : 'jpg';
+  var path = currentUser.id + '/stamp.' + ext;
+  try {
+    document.getElementById('stampStatus').textContent = 'アップロード中...';
+    var res = await fetch(SB_URL + '/storage/v1/object/stamps/' + path, {
+      method: 'POST',
+      headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + (accessToken || SB_KEY), 'Content-Type': stampFileObj.type, 'x-upsert': 'true' },
+      body: stampFileObj
+    });
+    if (!res.ok) throw new Error(await res.text());
+    var stampUrl = SB_URL + '/storage/v1/object/public/stamps/' + path;
+    // profilesに保存
+    if (!userProfile) userProfile = {};
+    userProfile.stamp_url = stampUrl;
+    await saveProfile();
+    document.getElementById('stampStatus').textContent = '印鑑を保存しました ✅';
+    document.getElementById('stampUploadBtn').style.display = 'none';
+    document.getElementById('stampDelBtn').style.display = 'block';
+    stampFileObj = null;
+  } catch(e) {
+    document.getElementById('stampStatus').textContent = 'エラー: ' + e.message;
+  }
+}
+
+async function deleteStamp() {
+  if (!confirm('印鑑画像を削除しますか？')) return;
+  if (userProfile) userProfile.stamp_url = null;
+  await saveProfile();
+  document.getElementById('stampPreview').innerHTML = '<span style="font-size:11px;color:var(--tx2)">未設定</span>';
+  document.getElementById('stampDelBtn').style.display = 'none';
+  document.getElementById('stampStatus').textContent = '削除しました';
+}
+
 function rAccountPg() {
   if (!currentUser) return;
   document.getElementById('acEmail').textContent = currentUser.email || '—';
+  loadProfile().then(function() { rProfileForm(); });
   var isGoogle = currentUser.app_metadata && currentUser.app_metadata.provider === 'google';
   var badge = document.getElementById('acProvider');
   if (isGoogle) {
