@@ -54,7 +54,8 @@ header{background:linear-gradient(135deg,#2c2416 0%,#3d3020 60%,#4a3828 100%);co
 @media(max-width:559px){
   .nav-tabs{display:none;}
   .bottom-nav{display:block;}
-  .main{padding:10px 10px 88px!important;max-width:100%;overflow-x:hidden;}
+  .main{padding:10px 10px 78px;max-width:100%;overflow-x:hidden;}
+  .fab{bottom:74px;right:12px;width:46px;height:46px;font-size:20px;}
   /* タップターゲット拡大 */
   .btn{padding:10px 14px;min-height:40px;}
   .bsm{padding:8px 12px;min-height:36px;}
@@ -75,7 +76,7 @@ header{background:linear-gradient(135deg,#2c2416 0%,#3d3020 60%,#4a3828 100%);co
   .sl{font-size:10px;}
   /* テーブルをスマホ用カードリストに切替 */
   .tw table{display:none;}
-  .dash-mobile-list{display:block!important;}
+  .dash-mobile-list{display:block;}
   /* グリッド */
   .sg{gap:6px;}
   /* フォーム */
@@ -188,6 +189,8 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
 .sb select{width:auto;flex-shrink:0;}
 .empty{text-align:center;padding:32px 16px;color:var(--tx2);}
 .ei{font-size:34px;margin-bottom:8px;}
+.fab{position:fixed;bottom:22px;right:18px;width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--ac),#d4733a);color:#fff;border:none;font-size:24px;cursor:pointer;box-shadow:0 4px 20px rgba(192,98,42,.45);display:flex;align-items:center;justify-content:center;z-index:51;transition:all .2s;}
+.fab:hover{background:#a8531f;transform:scale(1.1) rotate(90deg);}
 .stl{font-size:12px;font-weight:700;color:var(--tx2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:9px;padding-bottom:6px;border-bottom:1px solid var(--bd);}
 .df{position:relative;display:block;}
 .dd{width:100%;padding:9px 11px;border:1.5px solid var(--bd);border-radius:8px;font-family:inherit;font-size:14px;background:var(--sf);color:var(--tx);cursor:pointer;text-align:left;display:flex;align-items:center;justify-content:space-between;transition:border-color .2s;}
@@ -256,10 +259,8 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
 .btn-logout:hover{background:rgba(255,255,255,.2);}
 
 @media print {
-  #delivery-print-area { display: block !important; }
-  #pg-delivery { display: none !important; }
   body { background: #fff !important; }
-  header, .nav-tabs, .bottom-nav, .ov, #dpp, .no-print { display: none !important; }
+  header, .nav-tabs, .fab, .ov, #dpp, .no-print { display: none !important; }
   .main { padding: 0 !important; max-width: 100% !important; }
   .pg { display: none !important; }
   #print-area { display: block !important; }
@@ -294,6 +295,8 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
 .bak{display:inline-block;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:.02em;}
 .bok{background:var(--ob);color:var(--ok);}.bwn{background:var(--wb);color:var(--wn);}.bzr{background:#fde8e8;color:#c04a4a;}
 /* フローティングアクションボタン改善 */
+.fab{position:fixed;bottom:22px;right:18px;width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--ac),#d4733a);color:#fff;border:none;font-size:24px;cursor:pointer;box-shadow:0 4px 20px rgba(192,98,42,.45);display:flex;align-items:center;justify-content:center;z-index:50;transition:all .2s;}
+.fab:hover{transform:scale(1.1) rotate(90deg);box-shadow:0 6px 24px rgba(192,98,42,.55);}
 .sc{background:var(--sf);border:1px solid var(--bd);border-radius:var(--r);padding:14px;text-align:center;transition:box-shadow .2s;}
 .sc:hover{box-shadow:var(--shl);}
 /* ボトムシートアイテム */
@@ -449,8 +452,6 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
   <button class="tab" onclick="showPage('adjust')">± 在庫調整</button>
   <button class="tab" onclick="showPage('history')">📋 履歴</button>
   <button class="tab" onclick="showPage('contact')">💬 問い合わせ</button>
-  <button class="tab" onclick="showPage('account')">⚙️ アカウント設定</button>
-  <button class="tab" onclick="showPage('delivery')">📦 納品書</button>
 </nav>
 
 <!-- ボトムナビ（スマホ専用） -->
@@ -512,14 +513,6 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
         <span style="font-size:28px">💬</span>
         <span>問い合わせ</span>
       </button>
-      <button class="bn-sheet-item" onclick="bnNav('account');closeBnMore()">
-        <span style="font-size:28px">⚙️</span>
-        <span>アカウント</span>
-      </button>
-      <button class="bn-sheet-item" onclick="bnNav('delivery');closeBnMore()">
-        <span style="font-size:28px">📦</span>
-        <span>納品書</span>
-      </button>
     </div>
   </div>
 </div>
@@ -557,7 +550,7 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
   <div id="alrt"></div>
   <div class="card">
     <div class="ch">
-      <span class="ct">🎨 完成品 <span style="font-size:11px;font-weight:400;color:var(--tx2)">新着5件</span></span>
+      <span class="ct">🎨 完成品 在庫</span>
       <span class="ts tm">タップで詳細</span>
     </div>
     <div class="tw"><table><thead><tr><th>名前</th><th>在庫</th><th>売価</th><th>原価</th><th>状態</th></tr></thead><tbody id="dProds"></tbody></table></div>
@@ -565,7 +558,7 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
   </div>
   <div class="card">
     <div class="ch">
-      <span class="ct">🧶 材料 <span style="font-size:11px;font-weight:400;color:var(--wn)">要補充</span></span>
+      <span class="ct">🧶 材料 在庫</span>
       <span class="ts tm">タップで詳細</span>
     </div>
     <div class="tw"><table><thead><tr><th>名前</th><th>在庫</th><th>単価</th><th>状態</th></tr></thead><tbody id="dMats"></tbody></table></div>
@@ -619,6 +612,7 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
     </div>
   </div>
   <div id="prodList"></div>
+  <button class="fab" onclick="openIM('product')">＋</button>
 </div>
 
 <!-- MATERIALS -->
@@ -637,6 +631,7 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
     </div>
   </div>
   <div id="matList"></div>
+  <button class="fab" onclick="openIM('material')">＋</button>
 </div>
 
 <!-- MAKE -->
@@ -666,12 +661,11 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
             <div><label>販売価格（円）</label><input type="number" id="mkNPrice" placeholder="例：1800"></div>
           </div>
           <div class="fr c2">
-            <div><label>低在庫アラート</label><div style="display:flex;gap:6px;align-items:center"><select id="mkNMinMode" style="width:auto;flex-shrink:0" onchange="var off=this.value==='off';document.getElementById('mkNMin').style.display=off?'none':'block'"><option value="on">設定する</option><option value="off">なし</option></select><input type="number" id="mkNMin" value="3" min="0" style="flex:1"></div></div>
+            <div><label>低在庫アラート</label><input type="number" id="mkNMin" value="3" min="0"></div>
             <div><label>製作数 *</label><input type="number" id="mkNQty" value="1" min="1"></div>
           </div>
-          <div class="fr c2">
-            <div><label>色/柄</label><input type="text" id="mkNColor" placeholder="例：レッド、ドット柄"></div>
-            <div></div>
+          <div class="fr">
+            <div><label>メモ</label><input type="text" id="mkNMemo" placeholder="色・サイズなど"></div>
           </div>
         </div>
       </div>
@@ -763,11 +757,7 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
             <div><label>生地幅（cm）</label><input type="number" id="purNFW" placeholder="例：110"></div>
           </div>
           <div class="fr c2">
-            <div><label>色/柄</label><input type="text" id="purNColor" placeholder="例：ネイビー、花柄"></div>
-            <div><label>ブランド/メーカー</label><input type="text" id="purNBrand" placeholder="例：KOKKA、CHECK&STRIPE"></div>
-          </div>
-          <div class="fr c2">
-            <div><label>低在庫アラート</label><div style="display:flex;gap:6px;align-items:center"><select id="purNMinMode" style="width:auto;flex-shrink:0" onchange="var off=this.value==='off';document.getElementById('purNMin').style.display=off?'none':'block'"><option value="on">設定する</option><option value="off">なし</option></select><input type="number" id="purNMin" value="5" min="0" style="flex:1"></div></div>
+            <div><label>低在庫アラート</label><input type="number" id="purNMin" value="5" min="0"></div>
             <div><label>購入日</label>
               <div class="df"><button type="button" class="dd" id="purNDate_btn" onclick="dpOpen('purNDate')"><span id="purNDate_lbl" class="ph">日付を選択</span><span>📅</span></button></div>
               <input type="hidden" id="purNDate">
@@ -898,7 +888,6 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
       <input type="month" id="saleMF" onchange="renderSaleHist()" style="width:auto;font-size:12px;padding:5px 9px;border:1px solid var(--bd);border-radius:6px">
     </div>
     <div class="tw"><table><thead><tr><th>日付</th><th>商品</th><th>数</th><th>売上</th><th>利益</th><th>率</th><th>販売場所</th><th>メモ</th><th></th></tr></thead><tbody id="saleTbody"></tbody></table></div>
-    <div class="dash-mobile-list" id="saleMobileList" style="padding:0 4px"></div>
   </div>
   <!-- 広告スペース（AdSense用） -->
   <div class="ad-banner" id="adBanner2">
@@ -977,199 +966,6 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
   </div>
 </div>
 
-<!-- DELIVERY NOTE PAGE -->
-<div class="pg" id="pg-delivery">
-  <div class="card">
-    <div class="ch"><span class="ct">📦 納品書を作成</span></div>
-    <div class="cb">
-      <div class="fr c2">
-        <div>
-          <label>納品先 *</label>
-          <select id="dlvDest"></select>
-        </div>
-        <div>
-          <label>納品日 *</label>
-          <div class="df"><button type="button" class="dd" id="dlvDate_btn" onclick="dpOpen('dlvDate')"><span id="dlvDate_lbl" class="ph">日付を選択</span><span>📅</span></button></div>
-          <input type="hidden" id="dlvDate">
-        </div>
-      </div>
-      <div class="fr">
-        <div><label>備考</label><input type="text" id="dlvNote" placeholder="例：春夏新作など"></div>
-      </div>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="ch">
-      <span class="ct">📋 納品明細</span>
-      <button class="btn bg bsm" onclick="addDlvLine()">＋ 商品を追加</button>
-    </div>
-    <div class="cb" id="dlvLines">
-      <p class="ts tm">「商品を追加」ボタンから追加してください</p>
-    </div>
-    <div class="cb" style="border-top:1px solid var(--bd);padding-top:12px">
-      <div style="display:flex;justify-content:flex-end;align-items:center;gap:12px">
-        <span class="ts tm">合計金額</span>
-        <span class="mn fw7" style="font-size:20px;color:var(--ac)" id="dlvTotal">¥0</span>
-      </div>
-    </div>
-  </div>
-
-  <div style="display:flex;gap:10px;margin-bottom:14px">
-    <button class="btn bp" style="flex:1" onclick="printDelivery()">🖨️ PDF出力</button>
-    <button class="btn bs" style="flex:1" onclick="clearDelivery()">🗑 リセット</button>
-  </div>
-
-  <!-- 委託先在庫一覧 -->
-  <div class="card">
-    <div class="ch"><span class="ct">🏪 委託先在庫一覧</span></div>
-    <div class="cb" id="dlvStockList">
-      <p class="ts tm">委託中の商品がありません</p>
-    </div>
-  </div>
-
-  <!-- 返品フォーム -->
-  <div class="card">
-    <div class="ch"><span class="ct">↩️ 返品（委託先→手元）</span></div>
-    <div class="cb">
-      <div class="fr c2">
-        <div>
-          <label>返品元（委託先）</label>
-          <select id="retSrc" onchange="renderRetLines(this.value)"></select>
-        </div>
-        <div>
-          <label>返品日</label>
-          <div class="df"><button type="button" class="dd" id="retDate_btn" onclick="dpOpen('retDate')"><span id="retDate_lbl" class="ph">日付を選択</span><span>📅</span></button></div>
-          <input type="hidden" id="retDate">
-        </div>
-      </div>
-      <div class="cb" id="retLines" style="padding:0;margin-top:8px">
-        <p class="ts tm">返品元を選択してください</p>
-      </div>
-      <button class="btn bp m8" onclick="execReturn()">↩️ 返品を実行</button>
-    </div>
-  </div>
-</div>
-
-<!-- 納品書印刷エリア -->
-<div id="delivery-print-area" style="display:none"></div>
-
-<!-- ACCOUNT SETTINGS -->
-<div class="pg" id="pg-account">
-  <div class="card">
-    <div class="ch"><span class="ct">👤 アカウント情報</span></div>
-    <div class="cb">
-      <div style="display:flex;flex-direction:column;gap:8px">
-        <div style="display:flex;gap:10px;align-items:center">
-          <span style="font-size:12px;font-weight:700;color:var(--tx2);min-width:110px">メールアドレス</span>
-          <span style="font-size:14px" id="acEmail">—</span>
-        </div>
-        <div style="display:flex;gap:10px;align-items:center">
-          <span style="font-size:12px;font-weight:700;color:var(--tx2);min-width:110px">ログイン方式</span>
-          <span style="font-size:12px;font-weight:700;padding:2px 10px;border-radius:20px" id="acProvider">—</span>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- メール/パスワードユーザー向け -->
-  <div id="acEmailSection">
-    <div class="card">
-      <div class="ch"><span class="ct">✉️ メールアドレスを変更</span></div>
-      <div class="cb">
-        <div class="fr c2">
-          <div><label>新しいメールアドレス</label><input type="email" id="acNewEmail" placeholder="new@example.com"></div>
-          <div><label>現在のパスワード（確認）</label><input type="password" id="acEmailPass" placeholder="パスワードを入力"></div>
-        </div>
-        <button class="btn bp" onclick="changeEmail()">✉️ 変更メールを送信</button>
-        <div id="acEmailMsg" style="margin-top:8px;font-size:12px;display:none"></div>
-        <div style="margin-top:12px;padding:10px 12px;background:var(--sf2);border-radius:8px;border-left:3px solid var(--bd);font-size:12px;color:var(--tx2);line-height:1.7">
-          変更先のアドレスに確認メールが届きます。メール内のリンクをクリックすると変更が完了します。<br>データはそのまま引き継がれます。
-        </div>
-      </div>
-    </div>
-    <div class="card">
-      <div class="ch"><span class="ct">🔑 パスワードを変更</span></div>
-      <div class="cb">
-        <div class="fr">
-          <div><label>新しいパスワード（8文字以上）</label><input type="password" id="acNewPass" placeholder="新しいパスワード"></div>
-        </div>
-        <div class="fr">
-          <div><label>新しいパスワード（確認）</label><input type="password" id="acNewPass2" placeholder="もう一度入力"></div>
-        </div>
-        <button class="btn bp" onclick="changePassword()">🔑 パスワードを変更</button>
-        <div id="acPassMsg" style="margin-top:8px;font-size:12px;display:none"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Googleユーザー向け -->
-  <div id="acGoogleSection" style="display:none">
-    <div class="card">
-      <div class="ch"><span class="ct">🔗 Googleアカウント</span></div>
-      <div class="cb">
-        <p class="ts tm" style="margin-bottom:14px;line-height:1.7">メールアドレスやパスワードの変更はGoogleアカウントの設定ページから行ってください。</p>
-        <a href="https://myaccount.google.com" target="_blank" class="btn bs" style="display:inline-flex;align-items:center;gap:6px;text-decoration:none">
-          <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="16" height="16">
-          Googleアカウント設定を開く
-        </a>
-      </div>
-    </div>
-  </div>
-
-  <!-- 事業者情報 -->
-  <div class="card">
-    <div class="ch"><span class="ct">🏪 事業者情報</span></div>
-    <div class="cb">
-      <p class="ts tm" style="margin-bottom:14px;line-height:1.7">登録した情報は納品書PDFに自動で反映されます。</p>
-      <div class="fr c2">
-        <div><label>屋号</label><input type="text" id="prfShop" placeholder="例：しっぽ日和"></div>
-        <div><label>氏名</label><input type="text" id="prfName" placeholder="例：山田 花子"></div>
-      </div>
-      <div class="fr c2">
-        <div><label>郵便番号</label><input type="text" id="prfZip" placeholder="例：123-4567"></div>
-        <div><label>電話番号</label><input type="text" id="prfPhone" placeholder="例：090-1234-5678"></div>
-      </div>
-      <div class="fr">
-        <div><label>住所</label><input type="text" id="prfAddr" placeholder="例：大阪府大阪市○○区○○1-2-3"></div>
-      </div>
-      <div class="fr">
-        <div><label>メールアドレス（連絡先）</label><input type="email" id="prfEmail" placeholder="例：info@example.com"></div>
-      </div>
-      <button class="btn bp" onclick="saveProfile()" style="margin-top:4px">💾 事業者情報を保存</button>
-      <div id="prfMsg" style="margin-top:8px;font-size:12px;display:none"></div>
-    </div>
-  </div>
-
-  <!-- デジタル印鑑 -->
-  <div class="card">
-    <div class="ch"><span class="ct">🔴 デジタル印鑑</span></div>
-    <div class="cb">
-      <p class="ts tm" style="margin-bottom:14px;line-height:1.7">印鑑画像を登録すると納品書PDFに自動で入ります。PNG（背景透過）推奨。</p>
-      <div style="display:flex;align-items:flex-start;gap:16px;flex-wrap:wrap">
-        <div style="flex:1;min-width:160px">
-          <label>印鑑画像をアップロード</label>
-          <div style="margin-top:6px">
-            <label class="btn bs" style="cursor:pointer;display:inline-flex;align-items:center;gap:6px">
-              📁 画像を選択
-              <input type="file" id="stampFile" accept="image/png,image/jpeg,image/webp" style="display:none" onchange="onStampFileChange(this)">
-            </label>
-          </div>
-          <div id="stampStatus" style="font-size:12px;color:var(--tx2);margin-top:6px"></div>
-          <button class="btn bp bsm" onclick="uploadStamp()" id="stampUploadBtn" style="margin-top:8px;display:none">💾 印鑑を保存</button>
-        </div>
-        <div style="flex-shrink:0">
-          <div style="font-size:12px;color:var(--tx2);margin-bottom:6px">プレビュー</div>
-          <div id="stampPreview" style="width:80px;height:80px;border:1px dashed var(--bd);border-radius:8px;display:flex;align-items:center;justify-content:center;background:var(--sf2)">
-            <span style="font-size:11px;color:var(--tx2)">未設定</span>
-          </div>
-          <button class="btn bs bsm" onclick="deleteStamp()" id="stampDelBtn" style="margin-top:6px;display:none;font-size:11px">🗑 削除</button>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
 <!-- 販売場所管理モーダル -->
 <div class="ov" id="locMgrOv">
   <div class="md" style="max-width:400px">
@@ -1238,7 +1034,7 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
       </div>
       <div class="fr c2">
         <div><label>現在の在庫数 *</label><input type="number" id="imStock" value="0" min="0" step="0.01"></div>
-        <div><label>低在庫アラート（以下で警告）</label><div style="display:flex;gap:6px;align-items:center"><select id="imMinMode" style="width:auto;flex-shrink:0" onchange="var off=this.value==='off';document.getElementById('imMin').style.display=off?'none':'block'"><option value="on">設定する</option><option value="off">なし</option></select><input type="number" id="imMin" value="3" min="0" style="flex:1"></div></div>
+        <div><label>低在庫アラート（以下で警告）</label><input type="number" id="imMin" value="3" min="0"></div>
       </div>
       <div id="imProd">
         <div class="fr c2">
@@ -1257,17 +1053,9 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
           <div><label>仕入れ先</label><input type="text" id="imSup"></div>
         </div>
         <div class="fr c2">
-          <div><label>色/柄</label><input type="text" id="imColor" placeholder="例：ネイビー、花柄"></div>
-          <div><label>ブランド/メーカー</label><input type="text" id="imBrand" placeholder="例：KOKKA、CHECK&STRIPE"></div>
-        </div>
-        <div class="fr c2">
           <div><label>生地幅（cm、任意）</label><input type="number" id="imFW"></div>
           <div></div>
         </div>
-      </div>
-      <div class="fr c2">
-        <div><label>管理番号（任意）</label><input type="text" id="imCode" placeholder="例：FAB-001、MK-001"></div>
-        <div></div>
       </div>
       <div class="fr"><div><label>メモ</label><textarea id="imMemo" rows="2"></textarea></div></div>
     </div>
@@ -1436,7 +1224,7 @@ function setSyncing(state) {
 }
 
 async function sbGet(table) {
-  var res = await fetch(SB_URL + '/rest/v1/' + table + '?select=*&order=id.asc', { headers: sbHeaders() });
+  var res = await fetch(SB_URL + '/rest/v1/' + table + '?select=*', { headers: sbHeaders() });
   if (!res.ok) throw new Error(await res.text());
   var rows = await res.json();
   return rows.map(function(r) { return Object.assign({ id: r.id }, r.data); });
@@ -1482,7 +1270,6 @@ var mkMode = 'exist';
 var mkQMode = 'per1';
 var purMode = 'exist';
 var stMode = { products: false, materials: false };
-var stAppliedDate = { products: null, materials: null }; // 差分を反映した日付
 var currentPhoto = null;
 var currentPhotoFile = null;
 
@@ -1542,7 +1329,6 @@ function compressImage(file, callback) {
       var quality = 0.85;
       var tryCompress = function() {
         canvas.toBlob(function(blob) {
-          if (!blob) { callback(file, e.target.result); return; }
           if (blob.size > 2 * 1024 * 1024 && quality > 0.3) {
             quality -= 0.1;
             tryCompress();
@@ -1601,12 +1387,11 @@ function clearMkPhoto() {
 }
 
 async function uploadPhoto(file, itemId) {
-  var mimeToExt = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp', 'image/gif': 'gif' };
-  var ext = mimeToExt[file.type] || 'jpg';
+  var ext = file.name.split('.').pop().toLowerCase() || 'jpg';
   var path = 'items/' + itemId + '.' + ext;
   var res = await fetch(SB_URL + '/storage/v1/object/item-photos/' + path, {
     method: 'POST',
-    headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + (accessToken || SB_KEY), 'Content-Type': file.type, 'x-upsert': 'true' },
+    headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': file.type, 'x-upsert': 'true' },
     body: file
   });
   if (!res.ok) throw new Error('Storage upload failed: ' + (await res.text()));
@@ -1623,10 +1408,7 @@ async function loadAll() {
     makes = await sbGet('makes');
     locs  = await sbGetDirect('locations');
     setSyncing('ok');
-    // 現在開いてるページを再描画するにゃ（ダッシュボードに強制移動しない）
-    var pageMap = { dash: rDash, products: rProds, materials: rMats, make: rMakePg, purchase: rPurPg, adjust: rAdj, sales: rSales, history: rHist, contact: rContact, account: rAccountPg, delivery: rDeliveryPg };
-    var fn = pageMap[currentPageId];
-    if (fn) fn(); else rDash();
+    rDash();
     checkAnnouncements();
   } catch(e) {
     setSyncing('error');
@@ -1720,7 +1502,7 @@ function mstr() { var n = new Date(); return n.getFullYear() + '-' + String(n.ge
 // ══════════════════════════════════════════════
 // PAGE ROUTING
 // ══════════════════════════════════════════════
-var PAGES = ['dash', 'products', 'materials', 'make', 'purchase', 'sales', 'adjust', 'history', 'contact', 'account', 'delivery'];
+var PAGES = ['dash', 'products', 'materials', 'make', 'purchase', 'sales', 'adjust', 'history', 'contact'];
 var BN_MAIN = ['dash', 'products', 'materials', 'make']; // ボトムナビのメインページ
 var currentPageId = 'dash';
 
@@ -1731,7 +1513,7 @@ function showPage(id) {
   document.querySelectorAll('.tab')[PAGES.indexOf(id)].classList.add('on');
   syncBnNav(id);
   currentPageId = id;
-  var m = { dash: rDash, products: rProds, materials: rMats, make: rMakePg, purchase: rPurPg, adjust: rAdj, sales: rSales, history: rHist, contact: rContact, account: rAccountPg, delivery: rDeliveryPg };
+  var m = { dash: rDash, products: rProds, materials: rMats, make: rMakePg, purchase: rPurPg, adjust: rAdj, sales: rSales, history: rHist, contact: rContact };
   if (m[id]) m[id]();
 }
 
@@ -1814,16 +1596,10 @@ function calcCost(item) {
 // ══════════════════════════════════════════════
 // DASHBOARD
 // ══════════════════════════════════════════════
-// 低在庫判定ヘルパー（min が null/undefined/'' のときはアラートなし）
-function isLow(item) {
-  if (item.min === null || item.min === undefined || item.min === '') return false;
-  return item.stock <= item.min;
-}
-
 function rDash() {
   var prods = items.filter(function(i) { return i.type === 'product'; });
   var mats = items.filter(function(i) { return i.type === 'material'; });
-  var low = items.filter(function(i) { return isLow(i); });
+  var low = items.filter(function(i) { return i.stock <= (i.min || 0); });
   var mk = mstr();
   var ms = sales.filter(function(s) { return s.date && s.date.startsWith(mk); });
   var mp = purch.filter(function(p) { return p.date && p.date.startsWith(mk); });
@@ -1832,26 +1608,22 @@ function rDash() {
   document.getElementById('sgrid').innerHTML = sc(prods.length, '完成品 種類') + sc(mats.length, '材料 種類') + sc(low.length, '要補充', 'var(--wn)') + sc(ms.length, '今月の販売件数', 'var(--ac3)');
   document.getElementById('alrt').innerHTML = low.length ? '<div class="al"><h4>低在庫アラート（' + low.length + '件）</h4><ul>' + low.map(function(i) { return '<li>' + i.name + '：残り ' + i.stock + (i.unit || '個') + '</li>'; }).join('') + '</ul></div>' : '';
 
-  // 完成品：新着順（ID降順）で上位5件 / 材料：低在庫・在庫切れのみ
-  var recentProds = prods.slice().sort(function(a,b){ return b.id > a.id ? 1 : -1; }).slice(0, 5);
-  var lowMats = mats.filter(function(i){ return isLow(i) || i.stock === 0; });
-
   // テーブル（PC用）
-  document.getElementById('dProds').innerHTML = recentProds.length ? recentProds.map(function(i) {
+  document.getElementById('dProds').innerHTML = prods.length ? prods.map(function(i) {
     var cost = calcCost(i);
-    var st = i.stock === 0 ? '<span class="bak bzr">在庫切れ</span>' : isLow(i) ? '<span class="bak bwn">低在庫</span>' : '<span class="bak bok">在庫あり</span>';
+    var st = i.stock === 0 ? '<span class="bak bzr">在庫切れ</span>' : i.stock <= (i.min || 0) ? '<span class="bak bwn">低在庫</span>' : '<span class="bak bok">在庫あり</span>';
     return '<tr style="cursor:pointer" onclick="showDetail(\'' + i.id + '\')"><td class="fw7">' + i.name + '</td><td class="mn fw7">' + i.stock + '<small class="tm"> ' + (i.unit || '個') + '</small></td><td class="mn">' + (i.sp ? yen(i.sp) : '—') + '</td><td class="mn tm">' + (cost ? yen(cost) : '—') + '</td><td>' + st + '</td></tr>';
   }).join('') : '<tr><td colspan="5"><div class="empty"><div class="ei">🎨</div><p>完成品がまだありません</p></div></td></tr>';
-  document.getElementById('dMats').innerHTML = lowMats.length ? lowMats.map(function(i) {
-    var st = i.stock === 0 ? '<span class="bak bzr">在庫切れ</span>' : '<span class="bak bwn">低在庫</span>';
+  document.getElementById('dMats').innerHTML = mats.length ? mats.map(function(i) {
+    var st = i.stock === 0 ? '<span class="bak bzr">在庫切れ</span>' : i.stock <= (i.min || 0) ? '<span class="bak bwn">低在庫</span>' : '<span class="bak bok">在庫あり</span>';
     return '<tr style="cursor:pointer" onclick="showDetail(\'' + i.id + '\')"><td class="fw7">' + i.name + '</td><td class="mn fw7">' + i.stock + '<small class="tm"> ' + (i.unit || '個') + '</small></td><td class="mn tm">' + (i.mc ? yen(i.mc) + '/' + i.unit : '—') + '</td><td>' + st + '</td></tr>';
-  }).join('') : '<tr><td colspan="4"><div class="empty" style="padding:13px"><p>低在庫・在庫切れの材料はありません ✅</p></div></td></tr>';
+  }).join('') : '<tr><td colspan="4"><div class="empty" style="padding:13px"><p>材料がまだありません</p></div></td></tr>';
 
   // カードリスト（スマホ用）
   function mobileCard(i, type) {
     var cost = type === 'product' ? calcCost(i) : 0;
-    var stColor = i.stock === 0 ? 'var(--wn)' : isLow(i) ? '#d97c2a' : 'var(--ac3)';
-    var stLabel = i.stock === 0 ? '<span class="bak bzr">在庫切れ</span>' : isLow(i) ? '<span class="bak bwn">低在庫</span>' : '<span class="bak bok">在庫あり</span>';
+    var stColor = i.stock === 0 ? 'var(--wn)' : i.stock <= (i.min || 0) ? '#d97c2a' : 'var(--ac3)';
+    var stLabel = i.stock === 0 ? '<span class="bak bzr">在庫切れ</span>' : i.stock <= (i.min || 0) ? '<span class="bak bwn">低在庫</span>' : '<span class="bak bok">在庫あり</span>';
     var sub = type === 'product'
       ? (i.sp ? '<span class="ts tm">売価 ' + yen(i.sp) + '</span>' : '') + (cost ? '<span class="ts tm">原価 ' + yen(cost) + '</span>' : '')
       : (i.mc ? '<span class="ts tm">単価 ' + yen(i.mc) + '/' + (i.unit||'個') + '</span>' : '');
@@ -1864,12 +1636,12 @@ function rDash() {
       + '<div style="text-align:right;flex-shrink:0"><div class="mn fw7" style="font-size:15px;color:' + stColor + '">' + i.stock + '<small class="tm" style="font-size:10px"> ' + (i.unit||'個') + '</small></div><div style="margin-top:2px">' + stLabel + '</div></div>'
       + '</div>';
   }
-  document.getElementById('dProdsMobile').innerHTML = recentProds.length
-    ? recentProds.map(function(i){ return mobileCard(i,'product'); }).join('')
+  document.getElementById('dProdsMobile').innerHTML = prods.length
+    ? prods.map(function(i){ return mobileCard(i,'product'); }).join('')
     : '<div class="empty" style="padding:20px"><div class="ei">🎨</div><p>完成品がまだありません</p></div>';
-  document.getElementById('dMatsMobile').innerHTML = lowMats.length
-    ? lowMats.map(function(i){ return mobileCard(i,'material'); }).join('')
-    : '<div class="empty" style="padding:20px"><p>低在庫・在庫切れの材料はありません ✅</p></div>';
+  document.getElementById('dMatsMobile').innerHTML = mats.length
+    ? mats.map(function(i){ return mobileCard(i,'material'); }).join('')
+    : '<div class="empty" style="padding:20px"><p>材料がまだありません</p></div>';
 
   document.getElementById('dSales').textContent = yen(ms.reduce(function(a, s) { return a + s.total; }, 0));
   document.getElementById('dProfit').textContent = yen(ms.reduce(function(a, s) { return a + s.profit; }, 0));
@@ -1903,28 +1675,18 @@ function showDetail(id) {
   var i = items.find(function(x) { return x.id === id; }); if (!i) return;
   var cost = calcCost(i);
   var margin = (i.sp && cost) ? Math.round(((i.sp - cost) / i.sp) * 100) : null;
-  var st = i.stock === 0 ? '<span class="bak bzr">在庫切れ</span>' : isLow(i) ? '<span class="bak bwn">低在庫</span>' : '<span class="bak bok">在庫あり</span>';
+  var st = i.stock === 0 ? '<span class="bak bzr">在庫切れ</span>' : i.stock <= (i.min || 0) ? '<span class="bak bwn">低在庫</span>' : '<span class="bak bok">在庫あり</span>';
   var rows = [];
   rows.push(['在庫', '<span class="mn fw7" style="font-size:16px">' + i.stock + '</span> ' + (i.unit || '個') + '  ' + st]);
+  rows.push(['最低在庫', (i.min || 0) + (i.unit || '個')]);
   if (i.cat) rows.push(['カテゴリ', i.cat]);
   if (i.type === 'product') {
-    if (i.code) rows.push(['管理番号', '<span class="mn">' + i.code + '</span>']);
-    if (i.locations && Object.keys(i.locations).length) {
-      var locStr = Object.entries(i.locations).filter(function(e){ return e[1] > 0; }).map(function(e){ return e[0] + ': ' + e[1] + (i.unit||'個'); }).join(' / ');
-      if (locStr) rows.push(['現在地', locStr]);
-    }
     if (i.sp) rows.push(['販売価格', '<span class="mn">' + yen(i.sp) + '</span>']);
     if (cost) rows.push(['原価', '<span class="mn">' + yen(cost) + '</span>']);
     if (margin !== null) rows.push(['粗利率', '<span class="mgb ' + (margin >= 40 ? 'mgg' : 'mgr') + '">' + margin + '%</span>']);
   } else {
-    if (i.mc) rows.push(['仕入れ単価', '<span class="mn">' + yen(i.mc) + '</span>/' + (i.unit || '個')]);
-    var asset = i.mc && i.stock ? Math.round(i.mc * i.stock) : 0;
-    if (asset) rows.push(['棚卸資産額', '<span class="mn fw7" style="color:var(--ac3)">' + yen(asset) + '</span><span class="ts tm">（' + i.stock + (i.unit||'個') + ' × ' + yen(i.mc) + '/' + (i.unit||'個') + '）</span>']);
-    if (i.color) rows.push(['色/柄', i.color]);
-    if (i.brand) rows.push(['ブランド/メーカー', i.brand]);
+    if (i.mc) rows.push(['仕入れ単価', '<span class="mn">' + yen(i.mc) + '</span>/' + i.unit]);
     if (i.sup) rows.push(['購入先', i.sup]);
-    if (i.code) rows.push(['管理番号', '<span class="mn">' + i.code + '</span>']);
-
   }
   if (i.memo) rows.push(['メモ', i.memo]);
   var tableHtml = '<table style="width:100%;border-collapse:collapse">' + rows.map(function(r) {
@@ -1951,8 +1713,8 @@ function rProds() {
   document.getElementById('prodList').innerHTML = list.map(function(i) {
     var cost = calcCost(i);
     var margin = (i.sp && cost) ? Math.round(((i.sp - cost) / i.sp) * 100) : null;
-    var sc = i.stock === 0 ? 'var(--wn)' : isLow(i) ? '#d97c2a' : 'var(--tx)';
-    var st = i.stock === 0 ? '<span class="bak bzr">在庫切れ</span>' : isLow(i) ? '<span class="bak bwn">低在庫</span>' : '<span class="bak bok">在庫あり</span>';
+    var sc = i.stock === 0 ? 'var(--wn)' : i.stock <= i.min ? '#d97c2a' : 'var(--tx)';
+    var st = i.stock === 0 ? '<span class="bak bzr">在庫切れ</span>' : i.stock <= i.min ? '<span class="bak bwn">低在庫</span>' : '<span class="bak bok">在庫あり</span>';
     var hasR = i.recipe && i.recipe.length;
     var rh = hasR ? '<div style="margin-top:7px;padding:7px 9px;background:var(--sf2);border-radius:7px;font-size:12px"><b style="color:var(--tx2)">レシピ：</b>' + i.recipe.map(function(r) { var m = items.find(function(x) { return x.id === r.mid; }); return m ? m.name + ' x' + r.qty + (m.unit || '') : '（削除済み）'; }).join('  ') + (cost ? '  → 原価 <b>' + yen(cost) + '</b>' : '') + '</div>' : '';
     var stRow = '';
@@ -1960,10 +1722,10 @@ function rProds() {
       var actual = stCounts[i.id];
       var diff = actual !== undefined ? actual - i.stock : null;
       var diffHtml = diff === null ? '' : diff > 0 ? '<span style="color:var(--ac3);font-weight:700">+' + diff + '</span>' : diff < 0 ? '<span style="color:var(--wn);font-weight:700">' + diff + '</span>' : '<span style="color:var(--tx2)">±0</span>';
-      stRow = '<div style="margin-top:9px;padding:9px 11px;background:' + (diff !== null && diff !== 0 ? '#fff9e6' : 'var(--sf2)') + ';border-radius:8px;border:1px solid ' + (diff !== null && diff !== 0 ? '#f0d060' : 'var(--bd)') + ';display:flex;align-items:center;gap:10px;flex-wrap:wrap"><span class="ts fw7" style="color:var(--ac3)">✅ 棚卸</span><span class="ts tm">システム: <b class="mn">' + i.stock + '</b>' + (i.unit || '個') + '</span><div style="display:flex;align-items:center;gap:6px"><span class="ts tm">実数:</span><input type="number" value="' + (actual !== undefined ? actual : '') + '" min="0" step="0.01" placeholder="入力..." data-stid="' + i.id + '" style="width:80px;padding:5px 8px;font-size:13px" onclick="event.stopPropagation()" onchange="setSTc(\'' + i.id + '\',this.value)"><span class="ts tm">' + (i.unit || '個') + '</span></div>' + (diff !== null ? '<span class="ts stDiff" data-stid="' + i.id + '">差分: ' + diffHtml + '</span>' : '<span class="ts stDiff" data-stid="' + i.id + '"></span>') + '</div>';
+      stRow = '<div style="margin-top:9px;padding:9px 11px;background:' + (diff !== null && diff !== 0 ? '#fff9e6' : 'var(--sf2)') + ';border-radius:8px;border:1px solid ' + (diff !== null && diff !== 0 ? '#f0d060' : 'var(--bd)') + ';display:flex;align-items:center;gap:10px;flex-wrap:wrap"><span class="ts fw7" style="color:var(--ac3)">✅ 棚卸</span><span class="ts tm">システム: <b class="mn">' + i.stock + '</b>' + (i.unit || '個') + '</span><div style="display:flex;align-items:center;gap:6px"><span class="ts tm">実数:</span><input type="number" value="' + (actual !== undefined ? actual : '') + '" min="0" step="0.01" placeholder="入力..." data-stid="' + i.id + '" style="width:80px;padding:5px 8px;font-size:13px" onchange="setSTc(\'' + i.id + '\',this.value)"><span class="ts tm">' + (i.unit || '個') + '</span></div>' + (diff !== null ? '<span class="ts stDiff" data-stid="' + i.id + '">差分: ' + diffHtml + '</span>' : '<span class="ts stDiff" data-stid="' + i.id + '"></span>') + '</div>';
     }
     var thumb = i.photo ? '<img src="' + i.photo + '" style="width:60px;height:60px;object-fit:cover;border-radius:7px;border:1px solid var(--bd)">' : '<div style="width:60px;height:60px;background:var(--sf2);border-radius:7px;border:1px solid var(--bd);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:22px">🎨</div>';
-    return '<div class="ic" style="cursor:pointer" onclick="showDetail(\'' + i.id + '\')"><div class="icb"><div class="ict">' + thumb + '<div class="ici"><div class="icn">' + i.name + (i.cat ? '<span class="ts tm" style="font-weight:400;margin-left:7px">' + i.cat + '</span>' : '') + '</div><div class="icm"><span class="mn fw7" style="font-size:16px;color:' + sc + '">' + i.stock + '<small class="tm" style="font-size:11px;font-weight:400"> ' + (i.unit || '個') + '</small></span>' + (i.sp ? '<span class="ts">売価: <b>' + yen(i.sp) + '</b></span>' : '') + (cost ? '<span class="ts tm">原価: ' + yen(cost) + '</span>' : '') + (margin !== null ? '<span class="mgb ' + (margin >= 40 ? 'mgg' : 'mgr') + '">粗利 ' + margin + '%</span>' : '') + st + '</div>' + rh + (i.memo ? '<div class="ts tm m8">' + i.memo + '</div>' : '') + stRow + '</div><div class="ica"><button class="bi" onclick="event.stopPropagation();editItem(\'' + i.id + '\')">✏️</button><button class="bi bdl" onclick="event.stopPropagation();delItem(\'' + i.id + '\')">🗑</button></div></div></div></div>';
+    return '<div class="ic"><div class="icb"><div class="ict">' + thumb + '<div class="ici"><div class="icn">' + i.name + (i.cat ? '<span class="ts tm" style="font-weight:400;margin-left:7px">' + i.cat + '</span>' : '') + '</div><div class="icm"><span class="mn fw7" style="font-size:16px;color:' + sc + '">' + i.stock + '<small class="tm" style="font-size:11px;font-weight:400"> ' + (i.unit || '個') + '</small></span>' + (i.sp ? '<span class="ts">売価: <b>' + yen(i.sp) + '</b></span>' : '') + (cost ? '<span class="ts tm">原価: ' + yen(cost) + '</span>' : '') + (margin !== null ? '<span class="mgb ' + (margin >= 40 ? 'mgg' : 'mgr') + '">粗利 ' + margin + '%</span>' : '') + st + '</div>' + rh + (i.memo ? '<div class="ts tm m8">' + i.memo + '</div>' : '') + stRow + '</div><div class="ica"><button class="bi" onclick="editItem(\'' + i.id + '\')">✏️</button><button class="bi bdl" onclick="delItem(\'' + i.id + '\')">🗑</button></div></div></div></div>';
   }).join('');
 }
 
@@ -1979,17 +1741,17 @@ function rMats() {
   var list = items.filter(function(i) { return i.type === 'material' && (!cat || i.cat === cat) && (!q || i.name.toLowerCase().includes(q)); });
   if (!list.length) { document.getElementById('matList').innerHTML = '<div class="empty"><div class="ei">🧶</div><p>材料がありません</p></div>'; return; }
   document.getElementById('matList').innerHTML = list.map(function(i) {
-    var sc = i.stock === 0 ? 'var(--wn)' : isLow(i) ? '#d97c2a' : 'var(--tx)';
-    var st = i.stock === 0 ? '<span class="bak bzr">在庫切れ</span>' : isLow(i) ? '<span class="bak bwn">低在庫</span>' : '<span class="bak bok">在庫あり</span>';
+    var sc = i.stock === 0 ? 'var(--wn)' : i.stock <= i.min ? '#d97c2a' : 'var(--tx)';
+    var st = i.stock === 0 ? '<span class="bak bzr">在庫切れ</span>' : i.stock <= i.min ? '<span class="bak bwn">低在庫</span>' : '<span class="bak bok">在庫あり</span>';
     var stRow = '';
     if (stMode.materials) {
       var actual = stCounts[i.id];
       var diff = actual !== undefined ? actual - i.stock : null;
       var diffHtml = diff === null ? '' : diff > 0 ? '<span style="color:var(--ac3);font-weight:700">+' + diff + '</span>' : diff < 0 ? '<span style="color:var(--wn);font-weight:700">' + diff + '</span>' : '<span style="color:var(--tx2)">±0</span>';
-      stRow = '<div style="margin-top:9px;padding:9px 11px;background:' + (diff !== null && diff !== 0 ? '#fff9e6' : 'var(--sf2)') + ';border-radius:8px;border:1px solid ' + (diff !== null && diff !== 0 ? '#f0d060' : 'var(--bd)') + ';display:flex;align-items:center;gap:10px;flex-wrap:wrap"><span class="ts fw7" style="color:var(--ac3)">✅ 棚卸</span><span class="ts tm">システム: <b class="mn">' + i.stock + '</b>' + (i.unit || '個') + '</span><div style="display:flex;align-items:center;gap:6px"><span class="ts tm">実数:</span><input type="number" value="' + (actual !== undefined ? actual : '') + '" min="0" step="0.01" placeholder="入力..." data-stid="' + i.id + '" style="width:80px;padding:5px 8px;font-size:13px" onclick="event.stopPropagation()" onchange="setSTc(\'' + i.id + '\',this.value)"><span class="ts tm">' + (i.unit || '個') + '</span></div>' + (diff !== null ? '<span class="ts stDiff" data-stid="' + i.id + '">差分: ' + diffHtml + '</span>' : '<span class="ts stDiff" data-stid="' + i.id + '"></span>') + '</div>';
+      stRow = '<div style="margin-top:9px;padding:9px 11px;background:' + (diff !== null && diff !== 0 ? '#fff9e6' : 'var(--sf2)') + ';border-radius:8px;border:1px solid ' + (diff !== null && diff !== 0 ? '#f0d060' : 'var(--bd)') + ';display:flex;align-items:center;gap:10px;flex-wrap:wrap"><span class="ts fw7" style="color:var(--ac3)">✅ 棚卸</span><span class="ts tm">システム: <b class="mn">' + i.stock + '</b>' + (i.unit || '個') + '</span><div style="display:flex;align-items:center;gap:6px"><span class="ts tm">実数:</span><input type="number" value="' + (actual !== undefined ? actual : '') + '" min="0" step="0.01" placeholder="入力..." data-stid="' + i.id + '" style="width:80px;padding:5px 8px;font-size:13px" onchange="setSTc(\'' + i.id + '\',this.value)"><span class="ts tm">' + (i.unit || '個') + '</span></div>' + (diff !== null ? '<span class="ts stDiff" data-stid="' + i.id + '">差分: ' + diffHtml + '</span>' : '<span class="ts stDiff" data-stid="' + i.id + '"></span>') + '</div>';
     }
     var mthumb = i.photo ? '<img src="' + i.photo + '" style="width:60px;height:60px;object-fit:cover;border-radius:7px;border:1px solid var(--bd)">' : '<div style="width:60px;height:60px;background:var(--sf2);border-radius:7px;border:1px solid var(--bd);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:22px">🧶</div>';
-    return '<div class="ic" style="cursor:pointer" onclick="showDetail(\'' + i.id + '\')"><div class="icb"><div class="ict">' + mthumb + '<div class="ici"><div class="icn">' + i.name + (i.cat ? '<span class="ts tm" style="font-weight:400;margin-left:7px">' + i.cat + '</span>' : '') + '</div><div class="icm"><span class="mn fw7" style="font-size:16px;color:' + sc + '">' + i.stock + '<small class="tm" style="font-size:11px;font-weight:400"> ' + (i.unit || '個') + '</small></span><span class="ts tm">最低: ' + (i.min || 0) + (i.unit || '個') + '</span>' + (i.mc ? '<span class="ts tm">単価: ' + yen(i.mc) + '/' + (i.unit || '個') + '</span>' : '') + (i.color ? '<span class="ts tm">🎨 ' + i.color + '</span>' : '') + (i.brand ? '<span class="ts tm">🏷 ' + i.brand + '</span>' : '') + (i.sup ? '<span class="ts tm">仕入先: ' + i.sup + '</span>' : '') + st + '</div>' + (i.memo ? '<div class="ts tm m8">' + i.memo + '</div>' : '') + stRow + '</div><div class="ica"><button class="bi" onclick="event.stopPropagation();editItem(\'' + i.id + '\')">✏️</button><button class="bi bdl" onclick="event.stopPropagation();delItem(\'' + i.id + '\')">🗑</button></div></div></div></div>';
+    return '<div class="ic"><div class="icb"><div class="ict">' + mthumb + '<div class="ici"><div class="icn">' + i.name + (i.cat ? '<span class="ts tm" style="font-weight:400;margin-left:7px">' + i.cat + '</span>' : '') + '</div><div class="icm"><span class="mn fw7" style="font-size:16px;color:' + sc + '">' + i.stock + '<small class="tm" style="font-size:11px;font-weight:400"> ' + (i.unit || '個') + '</small></span><span class="ts tm">最低: ' + (i.min || 0) + (i.unit || '個') + '</span>' + (i.mc ? '<span class="ts tm">単価: ' + yen(i.mc) + '/' + (i.unit || '個') + '</span>' : '') + (i.sup ? '<span class="ts tm">仕入先: ' + i.sup + '</span>' : '') + st + '</div>' + (i.memo ? '<div class="ts tm m8">' + i.memo + '</div>' : '') + stRow + '</div><div class="ica"><button class="bi" onclick="editItem(\'' + i.id + '\')">✏️</button><button class="bi bdl" onclick="delItem(\'' + i.id + '\')">🗑</button></div></div></div></div>';
   }).join('');
 }
 
@@ -2000,8 +1762,7 @@ function openIM(type) {
   editId = null; iRec = []; currentPhoto = null; currentPhotoFile = null;
   document.getElementById('imTitle').textContent = type === 'product' ? '完成品を追加' : '材料を追加';
   document.getElementById('imType').value = type;
-  ['imName', 'imCat', 'imMemo', 'imSup', 'imSP', 'imCost', 'imMC', 'imFW', 'imColor', 'imBrand', 'imCode'].forEach(function(id) { document.getElementById(id).value = ''; });
-  document.getElementById('imMinMode').value = 'on'; document.getElementById('imMin').style.display = 'block';
+  ['imName', 'imCat', 'imMemo', 'imSup', 'imSP', 'imCost', 'imMC', 'imFW'].forEach(function(id) { document.getElementById(id).value = ''; });
   document.getElementById('imUnit').value = type === 'product' ? '個' : '';
   document.getElementById('imStock').value = 0;
   document.getElementById('imMin').value = type === 'product' ? 3 : 5;
@@ -2018,18 +1779,12 @@ function editItem(id) {
   document.getElementById('imCat').value = i.cat || '';
   document.getElementById('imUnit').value = i.unit || '個';
   document.getElementById('imStock').value = i.stock;
-  var minIsNull = i.min === null || i.min === undefined || i.min === '';
-  document.getElementById('imMinMode').value = minIsNull ? 'off' : 'on';
-  document.getElementById('imMin').value = minIsNull ? '' : i.min;
-  document.getElementById('imMin').style.display = minIsNull ? 'none' : 'block';
+  document.getElementById('imMin').value = i.min;
   document.getElementById('imSP').value = i.sp || '';
   document.getElementById('imCost').value = i.cost || '';
   document.getElementById('imMC').value = i.mc || '';
   document.getElementById('imSup').value = i.sup || '';
   document.getElementById('imFW').value = i.fw || '';
-  document.getElementById('imColor').value = i.color || '';
-  document.getElementById('imBrand').value = i.brand || '';
-  document.getElementById('imCode').value = i.code || '';
   document.getElementById('imMemo').value = i.memo || '';
   if (i.photo) { showPhotoPreview(i.photo); } else { resetPhotoUI(); }
   togImF(); rImRL(); openMod('itemOv');
@@ -2067,15 +1822,12 @@ async function saveItem() {
     cat: document.getElementById('imCat').value.trim(),
     unit: document.getElementById('imUnit').value.trim() || '個',
     stock: parseFloat(document.getElementById('imStock').value) || 0,
-    min: document.getElementById('imMinMode').value === 'off' ? null : (parseFloat(document.getElementById('imMin').value) ?? 0),
+    min: parseFloat(document.getElementById('imMin').value) || 0,
     sp: parseFloat(document.getElementById('imSP').value) || 0,
     cost: recipe.length ? Math.round(ac) : mc,
     mc: parseFloat(document.getElementById('imMC').value) || 0,
     sup: document.getElementById('imSup').value.trim(),
     fw: parseFloat(document.getElementById('imFW').value) || 0,
-    color: document.getElementById('imColor').value.trim(),
-    brand: document.getElementById('imBrand').value.trim(),
-    code: document.getElementById('imCode').value.trim(),
     memo: document.getElementById('imMemo').value.trim(),
     recipe: recipe, photo: photoUrl || null
   };
@@ -2093,38 +1845,7 @@ async function saveItem() {
   if (obj.type === 'product') rProds(); else rMats();
 }
 async function delItem(id) {
-  var i = items.find(function(x) { return x.id === id; }); if (!i) return;
-  // 完成品でレシピ＆在庫がある場合は材料を戻すか選択するにゃ
-  var hasRecipe = i.type === 'product' && i.recipe && i.recipe.length > 0 && i.stock > 0;
-  if (hasRecipe) {
-    var recipeStr = i.recipe.map(function(r) {
-      var m = items.find(function(x) { return x.id === r.mid; });
-      return m ? m.name + ' +' + Math.round(r.qty * i.stock * 100) / 100 + (m.unit || '個') : null;
-    }).filter(Boolean).join('、');
-    var choice = window.confirm(
-      '「' + i.name + '」を削除しますか？\n\n' +
-      '在庫数: ' + i.stock + (i.unit || '個') + '\n\n' +
-      '【OK】材料在庫を戻して削除\n' + recipeStr + '\n\n' +
-      '【キャンセル】→ 別の確認が出ます'
-    );
-    if (choice) {
-      // 材料在庫を戻すにゃ
-      for (var r of i.recipe) {
-        var mat = items.find(function(x) { return x.id === r.mid; });
-        if (mat) {
-          var restoreQty = Math.round(r.qty * i.stock * 100) / 100;
-          mat.stock = Math.round((mat.stock + restoreQty) * 100) / 100;
-          addH(mat.name, restoreQty, '完成品削除による戻し（' + i.name + '）', mat.stock);
-          await svItem(mat);
-        }
-      }
-    } else {
-      // 材料を戻さずに削除するか最終確認にゃ
-      if (!confirm('材料在庫を戻さずに削除しますか？')) return;
-    }
-  } else {
-    if (!confirm('このアイテムを削除しますか？')) return;
-  }
+  if (!confirm('このアイテムを削除しますか？')) return;
   items = items.filter(function(i) { return i.id !== id; });
   setSyncing('syncing');
   try { await sbDelete('items', id); setSyncing('ok'); } catch(e) { setSyncing('error'); }
@@ -2137,7 +1858,7 @@ function rImRL() {
   var el = document.getElementById('imRL');
   if (!iRec.length) { el.innerHTML = '<p class="ts tm">まだ材料が登録されていません</p>'; document.getElementById('imRC').innerHTML = ''; return; }
   el.innerHTML = iRec.map(function(r, idx) {
-    var opts = '<option value="">― 材料を選択 ―</option>' + mats.map(function(m) { return '<option value="' + m.id + '" ' + (m.id === r.mid ? 'selected' : '') + '>' + m.name + '</option>'; }).join('');
+    var opts = '<option value="">― 材料を選択 ―</option>' + mats.map(function(m) { var label = m.name + (m.memo ? '【' + m.memo + '】' : ''); return '<option value="' + m.id + '" ' + (m.id === r.mid ? 'selected' : '') + '>' + label + '</option>'; }).join('');
     var mat = r.mid ? items.find(function(m) { return m.id === r.mid; }) : null;
     return '<div class="rl"><select style="flex:1" onchange="iRec[' + idx + '].mid=this.value;rImRL()">' + opts + '</select><input type="number" style="width:68px" value="' + r.qty + '" min="0.01" step="0.01" onchange="iRec[' + idx + '].qty=parseFloat(this.value)||0;updImRC()"><span class="ts tm" style="min-width:20px">' + (mat ? mat.unit || '' : '') + '</span><button class="bi bdl" onclick="iRec.splice(' + idx + ',1);rImRL()">✕</button></div>';
   }).join('');
@@ -2174,7 +1895,7 @@ function rMkREdit() {
   var el = document.getElementById('mkREdit');
   if (!mkRec.length) { el.innerHTML = '<p class="ts tm">材料が登録されていません。上の「＋ 材料追加」から追加できます。</p>'; document.getElementById('mkRCalc').innerHTML = ''; return; }
   el.innerHTML = mkRec.map(function(r, idx) {
-    var opts = '<option value="">― 材料を選択 ―</option>' + mats.map(function(m) { return '<option value="' + m.id + '" ' + (m.id === r.mid ? 'selected' : '') + '>' + m.name + '</option>'; }).join('');
+    var opts = '<option value="">― 材料を選択 ―</option>' + mats.map(function(m) { var label = m.name + (m.memo ? '【' + m.memo + '】' : ''); return '<option value="' + m.id + '" ' + (m.id === r.mid ? 'selected' : '') + '>' + label + '</option>'; }).join('');
     var mat = r.mid ? items.find(function(m) { return m.id === r.mid; }) : null;
     var disp = mkQMode === 'total' ? Math.round(r.qty * qty * 100) / 100 : r.qty;
     return '<div class="rl" style="flex-wrap:wrap"><select style="flex:1;min-width:110px" onchange="mkRec[' + idx + '].mid=this.value;rMkREdit()">' + opts + '</select><div style="display:flex;align-items:center;gap:4px"><input type="number" style="width:68px" value="' + disp + '" min="0.01" step="0.01" onchange="mkRec[' + idx + '].qty=parseFloat(this.value)||0;rMkREdit()"><span class="ts tm">' + (mat ? mat.unit || '' : '') + '</span></div><button class="bi bdl" onclick="mkRec.splice(' + idx + ',1);rMkREdit()">✕</button></div>';
@@ -2221,8 +1942,7 @@ async function recMake(memoOnly) {
     qty = parseInt(document.getElementById('mkNQty').value) || 1;
     recipe = mkRec.filter(function(r) { return r.mid && r.qty > 0; });
     var ac = recipe.reduce(function(a, r) { var m = items.find(function(x) { return x.id === r.mid; }); return a + (m ? m.mc || 0 : 0) * r.qty; }, 0);
-    var mkNMinOff = document.getElementById('mkNMinMode').value === 'off';
-    item = { id: uid(), type: 'product', name: name, cat: document.getElementById('mkNCat').value.trim(), unit: document.getElementById('mkNUnit').value.trim() || '個', stock: 0, min: mkNMinOff ? null : (parseInt(document.getElementById('mkNMin').value) ?? 3), sp: parseFloat(document.getElementById('mkNPrice').value) || 0, cost: Math.round(ac), mc: 0, sup: '', fw: 0, color: document.getElementById('mkNColor').value.trim(), brand: '', memo: '', recipe: recipe, photo: null };
+    item = { id: uid(), type: 'product', name: name, cat: document.getElementById('mkNCat').value.trim(), unit: document.getElementById('mkNUnit').value.trim() || '個', stock: 0, min: parseInt(document.getElementById('mkNMin').value) || 3, sp: parseFloat(document.getElementById('mkNPrice').value) || 0, cost: Math.round(ac), mc: 0, sup: '', fw: 0, memo: document.getElementById('mkNMemo').value.trim(), recipe: recipe, photo: null };
     items.push(item); await svItem(item);
   } else {
     item = items.find(function(i) { return i.id === document.getElementById('mkProd').value; });
@@ -2253,8 +1973,6 @@ async function recMake(memoOnly) {
     } catch(e) { console.error('写真アップロード失敗:', e); }
   }
   await svItem(item);
-  // 製作記録の管理番号を完成品アイテムにも反映するにゃ
-  if (code && !memoOnly) { item.code = code; await svItem(item); }
   var mkObj = { id: uid(), itemId: item.id, itemName: item.name, qty: qty, date: date, memo: memo, code: code, tot: Math.round(tot), memoOnly: memoOnly };
   makes.push(mkObj); await svMake(mkObj);
   mkRec = []; clearMkPhoto(); rMakePg();
@@ -2332,10 +2050,7 @@ async function recPurchase() {
     if (!name) { alert('材料名を入力してください'); return; }
     var cat = document.getElementById('purNCatTxt').value.trim() || document.getElementById('purNCatSel').value;
     var nUnit = document.getElementById('purNUnit').value.trim() || '個';
-    var nColor = document.getElementById('purNColor').value.trim();
-    var nBrand = document.getElementById('purNBrand').value.trim();
-    var purNMinOff = document.getElementById('purNMinMode').value === 'off';
-    item = { id: uid(), type: 'material', name: name, cat: cat, unit: nUnit, stock: 0, min: purNMinOff ? null : (parseInt(document.getElementById('purNMin').value) ?? 5), sp: 0, cost: 0, mc: unit, sup: sup, fw: parseFloat(document.getElementById('purNFW').value) || 0, color: nColor, brand: nBrand, code: code, memo: '', recipe: [], photo: null };
+    item = { id: uid(), type: 'material', name: name, cat: cat, unit: nUnit, stock: 0, min: parseInt(document.getElementById('purNMin').value) || 5, sp: 0, cost: 0, mc: unit, sup: sup, fw: parseFloat(document.getElementById('purNFW').value) || 0, memo: '', recipe: [], photo: null };
     items.push(item); await svItem(item);
   } else {
     item = items.find(function(i) { return i.id === document.getElementById('purItem').value; });
@@ -2345,8 +2060,6 @@ async function recPurchase() {
   purch.push(purObj); await svPurch(purObj);
   item.stock = Math.round((item.stock + qty) * 100) / 100;
   if (document.getElementById('purUpdCost').checked) item.mc = unit;
-  // 管理番号があればアイテムに反映するにゃ
-  if (code) item.code = code;
   // 写真があればアップロードしてアイテムに反映
   if (purPhotoFile && !item.photo) {
     try {
@@ -2357,7 +2070,7 @@ async function recPurchase() {
   addH(item.name, qty, '仕入れ' + (sup ? '（' + sup + '）' : ''), item.stock);
   await svItem(item);
   ['purQty', 'purTot', 'purUnit', 'purSup', 'purMemo', 'purCode'].forEach(function(id) { document.getElementById(id).value = ''; });
-  if (purMode === 'new') { ['purNName', 'purNCatTxt', 'purNFW', 'purNColor', 'purNBrand'].forEach(function(id) { document.getElementById(id).value = ''; }); document.getElementById('purNUnit').value = '個'; document.getElementById('purNMin').value = 5; document.getElementById('purNMinMode').value = 'on'; document.getElementById('purNMin').style.display = 'block'; }
+  if (purMode === 'new') { ['purNName', 'purNCatTxt', 'purNFW'].forEach(function(id) { document.getElementById(id).value = ''; }); document.getElementById('purNUnit').value = '個'; document.getElementById('purNMin').value = 5; }
   document.getElementById('purPrev').innerHTML = '';
   clearPurPhoto();
   rPurPg(); alert('仕入れを記録しました\n' + item.name + ' +' + qty + (item.unit || '個'));
@@ -2413,7 +2126,7 @@ function rAdj() {
   if (!list.length) { document.getElementById('adjList').innerHTML = '<div class="empty"><div class="ei">📦</div><p>アイテムがありません</p></div>'; return; }
   document.getElementById('adjList').innerHTML = list.map(function(i) {
     var pend = pendAdj[i.id] || 0, proj = i.stock + pend;
-    return '<div class="ar"><div class="an"><div class="fw7">' + i.name + '</div><div class="ts tm">' + (i.type === 'product' ? '完成品' : '材料') + (i.cat ? ' · ' + i.cat : '') + (i.color ? ' · ' + i.color : '') + '</div></div><div class="aqc" style="color:' + (proj <= i.min ? 'var(--wn)' : 'var(--tx)') + '">' + proj + '<small class="tm" style="font-size:11px"> ' + (i.unit || '個') + '</small></div><div class="qb"><button class="qbt" onclick="adjM(\'' + i.id + '\')">−</button><input class="qi" type="number" id="adj_' + i.id + '" value="' + pend + '" onchange="setPAdj(\'' + i.id + '\',this.value)"><button class="qbt" onclick="adjP(\'' + i.id + '\')">＋</button></div></div>';
+    return '<div class="ar"><div class="an"><div class="fw7">' + i.name + '</div><div class="ts tm">' + (i.type === 'product' ? '完成品' : '材料') + (i.cat ? ' · ' + i.cat : '') + '</div></div><div class="aqc" style="color:' + (proj <= i.min ? 'var(--wn)' : 'var(--tx)') + '">' + proj + '<small class="tm" style="font-size:11px"> ' + (i.unit || '個') + '</small></div><div class="qb"><button class="qbt" onclick="adjM(\'' + i.id + '\')">−</button><input class="qi" type="number" id="adj_' + i.id + '" value="' + pend + '" onchange="setPAdj(\'' + i.id + '\',this.value)"><button class="qbt" onclick="adjP(\'' + i.id + '\')">＋</button></div></div>';
   }).join('');
 }
 function adjM(id) { pendAdj[id] = (pendAdj[id] || 0) - 1; var e = document.getElementById('adj_' + id); if (e) e.value = pendAdj[id]; rAdj(); }
@@ -2483,9 +2196,7 @@ async function addLocation() {
   var name = document.getElementById('locNewName').value.trim();
   if (!name) { alert('販売場所名を入力してください'); return; }
   if (locs.find(function(l) { return l.name === name; })) { alert('同じ名前がすでにあります'); return; }
-  // locationsテーブルはUUID型が必要なのでcrypto.randomUUIDを使うにゃ
-  var newId = crypto.randomUUID ? crypto.randomUUID() : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) { var r = Math.random() * 16 | 0; return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16); });
-  var obj = { id: newId, name: name, user_id: currentUser ? currentUser.id : null };
+  var obj = { id: uid(), name: name, user_id: currentUser ? currentUser.id : null };
   locs.push(obj);
   setSyncing('syncing');
   try {
@@ -2558,41 +2269,11 @@ function renderSaleHist() {
   var month = document.getElementById('saleMF').value;
   var list = [...sales].filter(function(s) { return !month || s.date.startsWith(month); }).reverse();
   var tbody = document.getElementById('saleTbody');
-  var mobileEl = document.getElementById('saleMobileList');
-  if (!list.length) {
-    tbody.innerHTML = '<tr><td colspan="8"><div class="empty"><div class="ei">💴</div><p>販売記録がありません</p></div></td></tr>';
-    if (mobileEl) mobileEl.innerHTML = '<div class="empty" style="padding:20px"><div class="ei">💴</div><p>販売記録がありません</p></div>';
-    return;
-  }
+  if (!list.length) { tbody.innerHTML = '<tr><td colspan="8"><div class="empty"><div class="ei">💴</div><p>販売記録がありません</p></div></td></tr>'; return; }
   tbody.innerHTML = list.map(function(s) {
     var m = s.total > 0 ? Math.round((s.profit / s.total) * 100) : 0;
     return '<tr><td class="mn ts">' + s.date + '</td><td class="fw7">' + s.itemName + '</td><td class="mn">' + s.qty + '</td><td class="mn fw7">' + yen(s.total) + '</td><td class="mn" style="color:' + (s.profit > 0 ? 'var(--ac3)' : 'var(--wn)') + '">' + yen(s.profit) + '</td><td><span class="mgb ' + (m >= 40 ? 'mgg' : 'mgr') + '">' + m + '%</span></td><td class="ts">' + (s.loc || '') + '</td><td class="ts tm">' + (s.memo || '') + '</td><td><button class="bi bdl" onclick="delSale(\'' + s.id + '\')">🗑</button></td></tr>';
   }).join('');
-  // スマホ用カードリスト
-  if (mobileEl) {
-    mobileEl.innerHTML = list.map(function(s) {
-      var m = s.total > 0 ? Math.round((s.profit / s.total) * 100) : 0;
-      var profitColor = s.profit > 0 ? 'var(--ac3)' : 'var(--wn)';
-      return '<div style="display:flex;gap:9px;padding:11px 0;border-bottom:1px solid var(--bd);align-items:flex-start">'
-        + '<div style="width:42px;height:42px;background:var(--sf2);border-radius:8px;border:1px solid var(--bd);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:16px">💴</div>'
-        + '<div style="flex:1;min-width:0">'
-        + '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:3px">'
-        + '<span class="fw7" style="font-size:13px">' + s.itemName + '</span>'
-        + '<span class="mn fw7" style="color:var(--ac)">' + yen(s.total) + '</span>'
-        + '</div>'
-        + '<div style="display:flex;gap:8px;flex-wrap:wrap;font-size:12px;color:var(--tx2)">'
-        + '<span>📅 ' + s.date + '</span>'
-        + '<span>📦 ' + s.qty + '点</span>'
-        + '<span style="color:' + profitColor + '">利益 ' + yen(s.profit) + '</span>'
-        + '<span><span class="mgb ' + (m >= 40 ? 'mgg' : 'mgr') + '">' + m + '%</span></span>'
-        + (s.loc ? '<span>🏪 ' + s.loc + '</span>' : '')
-        + (s.memo ? '<span>' + s.memo + '</span>' : '')
-        + '</div>'
-        + '</div>'
-        + '<button class="bi bdl" onclick="delSale(\'' + s.id + '\')">🗑</button>'
-        + '</div>';
-    }).join('');
-  }
 }
 async function delSale(id) {
   if (!confirm('この販売記録を削除しますか？（在庫は戻りません）')) return;
@@ -2637,8 +2318,6 @@ async function applyST(page) {
     i.stock = actual; delete stCounts[i.id];
     await svItem(i);
   }
-  var d = new Date();
-  stAppliedDate[page] = d.getFullYear() + '年' + (d.getMonth() + 1) + '月' + d.getDate() + '日';
   if (page === 'products') rProds(); else rMats();
   alert('在庫を更新しました（' + diffs.length + '件）');
 }
@@ -2784,12 +2463,9 @@ function dpOpen(fid) {
   dpY = d.getFullYear(); dpM = d.getMonth();
   var btn = document.getElementById(fid + '_btn');
   var rect = btn.getBoundingClientRect();
-  var top = rect.bottom + 4;
-  var left = Math.min(rect.left, window.innerWidth - 284);
-  // 画面下にはみ出る場合は上に表示するにゃ
-  if (top + 300 > window.innerHeight) top = rect.top - 300;
-  pop.style.top = Math.max(0, top) + 'px';
-  pop.style.left = Math.max(0, left) + 'px';
+  var sy = window.scrollY || window.pageYOffset;
+  pop.style.top = (rect.bottom + sy + 4) + 'px';
+  pop.style.left = Math.min(rect.left, window.innerWidth - 284) + 'px';
   document.body.appendChild(pop);
   pop.classList.add('open'); btn.classList.add('open'); dpRender();
 }
@@ -2839,14 +2515,10 @@ document.addEventListener('click', function(e) {
 // ══════════════════════════════════════════════
 function printStocktake(type) {
   var isProduct = type === 'product';
-  var pageKey = isProduct ? 'products' : 'materials';
-  var inStMode = stMode[pageKey]; // 棚卸モード中かどうか
   var list = items.filter(function(i) { return i.type === type; });
   var title = isProduct ? '完成品 棚卸表' : '材料・素材 棚卸表';
   var now2 = new Date();
   var dateStr = now2.getFullYear() + '年' + (now2.getMonth() + 1) + '月' + now2.getDate() + '日';
-  // 棚卸モード中はその日の日付を棚卸実施日にするにゃ
-  var jissiDate = inStMode ? dateStr : '　　　　年　　月　　日';
   var cats = {};
   list.forEach(function(i) { var c = i.cat || '未分類'; if (!cats[c]) cats[c] = []; cats[c].push(i); });
   var totalAsset = list.reduce(function(a, i) { var uv = isProduct ? (calcCost(i) || i.sp || 0) : (i.mc || 0); return a + uv * i.stock; }, 0);
@@ -2856,31 +2528,11 @@ function printStocktake(type) {
     var tbody = rows.map(function(i, idx) {
       var unitVal = isProduct ? (calcCost(i) || i.sp || 0) : (i.mc || 0);
       var assetVal = unitVal * i.stock;
-      // 棚卸モード中なら実数・差分を自動入力するにゃ
-      var jissCell = '';
-      if (inStMode && stCounts[i.id] !== undefined) {
-        var actual = stCounts[i.id];
-        var diff = actual - i.stock;
-        var diffStr = diff === 0 ? '±0' : (diff > 0 ? '+' + diff : '' + diff);
-        var diffColor = diff === 0 ? '#888' : (diff > 0 ? '#2a7a4a' : '#c04a4a');
-        jissCell = '<span style="font-weight:700">' + actual + '</span>'
-          + '<br><span style="font-size:9px;color:' + diffColor + '">(' + diffStr + ')</span>';
-      }
-      return '<tr>'
-        + '<td>' + (idx + 1) + '</td>'
-        + '<td><b>' + i.name + '</b>' + (i.memo ? '<br><span style="font-size:10px;color:#888">' + i.memo + '</span>' : '') + '</td>'
-        + '<td>' + (i.unit || '個') + '</td>'
-        + '<td class="num">' + (unitVal ? '¥' + unitVal.toLocaleString() : '—') + '</td>'
-        + '<td class="num">' + i.stock + '</td>'
-        + '<td class="num">' + (unitVal && i.stock ? '¥' + Math.round(assetVal).toLocaleString() : '—') + '</td>'
-        + '<td class="act" style="text-align:center;font-size:12px">' + jissCell + '</td>'
-        + '</tr>';
+      return '<tr><td>' + (idx + 1) + '</td><td><b>' + i.name + '</b>' + (i.memo ? '<br><span style="font-size:10px;color:#888">' + i.memo + '</span>' : '') + '</td><td>' + (i.unit || '個') + '</td><td class="num">' + (unitVal ? '¥' + unitVal.toLocaleString() : '—') + '</td><td class="num">' + i.stock + '</td><td class="num">' + (unitVal && i.stock ? '¥' + Math.round(assetVal).toLocaleString() : '—') + '</td><td class="act"></td></tr>';
     }).join('');
-    // 棚卸モード中は列ヘッダーを変えるにゃ
-    var jissHeader = inStMode ? '実数（差分）' : '実数(確認)';
-    return '<div class="pr-section"><div class="pr-section-title">' + cat + '</div><table class="pr-table"><thead><tr><th style="width:28px">No.</th><th>' + (isProduct ? '商品名' : '材料名') + '</th><th style="width:36px">単位</th><th style="width:72px">' + (isProduct ? '原価' : '単価') + '</th><th style="width:60px">実在庫</th><th style="width:80px">棚卸資産額</th><th style="width:64px">' + jissHeader + '</th></tr></thead><tbody>' + tbody + '<tr class="pr-total-row"><td colspan="5" style="text-align:right">「' + cat + '」小計</td><td class="num">' + (catAsset ? '¥' + Math.round(catAsset).toLocaleString() : '—') + '</td><td></td></tr></tbody></table></div>';
+    return '<div class="pr-section"><div class="pr-section-title">' + cat + '</div><table class="pr-table"><thead><tr><th style="width:28px">No.</th><th>' + (isProduct ? '商品名' : '材料名') + '</th><th style="width:36px">単位</th><th style="width:72px">' + (isProduct ? '原価' : '単価') + '</th><th style="width:60px">実在庫</th><th style="width:80px">棚卸資産額</th><th style="width:60px">実数(確認)</th></tr></thead><tbody>' + tbody + '<tr class="pr-total-row"><td colspan="5" style="text-align:right">「' + cat + '」小計</td><td class="num">' + (catAsset ? '¥' + Math.round(catAsset).toLocaleString() : '—') + '</td><td></td></tr></tbody></table></div>';
   }).join('');
-  var html = '<div class="pr-header"><div><div class="pr-title">' + title + '</div><div class="pr-sub">棚卸実施日: ' + jissiDate + '</div></div><div class="pr-date">出力日: ' + dateStr + '<br>アイテム数: ' + list.length + '件</div></div>' + sectionsHtml + '<div class="pr-summary">棚卸資産合計: <b>¥' + Math.round(totalAsset).toLocaleString() + '</b></div>';
+  var html = '<div class="pr-header"><div><div class="pr-title">' + title + '</div><div class="pr-sub">棚卸実施日: 　　　　年　　月　　日</div></div><div class="pr-date">出力日: ' + dateStr + '<br>アイテム数: ' + list.length + '件</div></div>' + sectionsHtml + '<div class="pr-summary">棚卸資産合計: <b>¥' + Math.round(totalAsset).toLocaleString() + '</b></div>';
   document.getElementById('print-area').innerHTML = html;
   window.print();
 }
@@ -2898,447 +2550,6 @@ function init() {
     document.getElementById('setupScreen').style.display = 'flex';
   }
 }
-
-// ══════════════════════════════════════════════
-// アカウント設定
-// ══════════════════════════════════════════════
-
-// ══════════════════════════════════════════════
-// 納品書
-// ══════════════════════════════════════════════
-var dlvLines = []; // { itemId, qty, price }
-
-function rDeliveryPg() {
-  // 納品先セレクト構築
-  var sel = document.getElementById('dlvDest');
-  var prev = sel ? sel.value : '';
-  var destOpts = DEFAULT_LOCS.filter(function(l) {
-    return l.id !== 'hand' && l.id !== 'minne' && l.id !== 'creema' && l.id !== 'netother';
-  }).map(function(l) {
-    return '<option value="' + l.name + '"' + (l.name === prev ? ' selected' : '') + '>' + l.name + '</option>';
-  });
-  locs.forEach(function(l) {
-    destOpts.push('<option value="' + l.name + '"' + (l.name === prev ? ' selected' : '') + '>✨ ' + l.name + '</option>');
-  });
-  if (sel) sel.innerHTML = destOpts.join('');
-  if (!document.getElementById('dlvDate').value) dpSet('dlvDate', tod());
-  if (!document.getElementById('retDate').value) dpSet('retDate', tod());
-  renderDlvLines();
-  renderDlvStockList();
-  renderRetSrc();
-}
-
-// 委託先在庫一覧を描画するにゃ
-function renderDlvStockList() {
-  var el = document.getElementById('dlvStockList');
-  if (!el) return;
-  // locationsを持つ完成品を集めて委託先ごとにまとめるにゃ
-  var byDest = {};
-  items.filter(function(i) { return i.type === 'product' && i.locations; }).forEach(function(i) {
-    Object.entries(i.locations).forEach(function(e) {
-      var dest = e[0], qty = e[1];
-      if (dest === '手元' || !qty || qty <= 0) return;
-      if (!byDest[dest]) byDest[dest] = [];
-      byDest[dest].push({ item: i, qty: qty });
-    });
-  });
-  var destKeys = Object.keys(byDest);
-  if (!destKeys.length) {
-    el.innerHTML = '<p class="ts tm" style="padding:8px 0">委託中の商品がありません</p>';
-    return;
-  }
-  el.innerHTML = destKeys.map(function(dest) {
-    var rows = byDest[dest].map(function(r) {
-      return '<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--bd)">'
-        + '<div><div class="fw7" style="font-size:13px">' + r.item.name + (r.item.color ? ' <span class="ts tm">(' + r.item.color + ')</span>' : '') + '</div>'
-        + (r.item.code ? '<div class="ts tm" style="font-size:11px">管理番号: ' + r.item.code + '</div>' : '')
-        + '</div>'
-        + '<span class="mn fw7" style="color:var(--ac)">' + r.qty + '<small class="tm" style="font-size:11px"> ' + (r.item.unit || '個') + '</small></span>'
-        + '</div>';
-    }).join('');
-    var total = byDest[dest].reduce(function(a, r) { return a + r.qty; }, 0);
-    return '<div style="margin-bottom:14px">'
-      + '<div class="stl" style="color:var(--ac3);margin-bottom:6px">🏪 ' + dest + '（計 ' + total + '点）</div>'
-      + rows
-      + '</div>';
-  }).join('');
-}
-
-// 返品元セレクトを構築するにゃ
-function renderRetSrc() {
-  var sel = document.getElementById('retSrc');
-  if (!sel) return;
-  var prevSrc = sel.value;
-  // locationsに在庫がある委託先を集めるにゃ
-  var dests = new Set();
-  items.filter(function(i) { return i.type === 'product' && i.locations; }).forEach(function(i) {
-    Object.entries(i.locations).forEach(function(e) {
-      if (e[0] !== '手元' && e[1] > 0) dests.add(e[0]);
-    });
-  });
-  if (!dests.size) {
-    sel.innerHTML = '<option value="">委託中の商品がありません</option>';
-    document.getElementById('retLines').innerHTML = '<p class="ts tm">委託中の商品がありません</p>';
-    return;
-  }
-  sel.innerHTML = '<option value="">返品元を選択...</option>' + Array.from(dests).map(function(d) {
-    return '<option value="' + d + '"' + (d === prevSrc ? ' selected' : '') + '>' + d + '</option>';
-  }).join('');
-  if (prevSrc) renderRetLines(prevSrc);
-}
-
-// 返品明細を描画するにゃ
-function renderRetLines(src) {
-  var el = document.getElementById('retLines');
-  if (!src) { el.innerHTML = '<p class="ts tm">返品元を選択してください</p>'; return; }
-  var list = items.filter(function(i) {
-    return i.type === 'product' && i.locations && i.locations[src] > 0;
-  });
-  if (!list.length) { el.innerHTML = '<p class="ts tm">この委託先に在庫がありません</p>'; return; }
-  el.innerHTML = list.map(function(i) {
-    var srcQty = i.locations[src] || 0;
-    return '<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--bd);flex-wrap:wrap">'
-      + '<div style="flex:1;min-width:100px"><div class="fw7" style="font-size:13px">' + i.name + (i.color ? ' <span class="ts tm">(' + i.color + ')</span>' : '') + '</div>'
-      + '<div class="ts tm">委託中: ' + srcQty + (i.unit || '個') + '</div></div>'
-      + '<div style="display:flex;align-items:center;gap:4px"><label class="ts tm">返品数</label>'
-      + '<input type="number" id="ret_' + i.id + '" value="' + srcQty + '" min="0" max="' + srcQty + '" style="width:68px">'
-      + '<span class="ts tm">' + (i.unit || '個') + '</span></div>'
-      + '</div>';
-  }).join('');
-}
-
-async function execReturn() {
-  var src = document.getElementById('retSrc').value;
-  if (!src) { alert('返品元を選択してください'); return; }
-  var date = document.getElementById('retDate').value || tod();
-  var targets = items.filter(function(i) {
-    return i.type === 'product' && i.locations && i.locations[src] > 0;
-  });
-  var changes = [];
-  targets.forEach(function(i) {
-    var inp = document.getElementById('ret_' + i.id);
-    if (!inp) return;
-    var qty = parseFloat(inp.value) || 0;
-    if (qty <= 0) return;
-    changes.push({ item: i, qty: qty });
-  });
-  if (!changes.length) { alert('返品数を入力してください'); return; }
-  var msg = changes.map(function(c) { return c.item.name + ' ' + c.qty + (c.item.unit || '個'); }).join('\n');
-  if (!confirm(src + ' から手元に返品しますか？\n\n' + msg)) return;
-  for (var c of changes) {
-    var i = c.item;
-    i.locations[src] = Math.max(0, (i.locations[src] || 0) - c.qty);
-    i.locations['手元'] = (i.locations['手元'] || 0) + c.qty;
-    addH(i.name, 0, '返品（' + src + '→手元）× ' + c.qty + (i.unit || '個') + ' ' + date, i.stock);
-    await svItem(i);
-  }
-  alert(changes.length + '件を手元に返品しました');
-  rDeliveryPg();
-}
-
-function addDlvLine() {
-  var prods = items.filter(function(i) { return i.type === 'product'; });
-  if (!prods.length) { alert('完成品が登録されていません'); return; }
-  dlvLines.push({ itemId: prods[0].id, qty: 1, price: prods[0].sp || 0 });
-  renderDlvLines();
-}
-
-function renderDlvLines() {
-  var el = document.getElementById('dlvLines');
-  var prods = items.filter(function(i) { return i.type === 'product'; });
-  if (!dlvLines.length) {
-    el.innerHTML = '<p class="ts tm">「商品を追加」ボタンから追加してください</p>';
-    document.getElementById('dlvTotal').textContent = '¥0';
-    return;
-  }
-  var opts = prods.map(function(i) { return '<option value="' + i.id + '">' + i.name + (i.color ? ' (' + i.color + ')' : '') + '</option>'; }).join('');
-  el.innerHTML = dlvLines.map(function(line, idx) {
-    var item = items.find(function(i) { return i.id === line.itemId; }) || prods[0];
-    var selOpts = prods.map(function(i) {
-      return '<option value="' + i.id + '"' + (i.id === line.itemId ? ' selected' : '') + '>' + i.name + (i.color ? ' (' + i.color + ')' : '') + '</option>';
-    }).join('');
-    return '<div style="display:flex;gap:8px;align-items:center;padding:9px 0;border-bottom:1px solid var(--bd);flex-wrap:wrap">'
-      + '<select style="flex:2;min-width:140px" onchange="dlvLines[' + idx + '].itemId=this.value;dlvLines[' + idx + '].price=(items.find(function(i){return i.id===event.target.value;})||{}).sp||0;renderDlvLines()">' + selOpts + '</select>'
-      + '<div style="display:flex;align-items:center;gap:4px"><label class="ts tm">数量</label><input type="number" style="width:64px" value="' + line.qty + '" min="1" onchange="dlvLines[' + idx + '].qty=parseInt(this.value)||1;renderDlvLines()"></div>'
-      + '<div style="display:flex;align-items:center;gap:4px"><label class="ts tm">単価</label><input type="number" style="width:80px" value="' + line.price + '" min="0" onchange="dlvLines[' + idx + '].price=parseFloat(this.value)||0;renderDlvLines()"><span class="ts tm">円</span></div>'
-      + '<span class="mn ts" style="min-width:70px;text-align:right">' + yen(line.qty * line.price) + '</span>'
-      + '<button class="bi bdl" onclick="dlvLines.splice(' + idx + ',1);renderDlvLines()">✕</button>'
-      + '</div>';
-  }).join('');
-  var total = dlvLines.reduce(function(a, l) { return a + l.qty * l.price; }, 0);
-  document.getElementById('dlvTotal').textContent = yen(total);
-}
-
-function clearDelivery() {
-  if (!confirm('納品書の内容をリセットしますか？')) return;
-  dlvLines = [];
-  document.getElementById('dlvNote').value = '';
-  renderDlvLines();
-}
-
-function printDelivery() {
-  var dest = document.getElementById('dlvDest').value;
-  var date = document.getElementById('dlvDate').value;
-  var note = document.getElementById('dlvNote').value;
-  if (!dest) { alert('納品先を選択してください'); return; }
-  if (!date) { alert('納品日を選択してください'); return; }
-  if (!dlvLines.length) { alert('商品を追加してください'); return; }
-
-  var now2 = new Date();
-  var outDate = now2.getFullYear() + '年' + (now2.getMonth() + 1) + '月' + now2.getDate() + '日';
-  var dlvDateFmt = date.replace(/-/g, '/');
-  var total = dlvLines.reduce(function(a, l) { return a + l.qty * l.price; }, 0);
-
-  var rows = dlvLines.map(function(line, idx) {
-    var item = items.find(function(i) { return i.id === line.itemId; }) || {};
-    var amt = line.qty * line.price;
-    return '<tr>'
-      + '<td>' + (idx + 1) + '</td>'
-      + '<td>' + (item.code || '—') + '</td>'
-      + '<td><b>' + (item.name || '') + '</b></td>'
-      + '<td>' + (item.color || '—') + '</td>'
-      + '<td class="num">' + line.qty + '</td>'
-      + '<td class="num">¥' + (line.price || 0).toLocaleString() + '</td>'
-      + '<td class="num">¥' + Math.round(amt).toLocaleString() + '</td>'
-      + '</tr>';
-  }).join('');
-
-  var html = ''
-    + '<div class="pr-header">'
-    + '<div>'
-    + '<div class="pr-title">納 品 書</div>'
-    + '<div class="pr-sub">納品先: <b>' + dest + '</b></div>'
-    + (note ? '<div class="pr-sub">備考: ' + note + '</div>' : '')
-    + '</div>'
-    + '<div class="pr-date" style="text-align:right">'
-    + '出力日: ' + outDate + '<br>納品日: ' + dlvDateFmt
-    + (userProfile && (userProfile.shop_name || userProfile.owner_name) ? '<br><br><b>' + (userProfile.shop_name || '') + (userProfile.owner_name ? ' ' + userProfile.owner_name : '') + '</b>' : '')
-    + (userProfile && userProfile.zip ? '<br>〒' + userProfile.zip : '')
-    + (userProfile && userProfile.address ? '<br>' + userProfile.address : '')
-    + (userProfile && userProfile.phone ? '<br>TEL: ' + userProfile.phone : '')
-    + (userProfile && userProfile.email ? '<br>' + userProfile.email : '')
-    + '</div>'
-    + '</div>'
-    + '<div class="pr-section">'
-    + '<table class="pr-table">'
-    + '<thead><tr><th style="width:28px">No.</th><th style="width:72px">管理番号</th><th>商品名</th><th style="width:72px">色/柄</th><th style="width:44px">数量</th><th style="width:80px">単価</th><th style="width:80px">金額</th></tr></thead>'
-    + '<tbody>' + rows + '</tbody>'
-    + '</table>'
-    + '</div>'
-    + '<div style="display:flex;justify-content:space-between;align-items:flex-end;margin-top:10px">'
-    + '<div>'
-    + (userProfile && userProfile.stamp_url ? '<img src="' + userProfile.stamp_url + '" style="width:70px;height:70px;object-fit:contain" onerror="this.style.display=\'none\'">' : '')
-    + '</div>'
-    + '<div class="pr-summary">合計金額: <b>¥' + Math.round(total).toLocaleString() + '</b></div>'
-    + '</div>';
-
-  document.getElementById('delivery-print-area').innerHTML = html;
-  window.print();
-
-  // 印刷後に在庫移動を確認するにゃ
-  setTimeout(function() {
-    if (confirm('納品書を出力しました。\n在庫を「' + dest + '」に移動しますか？\n\n移動すると各商品の現在地が「' + dest + '」に変わります。')) {
-      applyDeliveryLocation(dest);
-    }
-  }, 500);
-}
-
-function applyDeliveryLocation(dest) {
-  var updated = 0;
-  dlvLines.forEach(function(line) {
-    var item = items.find(function(i) { return i.id === line.itemId; });
-    if (!item) return;
-    // 現在地ごとの在庫を更新するにゃ
-    if (!item.locations) item.locations = {};
-    var hand = (item.locations['手元'] || item.stock);
-    if (!item.locations['手元'] && item.stock) item.locations['手元'] = item.stock;
-    var handStock = item.locations['手元'] || 0;
-    var move = Math.min(line.qty, handStock);
-    item.locations['手元'] = Math.max(0, handStock - move);
-    item.locations[dest] = (item.locations[dest] || 0) + move;
-    svItem(item);
-    updated++;
-  });
-  alert(updated + '件の在庫を「' + dest + '」に移動しました');
-  rDeliveryPg();
-  // 完成品リストも更新するにゃ
-  if (typeof rProds === 'function') rProds();
-}
-
-
-// ══════════════════════════════════════════════
-// 事業者情報 (profiles)
-// ══════════════════════════════════════════════
-var userProfile = null;
-var stampFileObj = null;
-
-async function loadProfile() {
-  if (!currentUser) return;
-  try {
-    var res = await fetch(SB_URL + '/rest/v1/profiles?user_id=eq.' + currentUser.id + '&select=*', {
-      headers: sbHeaders()
-    });
-    if (!res.ok) return;
-    var data = await res.json();
-    userProfile = data && data.length ? data[0] : null;
-  } catch(e) { console.error('loadProfile error:', e); }
-}
-
-function rProfileForm() {
-  if (!userProfile) return;
-  document.getElementById('prfShop').value  = userProfile.shop_name  || '';
-  document.getElementById('prfName').value  = userProfile.owner_name || '';
-  document.getElementById('prfZip').value   = userProfile.zip        || '';
-  document.getElementById('prfAddr').value  = userProfile.address    || '';
-  document.getElementById('prfPhone').value = userProfile.phone      || '';
-  document.getElementById('prfEmail').value = userProfile.email      || '';
-  // 印鑑プレビュー
-  if (userProfile.stamp_url) {
-    document.getElementById('stampPreview').innerHTML = '<img src="' + userProfile.stamp_url + '" style="width:76px;height:76px;object-fit:contain;border-radius:6px">';
-    document.getElementById('stampDelBtn').style.display = 'block';
-  }
-}
-
-async function saveProfile() {
-  if (!currentUser) return;
-  var obj = {
-    user_id:    currentUser.id,
-    shop_name:  document.getElementById('prfShop').value.trim(),
-    owner_name: document.getElementById('prfName').value.trim(),
-    zip:        document.getElementById('prfZip').value.trim(),
-    address:    document.getElementById('prfAddr').value.trim(),
-    phone:      document.getElementById('prfPhone').value.trim(),
-    email:      document.getElementById('prfEmail').value.trim(),
-    stamp_url:  userProfile ? (userProfile.stamp_url || null) : null,
-    updated_at: new Date().toISOString()
-  };
-  try {
-    var res = await fetch(SB_URL + '/rest/v1/profiles', {
-      method: 'POST',
-      headers: Object.assign({}, sbHeaders(), { 'Prefer': 'resolution=merge-duplicates,return=representation' }),
-      body: JSON.stringify(obj)
-    });
-    if (!res.ok) throw new Error(await res.text());
-    var data = await res.json();
-    userProfile = Array.isArray(data) ? data[0] : data;
-    prfMsg('prfMsg', '事業者情報を保存しました ✅', true);
-  } catch(e) {
-    prfMsg('prfMsg', '保存に失敗しました: ' + e.message, false);
-  }
-}
-
-function prfMsg(elId, msg, isOk) {
-  var el = document.getElementById(elId);
-  el.textContent = msg;
-  el.style.display = 'block';
-  el.style.color = isOk ? 'var(--ok)' : '#c04a4a';
-  setTimeout(function() { el.style.display = 'none'; }, 4000);
-}
-
-function onStampFileChange(input) {
-  if (!input.files || !input.files[0]) return;
-  stampFileObj = input.files[0];
-  var reader = new FileReader();
-  reader.onload = function(e) {
-    document.getElementById('stampPreview').innerHTML = '<img src="' + e.target.result + '" style="width:76px;height:76px;object-fit:contain;border-radius:6px">';
-  };
-  reader.readAsDataURL(stampFileObj);
-  document.getElementById('stampStatus').textContent = stampFileObj.name;
-  document.getElementById('stampUploadBtn').style.display = 'inline-flex';
-}
-
-async function uploadStamp() {
-  if (!stampFileObj || !currentUser) return;
-  var ext = stampFileObj.type === 'image/png' ? 'png' : stampFileObj.type === 'image/webp' ? 'webp' : 'jpg';
-  var path = currentUser.id + '/stamp.' + ext;
-  try {
-    document.getElementById('stampStatus').textContent = 'アップロード中...';
-    var res = await fetch(SB_URL + '/storage/v1/object/stamps/' + path, {
-      method: 'POST',
-      headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + (accessToken || SB_KEY), 'Content-Type': stampFileObj.type, 'x-upsert': 'true' },
-      body: stampFileObj
-    });
-    if (!res.ok) throw new Error(await res.text());
-    var stampUrl = SB_URL + '/storage/v1/object/public/stamps/' + path;
-    // profilesに保存
-    if (!userProfile) userProfile = {};
-    userProfile.stamp_url = stampUrl;
-    await saveProfile();
-    document.getElementById('stampStatus').textContent = '印鑑を保存しました ✅';
-    document.getElementById('stampUploadBtn').style.display = 'none';
-    document.getElementById('stampDelBtn').style.display = 'block';
-    stampFileObj = null;
-  } catch(e) {
-    document.getElementById('stampStatus').textContent = 'エラー: ' + e.message;
-  }
-}
-
-async function deleteStamp() {
-  if (!confirm('印鑑画像を削除しますか？')) return;
-  if (userProfile) userProfile.stamp_url = null;
-  await saveProfile();
-  document.getElementById('stampPreview').innerHTML = '<span style="font-size:11px;color:var(--tx2)">未設定</span>';
-  document.getElementById('stampDelBtn').style.display = 'none';
-  document.getElementById('stampStatus').textContent = '削除しました';
-}
-
-function rAccountPg() {
-  if (!currentUser) return;
-  document.getElementById('acEmail').textContent = currentUser.email || '—';
-  loadProfile().then(function() { rProfileForm(); });
-  var isGoogle = currentUser.app_metadata && currentUser.app_metadata.provider === 'google';
-  var badge = document.getElementById('acProvider');
-  if (isGoogle) {
-    badge.textContent = 'Google';
-    badge.style.background = '#e8f0fe';
-    badge.style.color = '#1a73e8';
-    document.getElementById('acEmailSection').style.display = 'none';
-    document.getElementById('acGoogleSection').style.display = 'block';
-  } else {
-    badge.textContent = 'メール / パスワード';
-    badge.style.background = 'var(--ob)';
-    badge.style.color = 'var(--ok)';
-    document.getElementById('acEmailSection').style.display = 'block';
-    document.getElementById('acGoogleSection').style.display = 'none';
-  }
-}
-
-function acMsg(elId, msg, isOk) {
-  var el = document.getElementById(elId);
-  el.textContent = msg;
-  el.style.display = 'block';
-  el.style.color = isOk ? 'var(--ok)' : '#c04a4a';
-  setTimeout(function() { el.style.display = 'none'; }, 5000);
-}
-
-async function changeEmail() {
-  var newEmail = document.getElementById('acNewEmail').value.trim();
-  var pass = document.getElementById('acEmailPass').value;
-  if (!newEmail) { acMsg('acEmailMsg', 'メールアドレスを入力してください', false); return; }
-  if (!pass) { acMsg('acEmailMsg', '現在のパスワードを入力してください', false); return; }
-  // パスワード確認のため再認証
-  var reauth = await sbClient.auth.signInWithPassword({ email: currentUser.email, password: pass });
-  if (reauth.error) { acMsg('acEmailMsg', 'パスワードが正しくありません', false); return; }
-  var res = await sbClient.auth.updateUser({ email: newEmail });
-  if (res.error) { acMsg('acEmailMsg', 'エラー: ' + res.error.message, false); return; }
-  acMsg('acEmailMsg', '確認メールを送信しました。メール内のリンクをクリックして変更を完了してください。', true);
-  document.getElementById('acNewEmail').value = '';
-  document.getElementById('acEmailPass').value = '';
-}
-
-async function changePassword() {
-  var newPass = document.getElementById('acNewPass').value;
-  var newPass2 = document.getElementById('acNewPass2').value;
-  if (!newPass) { acMsg('acPassMsg', '新しいパスワードを入力してください', false); return; }
-  if (newPass.length < 8) { acMsg('acPassMsg', 'パスワードは8文字以上にしてください', false); return; }
-  if (newPass !== newPass2) { acMsg('acPassMsg', 'パスワードが一致しません', false); return; }
-  var res = await sbClient.auth.updateUser({ password: newPass });
-  if (res.error) { acMsg('acPassMsg', 'エラー: ' + res.error.message, false); return; }
-  acMsg('acPassMsg', 'パスワードを変更しました', true);
-  document.getElementById('acNewPass').value = '';
-  document.getElementById('acNewPass2').value = '';
-}
-
 init();
 </script>
 </body>
