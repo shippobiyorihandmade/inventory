@@ -2137,7 +2137,7 @@ function rImRL() {
   var el = document.getElementById('imRL');
   if (!iRec.length) { el.innerHTML = '<p class="ts tm">まだ材料が登録されていません</p>'; document.getElementById('imRC').innerHTML = ''; return; }
   el.innerHTML = iRec.map(function(r, idx) {
-    var opts = '<option value="">― 材料を選択 ―</option>' + mats.map(function(m) { var label = m.name + (m.memo ? '【' + m.memo + '】' : ''); return '<option value="' + m.id + '" ' + (m.id === r.mid ? 'selected' : '') + '>' + label + '</option>'; }).join('');
+    var opts = '<option value="">― 材料を選択 ―</option>' + mats.map(function(m) { var label = m.name + (m.color ? '【' + m.color + '】' : ''); return '<option value="' + m.id + '" ' + (m.id === r.mid ? 'selected' : '') + '>' + label + '</option>'; }).join('');
     var mat = r.mid ? items.find(function(m) { return m.id === r.mid; }) : null;
     return '<div class="rl"><select style="flex:1" onchange="iRec[' + idx + '].mid=this.value;rImRL()">' + opts + '</select><input type="number" style="width:68px" value="' + r.qty + '" min="0.01" step="0.01" onchange="iRec[' + idx + '].qty=parseFloat(this.value)||0;updImRC()"><span class="ts tm" style="min-width:20px">' + (mat ? mat.unit || '' : '') + '</span><button class="bi bdl" onclick="iRec.splice(' + idx + ',1);rImRL()">✕</button></div>';
   }).join('');
@@ -2174,7 +2174,7 @@ function rMkREdit() {
   var el = document.getElementById('mkREdit');
   if (!mkRec.length) { el.innerHTML = '<p class="ts tm">材料が登録されていません。上の「＋ 材料追加」から追加できます。</p>'; document.getElementById('mkRCalc').innerHTML = ''; return; }
   el.innerHTML = mkRec.map(function(r, idx) {
-    var opts = '<option value="">― 材料を選択 ―</option>' + mats.map(function(m) { var label = m.name + (m.memo ? '【' + m.memo + '】' : ''); return '<option value="' + m.id + '" ' + (m.id === r.mid ? 'selected' : '') + '>' + label + '</option>'; }).join('');
+    var opts = '<option value="">― 材料を選択 ―</option>' + mats.map(function(m) { var label = m.name + (m.color ? '【' + m.color + '】' : ''); return '<option value="' + m.id + '" ' + (m.id === r.mid ? 'selected' : '') + '>' + label + '</option>'; }).join('');
     var mat = r.mid ? items.find(function(m) { return m.id === r.mid; }) : null;
     var disp = mkQMode === 'total' ? Math.round(r.qty * qty * 100) / 100 : r.qty;
     return '<div class="rl" style="flex-wrap:wrap"><select style="flex:1;min-width:110px" onchange="mkRec[' + idx + '].mid=this.value;rMkREdit()">' + opts + '</select><div style="display:flex;align-items:center;gap:4px"><input type="number" style="width:68px" value="' + disp + '" min="0.01" step="0.01" onchange="mkRec[' + idx + '].qty=parseFloat(this.value)||0;rMkREdit()"><span class="ts tm">' + (mat ? mat.unit || '' : '') + '</span></div><button class="bi bdl" onclick="mkRec.splice(' + idx + ',1);rMkREdit()">✕</button></div>';
