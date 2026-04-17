@@ -1623,6 +1623,7 @@ async function loadAll() {
     purch = await sbGet('purchases');
     makes = await sbGet('makes');
     locs  = await sbGetDirect('locations');
+    await loadProfile();
     setSyncing('ok');
     // 現在開いてるページを再描画するにゃ（ダッシュボードに強制移動しない）
     var pageMap = { dash: rDash, products: rProds, materials: rMats, make: rMakePg, purchase: rPurPg, adjust: rAdj, sales: rSales, history: rHist, contact: rContact, account: rAccountPg, delivery: rDeliveryPg };
@@ -3286,7 +3287,7 @@ async function deleteStamp() {
 function rAccountPg() {
   if (!currentUser) return;
   document.getElementById('acEmail').textContent = currentUser.email || '—';
-  loadProfile().then(function() { rProfileForm(); });
+  if (userProfile) { rProfileForm(); } else { loadProfile().then(function() { rProfileForm(); }); }
   var isGoogle = currentUser.app_metadata && currentUser.app_metadata.provider === 'google';
   var badge = document.getElementById('acProvider');
   if (isGoogle) {
