@@ -2520,7 +2520,7 @@ function getSaleLoc() {
 // ══════════════════════════════════════════════
 function rSales() {
   var prods = items.filter(function(i) { return i.type === 'product'; });
-  document.getElementById('saleItem').innerHTML = prods.length ? prods.map(function(i) { return '<option value="' + i.id + '">' + i.name + '（在庫:' + i.stock + '）</option>'; }).join('') : '<option value="">完成品がありません</option>';
+  document.getElementById('saleItem').innerHTML = prods.length ? prods.map(function(i) { var label = i.name + (i.color ? '【' + i.color + '】' : '') + '（在庫:' + i.stock + '）'; return '<option value="' + i.id + '">' + label + '</option>'; }).join('') : '<option value="">完成品がありません</option>';
   buildLocSelect();
   if (!document.getElementById('saleDate').value) dpSet('saleDate', tod());
   if (!document.getElementById('saleMF').value) document.getElementById('saleMF').value = mstr();
