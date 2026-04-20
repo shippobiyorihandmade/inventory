@@ -200,7 +200,7 @@ var accessToken = null;
 // ── 初期化 ──
 window.addEventListener('load', function() {
   sbClient = supabase.createClient(SB_URL, SB_KEY, {
-    auth: { detectSessionInUrl: true, persistSession: true, autoRefreshToken: true }
+    auth: { detectSessionInUrl: true, persistSession: true, autoRefreshToken: true, flowType: 'pkce' }
   });
   sbClient.auth.onAuthStateChange(function(event, session) {
     if (session && session.user) {
