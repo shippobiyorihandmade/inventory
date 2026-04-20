@@ -1315,34 +1315,39 @@ function initSupabase() {
       autoRefreshToken: true
     }
   });
-  sbClient.auth.onAuthStateChange(async function(event, session) {
+  sbClient.auth.onAuthStateChange(function(event, session) {
     if (session && session.user) {
       currentUser = session.user;
       accessToken = session.access_token;
-      // 招待チェック（Googleログインも含む）
-      var invRes = await fetch(SB_URL + '/rest/v1/invited_users?email=eq.' + encodeURIComponent(currentUser.email) + '&select=email', {
-        headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY }
-      });
-      var invData = await invRes.json();
-      if (!invData || invData.length === 0) {
-        await sbClient.auth.signOut();
-        currentUser = null; accessToken = null;
-        showLoginErr('このアカウントは招待されていません。管理者にお問い合わせください。');
-        return;
-      }
-      updateUserUI();
-      hideLoginScreens();
-      loadAll();
+      checkInviteAndLoad();
     } else {
       currentUser = null; accessToken = null;
-      document.getElementById('userMenu').style.display = 'none';
-      if (event !== 'INITIAL_SESSION') showLogin();
+      document.getElementById("userMenu").style.display = "none";
+      if (event !== "INITIAL_SESSION") showLogin();
     }
   });
   // URLにセッション情報が含まれてる場合（Googleログイン後）に処理するにゃ
   sbClient.auth.getSession().then(function(res) {
     if (!res.data.session) showLogin();
   });
+}
+
+async function checkInviteAndLoad() {
+  try {
+    var invRes = await fetch(SB_URL + "/rest/v1/invited_users?email=eq." + encodeURIComponent(currentUser.email) + "&select=email", {
+      headers: { "apikey": SB_KEY, "Authorization": "Bearer " + SB_KEY }
+    });
+    var invData = await invRes.json();
+    if (!invData || invData.length === 0) {
+      sbClient.auth.signOut();
+      currentUser = null; accessToken = null;
+      showLoginErr("このアカウントは招待されていません。管理者にお問い合わせください。");
+      return;
+    }
+  } catch(e) { console.error("招待チェックエラー:", e); }
+  updateUserUI();
+  hideLoginScreens();
+  loadAll();
 }
 
 function updateUserUI() {
