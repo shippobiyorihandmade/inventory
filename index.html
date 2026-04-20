@@ -162,7 +162,7 @@ footer p{font-size:12px;opacity:.5;margin-top:16px;}
   <h1>在庫管理を、<br><em>もっとかんたん</em>に。</h1>
   <p>完成品・材料・販売・製作記録をまるごと管理。<br>スマホからもサクサク使える、作家さんのための在庫管理アプリです。</p>
   <div style="display:inline-flex;align-items:center;gap:6px;background:#edf5f3;border:1px solid #b2dcc5;border-radius:30px;padding:6px 16px;font-size:12px;color:#3a6b5e;font-weight:700;margin-bottom:28px">
-    ✅ 現在は小規模作家さん向けに無料提供中・将来的に有料化の可能性あり
+    🚫 現在ベータ募集は締め切っています
   </div>
   <div class="hero-btns">
     <a class="btn-main" href="inventory_supabase.html">今すぐ使ってみる</a>
@@ -318,7 +318,7 @@ footer p{font-size:12px;opacity:.5;margin-top:16px;}
   </div>
   <div class="faq-item">
     <div class="faq-q">利用にはどうすれば？</div>
-    <div class="faq-a">現在は招待制での提供となっています。利用希望の方は下記の問い合わせフォームよりお気軽にご連絡ください。</div>
+    <div class="faq-a">現在ベータ募集は締め切っています。ご利用いただけない場合がございますが、ご了承ください。</div>
   </div>
 </section>
 
@@ -372,21 +372,20 @@ footer p{font-size:12px;opacity:.5;margin-top:16px;}
   <div class="section-label">Contact</div>
   <h2 class="section-title" style="text-align:center;font-family:'Shippori Mincho',serif;font-size:clamp(22px,4vw,36px);font-weight:600;margin-bottom:24px">お問い合わせ</h2>
   <div class="contact-form">
-    <p style="font-size:13px;color:var(--tx2);margin-bottom:20px;line-height:1.9">ご質問・ご要望・利用申し込みなど、お気軽にお問い合わせください。</p>
+    <p style="font-size:13px;color:var(--tx2);margin-bottom:20px;line-height:1.9">ご質問・ご要望などお気軽にお問い合わせください。</p>
     <label>お名前</label>
     <input type="text" id="cName" placeholder="山田 花子">
     <label>メールアドレス *</label>
     <input type="email" id="cEmail" placeholder="example@gmail.com">
     <label>お問い合わせ種別</label>
     <select id="cCat">
-      <option value="利用申し込み">🙋 利用の申し込み</option>
       <option value="使い方">❓ 使い方について</option>
       <option value="バグ報告">🐛 バグ・不具合の報告</option>
       <option value="機能要望">💡 機能の要望</option>
       <option value="その他">💬 その他</option>
     </select>
     <label>内容 *</label>
-    <textarea id="cBody" placeholder="お問い合わせ内容をご記入ください。&#10;&#10;利用申し込みの場合は、使用するGmailアドレスをお知らせください。"></textarea>
+    <textarea id="cBody" placeholder="お問い合わせ内容をご記入ください。"></textarea>
     <button class="btn-send" onclick="sendLandingContact()">送信する →</button>
     <div id="contactMsg"></div>
   </div>
