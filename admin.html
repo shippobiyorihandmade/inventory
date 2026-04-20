@@ -253,7 +253,7 @@ function showLogin() {
 async function loginGoogle() {
   var res = await sbClient.auth.signInWithOAuth({
     provider: 'google',
-    options: { redirectTo: 'https://shippobiyorihandmade.github.io/inventory/admin.html' }
+    options: { redirectTo: 'https://shippo-tools.com/admin.html' }
   });
   if (res.error) {
     var el = document.getElementById('loginErr');
