@@ -135,7 +135,11 @@ textarea{resize:vertical;min-height:80px;}
         <span style="font-size:12px;font-weight:700;color:var(--tx2)">招待済みリスト</span>
         <button class="btn bs bsm" onclick="loadInvited()">🔄 更新</button>
       </div>
+      <div style="margin-bottom:8px">
+        <input type="text" id="inviteSearch" placeholder="🔍 メアドで検索..." oninput="renderInvited()" style="font-size:12px;padding:6px 10px">
+      </div>
       <div id="invitedList"><div class="empty">読み込み中...</div></div>
+      <div id="invitedPager" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:8px 0;font-size:12px"></div>
     </div>
   </div>
 
@@ -146,7 +150,11 @@ textarea{resize:vertical;min-height:80px;}
       <button class="btn bs bsm" onclick="loadUsers()">🔄 更新</button>
     </div>
     <div class="cb" style="padding:0 16px">
+      <div style="margin-bottom:8px">
+        <input type="text" id="userSearch" placeholder="🔍 メアドで検索..." oninput="renderUsers()" style="font-size:12px;padding:6px 10px">
+      </div>
       <div id="userList"><div class="empty">読み込み中...</div></div>
+      <div id="userPager" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:8px 0;font-size:12px"></div>
     </div>
   </div>
 
@@ -313,18 +321,35 @@ async function inviteUser() {
   } catch(e) { res.innerHTML = '<span style="color:var(--wn)">エラー: ' + e.message + '</span>'; }
 }
 
+var invitedAll = [], invitedPage = 1;
+var usersAll = [], usersPage = 1;
+var PAGE_SIZE = 10;
+
 async function loadInvited() {
   try {
     var r = await fetch(SB_URL + '/rest/v1/invited_users?select=*&order=created_at.desc', { headers: sbH() });
-    var list = await r.json();
-    var el = document.getElementById('invitedList');
-    if (!list.length) { el.innerHTML = '<div class="empty">招待済みユーザーはいないにゃ</div>'; return; }
-    el.innerHTML = list.map(function(u) {
-      var d = new Date(u.created_at);
-      var ds = d.getFullYear() + '/' + String(d.getMonth()+1).padStart(2,'0') + '/' + String(d.getDate()).padStart(2,'0');
-      return '<div class="user-row"><div style="flex:1;min-width:0"><div class="user-email">' + u.email + '</div><div class="user-meta">招待日: ' + ds + '</div></div><button class="btn br bsm" onclick="removeInvite(\'' + u.id + '\',\'' + u.email + '\')">削除</button></div>';
-    }).join('');
+    invitedAll = await r.json();
+    invitedPage = 1;
+    renderInvited();
   } catch(e) { console.error(e); }
+}
+
+function renderInvited() {
+  var q = (document.getElementById('inviteSearch').value || '').toLowerCase();
+  var filtered = invitedAll.filter(function(u) { return !q || u.email.toLowerCase().includes(q); });
+  var total = filtered.length;
+  var totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  if (invitedPage > totalPages) invitedPage = totalPages;
+  var start = (invitedPage - 1) * PAGE_SIZE;
+  var page = filtered.slice(start, start + PAGE_SIZE);
+  var el = document.getElementById('invitedList');
+  if (!total) { el.innerHTML = '<div class="empty">該当ユーザーがいないにゃ</div>'; document.getElementById('invitedPager').innerHTML = ''; return; }
+  el.innerHTML = page.map(function(u) {
+    var d = new Date(u.created_at);
+    var ds = d.getFullYear() + '/' + String(d.getMonth()+1).padStart(2,'0') + '/' + String(d.getDate()).padStart(2,'0');
+    return '<div class="user-row"><div style="flex:1;min-width:0"><div class="user-email">' + u.email + '</div><div class="user-meta">招待日: ' + ds + '</div></div><button class="btn br bsm" onclick="removeInvite(\'' + u.id + '\',\'' + u.email + '\')">削除</button></div>';
+  }).join('');
+  renderPager('invitedPager', invitedPage, totalPages, total, function(p) { invitedPage = p; renderInvited(); });
 }
 
 async function removeInvite(id, email) {
@@ -337,19 +362,39 @@ async function removeInvite(id, email) {
 async function loadUsers() {
   try {
     var r = await fetch(SB_URL + '/rest/v1/invited_users?select=*&order=created_at.asc', { headers: sbH() });
-    var list = await r.json();
-    var admR = await fetch(SB_URL + '/rest/v1/admin_users?select=*', { headers: sbH() });
-    var admList = await admR.json();
-    var admEmails = admList.map(function(a) { return a.user_id; });
-    var el = document.getElementById('userList');
-    if (!list.length) { el.innerHTML = '<div class="empty" style="padding:20px">招待済みユーザーがいないにゃ</div>'; return; }
-    el.innerHTML = list.map(function(u) {
-      var initial = u.email.charAt(0).toUpperCase();
-      var d = new Date(u.created_at);
-      var ds = d.getFullYear() + '/' + String(d.getMonth()+1).padStart(2,'0') + '/' + String(d.getDate()).padStart(2,'0');
-      return '<div class="user-row"><div class="user-avatar">' + initial + '</div><div class="user-info"><div class="user-email">' + u.email + '</div><div class="user-meta">招待日: ' + ds + '</div></div></div>';
-    }).join('');
+    usersAll = await r.json();
+    usersPage = 1;
+    renderUsers();
   } catch(e) { console.error(e); }
+}
+
+function renderUsers() {
+  var q = (document.getElementById('userSearch').value || '').toLowerCase();
+  var filtered = usersAll.filter(function(u) { return !q || u.email.toLowerCase().includes(q); });
+  var total = filtered.length;
+  var totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  if (usersPage > totalPages) usersPage = totalPages;
+  var start = (usersPage - 1) * PAGE_SIZE;
+  var page = filtered.slice(start, start + PAGE_SIZE);
+  var el = document.getElementById('userList');
+  if (!total) { el.innerHTML = '<div class="empty" style="padding:20px">該当ユーザーがいないにゃ</div>'; document.getElementById('userPager').innerHTML = ''; return; }
+  el.innerHTML = page.map(function(u) {
+    var initial = u.email.charAt(0).toUpperCase();
+    var d = new Date(u.created_at);
+    var ds = d.getFullYear() + '/' + String(d.getMonth()+1).padStart(2,'0') + '/' + String(d.getDate()).padStart(2,'0');
+    return '<div class="user-row"><div class="user-avatar">' + initial + '</div><div class="user-info"><div class="user-email">' + u.email + '</div><div class="user-meta">招待日: ' + ds + '</div></div></div>';
+  }).join('');
+  renderPager('userPager', usersPage, totalPages, total, function(p) { usersPage = p; renderUsers(); });
+}
+
+function renderPager(elId, current, total, itemCount, onChange) {
+  var el = document.getElementById(elId);
+  if (total <= 1) { el.innerHTML = '<span style="color:var(--tx2)">' + itemCount + '件</span>'; return; }
+  var html = '<span style="color:var(--tx2)">' + itemCount + '件</span>';
+  html += '<button class="btn bs bsm" onclick="(' + onChange.toString() + ')(' + (current - 1) + ')" ' + (current <= 1 ? 'disabled' : '') + '>❮</button>';
+  html += '<span style="font-weight:700">' + current + ' / ' + total + '</span>';
+  html += '<button class="btn bs bsm" onclick="(' + onChange.toString() + ')(' + (current + 1) + ')" ' + (current >= total ? 'disabled' : '') + '>❯</button>';
+  el.innerHTML = html;
 }
 
 // ── お知らせ ──
