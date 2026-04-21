@@ -413,7 +413,7 @@ async function loadContacts() {
         + '<option value="read"' + (c.status==='read'?' selected':'') + '>確認済み</option>'
         + '<option value="replied"' + (c.status==='replied'?' selected':'') + '>返信済み</option>'
         + '</select>'
-        + '<button class="btn br bsm" onclick="deleteContact('' + c.id + '')">削除</button>'
+        + '<button class="btn br bsm" onclick="deleteContact(\'' + c.id + '\')">' + '削除</button>'
         + '</div>'
         + '<div style="font-size:12px;color:#7a6e60">' + c.category + ' · ' + (c.email || '不明') + ' · ' + ds + '</div>'
         + '<div style="font-size:13px;color:#2c2416;line-height:1.6;background:#f3efe9;padding:8px 12px;border-radius:8px;width:100%">' + c.body.replace(/\n/g,'<br>') + '</div>'
