@@ -200,7 +200,7 @@ var accessToken = null;
 // ── 初期化 ──
 window.addEventListener('load', function() {
   sbClient = supabase.createClient(SB_URL, SB_KEY, {
-    auth: { detectSessionInUrl: true, persistSession: true, autoRefreshToken: true, flowType: 'pkce' }
+    auth: { detectSessionInUrl: true, persistSession: true, autoRefreshToken: true }
   });
   sbClient.auth.onAuthStateChange(function(event, session) {
     if (session && session.user) {
@@ -413,12 +413,19 @@ async function loadContacts() {
         + '<option value="read"' + (c.status==='read'?' selected':'') + '>確認済み</option>'
         + '<option value="replied"' + (c.status==='replied'?' selected':'') + '>返信済み</option>'
         + '</select>'
+        + '<button class="btn br bsm" onclick="deleteContact('' + c.id + '')">削除</button>'
         + '</div>'
         + '<div style="font-size:12px;color:#7a6e60">' + c.category + ' · ' + (c.email || '不明') + ' · ' + ds + '</div>'
         + '<div style="font-size:13px;color:#2c2416;line-height:1.6;background:#f3efe9;padding:8px 12px;border-radius:8px;width:100%">' + c.body.replace(/\n/g,'<br>') + '</div>'
         + '</div>';
     }).join('');
   } catch(e) { console.error(e); }
+}
+
+async function deleteContact(id) {
+  if (!confirm('この問い合わせを削除しますか？')) return;
+  await fetch(SB_URL + '/rest/v1/contacts?id=eq.' + id, { method: 'DELETE', headers: sbH() });
+  loadContacts();
 }
 
 async function updateContactStatus(id, status) {
