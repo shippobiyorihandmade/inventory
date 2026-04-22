@@ -674,6 +674,24 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
             <div><label>色/柄</label><input type="text" id="mkNColor" placeholder="例：レッド、ドット柄"></div>
             <div></div>
           </div>
+          <div class="fr" style="margin-bottom:4px">
+            <div>
+              <label>出品プラットフォーム（複数選択可）</label>
+              <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:4px" id="mkNPlatforms">
+                <label style="display:flex;align-items:center;gap:4px;font-size:13px;font-weight:400;cursor:pointer;margin:0"><input type="checkbox" value="minne" style="width:auto;padding:0"> minne</label>
+                <label style="display:flex;align-items:center;gap:4px;font-size:13px;font-weight:400;cursor:pointer;margin:0"><input type="checkbox" value="Creema" style="width:auto;padding:0"> Creema</label>
+                <label style="display:flex;align-items:center;gap:4px;font-size:13px;font-weight:400;cursor:pointer;margin:0"><input type="checkbox" value="BASE" style="width:auto;padding:0"> BASE</label>
+                <label style="display:flex;align-items:center;gap:4px;font-size:13px;font-weight:400;cursor:pointer;margin:0"><input type="checkbox" value="iichi" style="width:auto;padding:0"> iichi</label>
+                <label style="display:flex;align-items:center;gap:4px;font-size:13px;font-weight:400;cursor:pointer;margin:0"><input type="checkbox" value="マルシェ" style="width:auto;padding:0"> マルシェ</label>
+                <label style="display:flex;align-items:center;gap:4px;font-size:13px;font-weight:400;cursor:pointer;margin:0"><input type="checkbox" value="委託" style="width:auto;padding:0"> 委託</label>
+                <div id="mkNCustomPlatforms" style="display:contents"></div>
+              </div>
+              <div style="display:flex;gap:6px;margin-top:6px;align-items:center">
+                <input type="text" id="mkNNewPlatform" placeholder="カスタム追加..." style="flex:1;font-size:12px;padding:5px 8px">
+                <button type="button" class="btn bs bsm" onclick="addMkNCustomPlatform()">＋</button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
       <div style="background:var(--sf2);border-radius:10px;padding:13px;margin-bottom:11px">
@@ -2097,6 +2115,32 @@ function togImF() {
   document.getElementById('imProd').classList.toggle('hidden', t !== 'product');
   document.getElementById('imMat').classList.toggle('hidden', t !== 'material');
 }
+function addMkNCustomPlatform() {
+  var name = document.getElementById('mkNNewPlatform').value.trim();
+  if (!name) return;
+  var container = document.getElementById('mkNCustomPlatforms');
+  var exists = Array.from(document.querySelectorAll('#mkNPlatforms input')).some(function(cb) { return cb.value === name; });
+  if (exists) { document.getElementById('mkNNewPlatform').value = ''; return; }
+  var lbl = document.createElement('label');
+  lbl.style.cssText = 'display:flex;align-items:center;gap:4px;font-size:13px;font-weight:400;cursor:pointer;margin:0';
+  lbl.innerHTML = '<input type="checkbox" value="' + name + '" style="width:auto;padding:0" checked> ' + name + ' <button type="button" onclick="this.parentNode.remove()" style="border:none;background:none;cursor:pointer;color:var(--wn);font-size:11px;padding:0 2px">✕</button>';
+  container.appendChild(lbl);
+  document.getElementById('mkNNewPlatform').value = '';
+}
+function addMkNCustomPlatform() {
+  var name = document.getElementById("mkNNewPlatform").value.trim();
+  if (!name) return;
+  var container = document.getElementById("mkNCustomPlatforms");
+  var exists = Array.from(document.querySelectorAll("#mkNPlatforms input")).some(function(cb) { return cb.value === name; });
+  if (exists) { document.getElementById("mkNNewPlatform").value = ""; return; }
+  var lbl = document.createElement("label");
+  lbl.style.cssText = "display:flex;align-items:center;gap:4px;font-size:13px;font-weight:400;cursor:pointer;margin:0";
+  lbl.innerHTML = '<input type="checkbox" value="' + name + '" style="width:auto;padding:0" checked> ' + name + ' <button type="button" onclick="this.parentNode.remove()" style="border:none;background:none;cursor:pointer;color:var(--wn);font-size:11px;padding:0 2px">✕</button>';
+  container.appendChild(lbl);
+  document.getElementById("mkNNewPlatform").value = "";
+}
+
+
 function addCustomPlatform() {
   var name = document.getElementById('imNewPlatform').value.trim();
   if (!name) return;
@@ -2248,6 +2292,7 @@ function updImRC() {
 // ══════════════════════════════════════════════
 function setMkMode(mode) {
   mkMode = mode; mkRec = [];
+  if (mode === 'new') { document.querySelectorAll('#mkNPlatforms input').forEach(function(cb) { cb.checked = false; }); var mkNC = document.getElementById('mkNCustomPlatforms'); if(mkNC) mkNC.innerHTML = ''; }
   document.getElementById('mkExist').classList.toggle('hidden', mode !== 'exist');
   document.getElementById('mkNew').classList.toggle('hidden', mode !== 'new');
   document.getElementById('mkExBtn').className = 'btn bsm ' + (mode === 'exist' ? 'bp' : 'bs');
@@ -2316,7 +2361,7 @@ async function recMake(memoOnly) {
     recipe = mkRec.filter(function(r) { return r.mid && r.qty > 0; });
     var ac = recipe.reduce(function(a, r) { var m = items.find(function(x) { return x.id === r.mid; }); return a + (m ? m.mc || 0 : 0) * r.qty; }, 0);
     var mkNMinOff = document.getElementById('mkNMinMode').value === 'off';
-    item = { id: uid(), type: 'product', name: name, cat: document.getElementById('mkNCat').value.trim(), unit: document.getElementById('mkNUnit').value.trim() || '個', stock: 0, min: mkNMinOff ? null : (parseInt(document.getElementById('mkNMin').value) ?? 3), sp: parseFloat(document.getElementById('mkNPrice').value) || 0, cost: Math.round(ac), mc: 0, sup: '', fw: 0, color: document.getElementById('mkNColor').value.trim(), brand: '', memo: '', recipe: recipe, photo: null };
+    item = { id: uid(), type: 'product', name: name, cat: document.getElementById('mkNCat').value.trim(), unit: document.getElementById('mkNUnit').value.trim() || '個', stock: 0, min: mkNMinOff ? null : (parseInt(document.getElementById('mkNMin').value) ?? 3), sp: parseFloat(document.getElementById('mkNPrice').value) || 0, cost: Math.round(ac), mc: 0, sup: '', fw: 0, color: document.getElementById('mkNColor').value.trim(), brand: '', memo: '', platforms: Array.from(document.querySelectorAll('#mkNPlatforms input:checked')).map(function(cb) { return cb.value; }), recipe: recipe, photo: null };
     items.push(item); await svItem(item);
   } else {
     item = items.find(function(i) { return i.id === document.getElementById('mkProd').value; });
