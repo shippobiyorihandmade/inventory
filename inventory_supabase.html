@@ -804,6 +804,9 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
       <div class="fr" style="margin-bottom:9px">
         <div><label>メモ</label><input type="text" id="purMemo" placeholder="例：セール品"></div>
       </div>
+      <div class="fr" style="margin-bottom:9px">
+        <div><label>購入URL（任意）</label><input type="url" id="purUrl" placeholder="例：https://..."></div>
+      </div>
       <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
         <button class="btn bp" onclick="recPurchase()">🛒 仕入れを記録（在庫に反映）</button>
         <label style="display:flex;align-items:center;gap:5px;font-size:13px;font-weight:400;cursor:pointer;margin:0">
@@ -1942,6 +1945,7 @@ function showDetail(id) {
     if (i.brand) rows.push(['ブランド/メーカー', i.brand]);
     if (i.sup) rows.push(['購入先', i.sup]);
     if (i.code) rows.push(['管理番号', '<span class="mn">' + i.code + '</span>']);
+    if (i.url) rows.push(['購入URL', '<a href="' + i.url + '" target="_blank" rel="noopener" style="color:var(--ac);word-break:break-all">' + i.url + '</a>']);
 
   }
   if (i.memo) rows.push(['メモ', i.memo]);
@@ -2103,6 +2107,16 @@ async function saveItem() {
     if (old.stock !== obj.stock) addH(obj.name, obj.stock - old.stock, '手動編集', obj.stock);
     items[idx] = obj;
   } else {
+    // 件数制限チェックにゃ
+    var LIMIT_PRODUCT = 40;
+    var LIMIT_MATERIAL = 60;
+    var currentCount = items.filter(function(x) { return x.type === type; }).length;
+    var limit = type === 'product' ? LIMIT_PRODUCT : LIMIT_MATERIAL;
+    var typeName = type === 'product' ? '完成品' : '材料';
+    if (currentCount >= limit) {
+      alert('⚠️ ' + typeName + 'の登録件数が上限（' + limit + '件）に達しています。\n不要なアイテムを削除してから追加してください。');
+      return;
+    }
     items.push(obj);
     if (obj.stock > 0) addH(obj.name, obj.stock, '初期登録', obj.stock);
   }
@@ -2145,7 +2159,18 @@ async function delItem(id) {
   }
   items = items.filter(function(i) { return i.id !== id; });
   setSyncing('syncing');
-  try { await sbDelete('items', id); setSyncing('ok'); } catch(e) { setSyncing('error'); }
+  try {
+    if (i.photo) {
+      var exts = ['jpg', 'jpeg', 'png', 'webp', 'gif'];
+      for (var ext of exts) {
+        await fetch(SB_URL + '/storage/v1/object/item-photos/items/' + id + '.' + ext, {
+          method: 'DELETE',
+          headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + (accessToken || SB_KEY) }
+        });
+      }
+    }
+    await sbDelete('items', id); setSyncing('ok');
+  } catch(e) { setSyncing('error'); }
   rProds(); rMats();
 }
 function addIRL() { iRec.push({ mid: '', qty: 1 }); rImRL(); }
@@ -2343,6 +2368,7 @@ async function recPurchase() {
   var date = (purMode === 'new' ? document.getElementById('purNDate').value : document.getElementById('purDate').value) || tod();
   var sup = document.getElementById('purSup').value.trim();
   var memo = document.getElementById('purMemo').value.trim();
+  var purUrl = document.getElementById('purUrl').value.trim();
   var code = document.getElementById('purCode').value.trim();
   var item;
   if (purMode === 'new') {
@@ -2353,18 +2379,26 @@ async function recPurchase() {
     var nColor = document.getElementById('purNColor').value.trim();
     var nBrand = document.getElementById('purNBrand').value.trim();
     var purNMinOff = document.getElementById('purNMinMode').value === 'off';
+    // 材料の件数制限チェックにゃ
+    var matCount = items.filter(function(x) { return x.type === 'material'; }).length;
+    if (matCount >= 60) {
+      alert('⚠️ 材料の登録件数が上限（60件）に達しています。\n不要な材料を削除してから追加してください。');
+      return;
+    }
     item = { id: uid(), type: 'material', name: name, cat: cat, unit: nUnit, stock: 0, min: purNMinOff ? null : (parseInt(document.getElementById('purNMin').value) ?? 5), sp: 0, cost: 0, mc: unit, sup: sup, fw: parseFloat(document.getElementById('purNFW').value) || 0, color: nColor, brand: nBrand, code: code, memo: '', recipe: [], photo: null };
     items.push(item); await svItem(item);
   } else {
     item = items.find(function(i) { return i.id === document.getElementById('purItem').value; });
     if (!item) { alert('材料を選択してください'); return; }
   }
-  var purObj = { id: uid(), itemId: item.id, itemName: item.name, qty: qty, unit: unit, total: Math.round(tot), date: date, sup: sup, memo: memo, code: code, iunit: item.unit || '個' };
+  var purObj = { id: uid(), itemId: item.id, itemName: item.name, qty: qty, unit: unit, total: Math.round(tot), date: date, sup: sup, memo: memo, url: purUrl, code: code, iunit: item.unit || '個' };
   purch.push(purObj); await svPurch(purObj);
   item.stock = Math.round((item.stock + qty) * 100) / 100;
   if (document.getElementById('purUpdCost').checked) item.mc = unit;
-  // 管理番号があればアイテムに反映するにゃ
+  // 管理番号・メモ・URLがあればアイテムに反映するにゃ
   if (code) item.code = code;
+  if (memo && !item.memo) item.memo = memo;
+  if (purUrl && !item.url) item.url = purUrl;
   // 写真があればアップロードしてアイテムに反映
   if (purPhotoFile && !item.photo) {
     try {
@@ -2374,7 +2408,7 @@ async function recPurchase() {
   }
   addH(item.name, qty, '仕入れ' + (sup ? '（' + sup + '）' : ''), item.stock);
   await svItem(item);
-  ['purQty', 'purTot', 'purUnit', 'purSup', 'purMemo', 'purCode'].forEach(function(id) { document.getElementById(id).value = ''; });
+  ['purQty', 'purTot', 'purUnit', 'purSup', 'purMemo', 'purUrl', 'purCode'].forEach(function(id) { document.getElementById(id).value = ''; });
   if (purMode === 'new') { ['purNName', 'purNCatTxt', 'purNFW', 'purNColor', 'purNBrand'].forEach(function(id) { document.getElementById(id).value = ''; }); document.getElementById('purNUnit').value = '個'; document.getElementById('purNMin').value = 5; document.getElementById('purNMinMode').value = 'on'; document.getElementById('purNMin').style.display = 'block'; }
   document.getElementById('purPrev').innerHTML = '';
   clearPurPhoto();
