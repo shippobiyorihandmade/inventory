@@ -123,6 +123,9 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 .bi{width:30px;height:30px;padding:0;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;background:var(--sf2);border:1px solid var(--bd);cursor:pointer;font-size:13px;}
 .bi:hover{background:var(--bd);}
 .bdl{background:#fde8e8!important;border-color:#f5c0c0!important;}
+.ptag{display:inline-flex;align-items:center;gap:4px;padding:6px 12px;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;border:1.5px solid var(--bd);background:var(--sf);color:var(--tx2);transition:all .15s;user-select:none;}
+.ptag:hover{border-color:var(--ac);color:var(--ac);}
+.ptag.on{background:var(--ac);border-color:var(--ac);color:#fff;}
 .tw{overflow-x:auto;-webkit-overflow-scrolling:touch;}
 table{width:100%;border-collapse:collapse;min-width:460px;}
 th{background:var(--sf2);padding:9px 11px;text-align:left;font-size:11px;font-weight:700;color:var(--tx2);letter-spacing:.05em;border-bottom:2px solid var(--bd);white-space:nowrap;}
@@ -677,18 +680,18 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
           <div class="fr" style="margin-bottom:4px">
             <div>
               <label>出品プラットフォーム（複数選択可）</label>
-              <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:4px" id="mkNPlatforms">
-                <label style="display:flex;align-items:center;gap:4px;font-size:13px;font-weight:400;cursor:pointer;margin:0"><input type="checkbox" value="minne" style="width:auto;padding:0"> minne</label>
-                <label style="display:flex;align-items:center;gap:4px;font-size:13px;font-weight:400;cursor:pointer;margin:0"><input type="checkbox" value="Creema" style="width:auto;padding:0"> Creema</label>
-                <label style="display:flex;align-items:center;gap:4px;font-size:13px;font-weight:400;cursor:pointer;margin:0"><input type="checkbox" value="BASE" style="width:auto;padding:0"> BASE</label>
-                <label style="display:flex;align-items:center;gap:4px;font-size:13px;font-weight:400;cursor:pointer;margin:0"><input type="checkbox" value="iichi" style="width:auto;padding:0"> iichi</label>
-                <label style="display:flex;align-items:center;gap:4px;font-size:13px;font-weight:400;cursor:pointer;margin:0"><input type="checkbox" value="マルシェ" style="width:auto;padding:0"> マルシェ</label>
-                <label style="display:flex;align-items:center;gap:4px;font-size:13px;font-weight:400;cursor:pointer;margin:0"><input type="checkbox" value="委託" style="width:auto;padding:0"> 委託</label>
+              <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px" id="mkNPlatforms">
+                <span class="ptag" data-value="minne" onclick="togglePtag(this)">minne</span>
+                <span class="ptag" data-value="Creema" onclick="togglePtag(this)">Creema</span>
+                <span class="ptag" data-value="BASE" onclick="togglePtag(this)">BASE</span>
+                <span class="ptag" data-value="iichi" onclick="togglePtag(this)">iichi</span>
+                <span class="ptag" data-value="マルシェ" onclick="togglePtag(this)">マルシェ</span>
+                <span class="ptag" data-value="委託" onclick="togglePtag(this)">委託</span>
                 <div id="mkNCustomPlatforms" style="display:contents"></div>
               </div>
               <div style="display:flex;gap:6px;margin-top:6px;align-items:center">
-                <input type="text" id="mkNNewPlatform" placeholder="カスタム追加..." style="flex:1;font-size:12px;padding:5px 8px">
-                <button type="button" class="btn bs bsm" onclick="addMkNCustomPlatform()">＋</button>
+                <input type="text" id="mkNNewPlatform" placeholder="＋ カスタム追加..." style="flex:1;font-size:12px;padding:5px 8px" onkeydown="if(event.key==='Enter')addMkNCustomPlatform()">
+                <button type="button" class="btn bs bsm" onclick="addMkNCustomPlatform()">追加</button>
               </div>
             </div>
           </div>
@@ -1270,18 +1273,18 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
         <div class="fr" style="margin-bottom:8px">
           <div>
             <label>出品プラットフォーム（複数選択可）</label>
-            <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:4px" id="imPlatforms">
-              <label style="display:flex;align-items:center;gap:4px;font-size:13px;font-weight:400;cursor:pointer;margin:0"><input type="checkbox" value="minne" style="width:auto;padding:0"> minne</label>
-              <label style="display:flex;align-items:center;gap:4px;font-size:13px;font-weight:400;cursor:pointer;margin:0"><input type="checkbox" value="Creema" style="width:auto;padding:0"> Creema</label>
-              <label style="display:flex;align-items:center;gap:4px;font-size:13px;font-weight:400;cursor:pointer;margin:0"><input type="checkbox" value="BASE" style="width:auto;padding:0"> BASE</label>
-              <label style="display:flex;align-items:center;gap:4px;font-size:13px;font-weight:400;cursor:pointer;margin:0"><input type="checkbox" value="iichi" style="width:auto;padding:0"> iichi</label>
-              <label style="display:flex;align-items:center;gap:4px;font-size:13px;font-weight:400;cursor:pointer;margin:0"><input type="checkbox" value="マルシェ" style="width:auto;padding:0"> マルシェ</label>
-              <label style="display:flex;align-items:center;gap:4px;font-size:13px;font-weight:400;cursor:pointer;margin:0"><input type="checkbox" value="委託" style="width:auto;padding:0"> 委託</label>
+            <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px" id="imPlatforms">
+              <span class="ptag" data-value="minne" onclick="togglePtag(this)">minne</span>
+              <span class="ptag" data-value="Creema" onclick="togglePtag(this)">Creema</span>
+              <span class="ptag" data-value="BASE" onclick="togglePtag(this)">BASE</span>
+              <span class="ptag" data-value="iichi" onclick="togglePtag(this)">iichi</span>
+              <span class="ptag" data-value="マルシェ" onclick="togglePtag(this)">マルシェ</span>
+              <span class="ptag" data-value="委託" onclick="togglePtag(this)">委託</span>
               <div id="imCustomPlatforms" style="display:contents"></div>
             </div>
             <div style="display:flex;gap:6px;margin-top:6px;align-items:center">
-              <input type="text" id="imNewPlatform" placeholder="カスタム追加..." style="flex:1;font-size:12px;padding:5px 8px">
-              <button type="button" class="btn bs bsm" onclick="addCustomPlatform()">＋</button>
+              <input type="text" id="imNewPlatform" placeholder="＋ カスタム追加..." style="flex:1;font-size:12px;padding:5px 8px" onkeydown="if(event.key==='Enter')addCustomPlatform()">
+              <button type="button" class="btn bs bsm" onclick="addCustomPlatform()">追加</button>
             </div>
           </div>
         </div>
@@ -2059,7 +2062,7 @@ function openIM(type) {
   document.getElementById('imTitle').textContent = type === 'product' ? '完成品を追加' : '材料を追加';
   document.getElementById('imType').value = type;
   ['imName', 'imCat', 'imMemo', 'imSup', 'imSP', 'imCost', 'imMC', 'imFW', 'imColor', 'imBrand', 'imCode'].forEach(function(id) { document.getElementById(id).value = ''; });
-  document.querySelectorAll('#imPlatforms input').forEach(function(cb) { cb.checked = false; });
+  document.querySelectorAll('#imPlatforms .ptag').forEach(function(el) { el.classList.remove('on'); });
   document.getElementById('imCustomPlatforms').innerHTML = '';
   document.getElementById('imNewPlatform').value = '';
   document.getElementById('imMinMode').value = 'on'; document.getElementById('imMin').style.display = 'block';
@@ -2085,21 +2088,24 @@ function editItem(id) {
   document.getElementById('imMin').style.display = minIsNull ? 'none' : 'block';
   document.getElementById('imSP').value = i.sp || '';
   document.getElementById('imCost').value = i.cost || '';
-  // プラットフォームのチェックを復元にゃ
+  // プラットフォームのタグを復元にゃ
   document.getElementById('imCustomPlatforms').innerHTML = '';
+  document.querySelectorAll('#imPlatforms .ptag').forEach(function(el) { el.classList.remove('on'); });
   if (i.platforms) {
     var defaults = ['minne','Creema','BASE','iichi','マルシェ','委託'];
     i.platforms.forEach(function(p) {
-      if (!defaults.includes(p)) {
+      var existing = document.querySelector('#imPlatforms .ptag[data-value="' + p + '"]');
+      if (existing) { existing.classList.add('on'); }
+      else {
         var container = document.getElementById('imCustomPlatforms');
-        var lbl = document.createElement('label');
-        lbl.style.cssText = 'display:flex;align-items:center;gap:4px;font-size:13px;font-weight:400;cursor:pointer;margin:0';
-        lbl.innerHTML = '<input type="checkbox" value="' + p + '" style="width:auto;padding:0" checked> ' + p + ' <button type="button" onclick="this.parentNode.remove()" style="border:none;background:none;cursor:pointer;color:var(--wn);font-size:11px;padding:0 2px">✕</button>';
-        container.appendChild(lbl);
+        var span = document.createElement('span');
+        span.className = 'ptag on'; span.dataset.value = p;
+        span.onclick = function() { togglePtag(this); };
+        span.innerHTML = p + ' <button type="button" onclick="event.stopPropagation();this.parentNode.remove()" style="border:none;background:none;cursor:pointer;color:rgba(255,255,255,.8);font-size:10px;padding:0 2px">✕</button>';
+        container.appendChild(span);
       }
     });
   }
-  document.querySelectorAll('#imPlatforms input').forEach(function(cb) { cb.checked = i.platforms && i.platforms.includes(cb.value); });
   document.getElementById('imMC').value = i.mc || '';
   document.getElementById('imSup').value = i.sup || '';
   document.getElementById('imFW').value = i.fw || '';
@@ -2115,6 +2121,12 @@ function togImF() {
   document.getElementById('imProd').classList.toggle('hidden', t !== 'product');
   document.getElementById('imMat').classList.toggle('hidden', t !== 'material');
 }
+function togglePtag(el) { el.classList.toggle('on'); }
+
+function getPlatforms(containerId) {
+  return Array.from(document.querySelectorAll('#' + containerId + ' .ptag.on')).map(function(el) { return el.dataset.value; });
+}
+
 function addMkNCustomPlatform() {
   var name = document.getElementById('mkNNewPlatform').value.trim();
   if (!name) return;
@@ -2128,30 +2140,31 @@ function addMkNCustomPlatform() {
   document.getElementById('mkNNewPlatform').value = '';
 }
 function addMkNCustomPlatform() {
-  var name = document.getElementById("mkNNewPlatform").value.trim();
+  var name = document.getElementById('mkNNewPlatform').value.trim();
   if (!name) return;
-  var container = document.getElementById("mkNCustomPlatforms");
-  var exists = Array.from(document.querySelectorAll("#mkNPlatforms input")).some(function(cb) { return cb.value === name; });
-  if (exists) { document.getElementById("mkNNewPlatform").value = ""; return; }
-  var lbl = document.createElement("label");
-  lbl.style.cssText = "display:flex;align-items:center;gap:4px;font-size:13px;font-weight:400;cursor:pointer;margin:0";
-  lbl.innerHTML = '<input type="checkbox" value="' + name + '" style="width:auto;padding:0" checked> ' + name + ' <button type="button" onclick="this.parentNode.remove()" style="border:none;background:none;cursor:pointer;color:var(--wn);font-size:11px;padding:0 2px">✕</button>';
-  container.appendChild(lbl);
-  document.getElementById("mkNNewPlatform").value = "";
+  var exists = Array.from(document.querySelectorAll('#mkNPlatforms .ptag')).some(function(el) { return el.dataset.value === name; });
+  if (exists) { document.getElementById('mkNNewPlatform').value = ''; return; }
+  var container = document.getElementById('mkNCustomPlatforms');
+  var span = document.createElement('span');
+  span.className = 'ptag on'; span.dataset.value = name;
+  span.onclick = function() { togglePtag(this); };
+  span.innerHTML = name + ' <button type="button" onclick="event.stopPropagation();this.parentNode.remove()" style="border:none;background:none;cursor:pointer;color:rgba(255,255,255,.8);font-size:10px;padding:0 2px">✕</button>';
+  container.appendChild(span);
+  document.getElementById('mkNNewPlatform').value = '';
 }
 
 
 function addCustomPlatform() {
   var name = document.getElementById('imNewPlatform').value.trim();
   if (!name) return;
-  var container = document.getElementById('imCustomPlatforms');
-  // 既に同名があればスキップ
-  var exists = Array.from(document.querySelectorAll('#imPlatforms input')).some(function(cb) { return cb.value === name; });
+  var exists = Array.from(document.querySelectorAll('#imPlatforms .ptag')).some(function(el) { return el.dataset.value === name; });
   if (exists) { document.getElementById('imNewPlatform').value = ''; return; }
-  var lbl = document.createElement('label');
-  lbl.style.cssText = 'display:flex;align-items:center;gap:4px;font-size:13px;font-weight:400;cursor:pointer;margin:0';
-  lbl.innerHTML = '<input type="checkbox" value="' + name + '" style="width:auto;padding:0" checked> ' + name + ' <button type="button" onclick="this.parentNode.remove()" style="border:none;background:none;cursor:pointer;color:var(--wn);font-size:11px;padding:0 2px">✕</button>';
-  container.appendChild(lbl);
+  var container = document.getElementById('imCustomPlatforms');
+  var span = document.createElement('span');
+  span.className = 'ptag on'; span.dataset.value = name;
+  span.onclick = function() { togglePtag(this); };
+  span.innerHTML = name + ' <button type="button" onclick="event.stopPropagation();this.parentNode.remove()" style="border:none;background:none;cursor:pointer;color:rgba(255,255,255,.8);font-size:10px;padding:0 2px">✕</button>';
+  container.appendChild(span);
   document.getElementById('imNewPlatform').value = '';
 }
 
@@ -2193,7 +2206,7 @@ async function saveItem() {
     brand: document.getElementById('imBrand').value.trim(),
     code: document.getElementById('imCode').value.trim(),
     memo: document.getElementById('imMemo').value.trim(),
-    platforms: Array.from(document.querySelectorAll('#imPlatforms input:checked')).map(function(cb) { return cb.value; }),
+    platforms: getPlatforms('imPlatforms'),
     recipe: recipe, photo: photoUrl || null
   };
   if (editId) {
@@ -2292,7 +2305,7 @@ function updImRC() {
 // ══════════════════════════════════════════════
 function setMkMode(mode) {
   mkMode = mode; mkRec = [];
-  if (mode === 'new') { document.querySelectorAll('#mkNPlatforms input').forEach(function(cb) { cb.checked = false; }); var mkNC = document.getElementById('mkNCustomPlatforms'); if(mkNC) mkNC.innerHTML = ''; }
+  if (mode === 'new') { document.querySelectorAll('#mkNPlatforms .ptag').forEach(function(el) { el.classList.remove('on'); }); var mkNC = document.getElementById('mkNCustomPlatforms'); if(mkNC) mkNC.innerHTML = ''; }
   document.getElementById('mkExist').classList.toggle('hidden', mode !== 'exist');
   document.getElementById('mkNew').classList.toggle('hidden', mode !== 'new');
   document.getElementById('mkExBtn').className = 'btn bsm ' + (mode === 'exist' ? 'bp' : 'bs');
@@ -2361,7 +2374,7 @@ async function recMake(memoOnly) {
     recipe = mkRec.filter(function(r) { return r.mid && r.qty > 0; });
     var ac = recipe.reduce(function(a, r) { var m = items.find(function(x) { return x.id === r.mid; }); return a + (m ? m.mc || 0 : 0) * r.qty; }, 0);
     var mkNMinOff = document.getElementById('mkNMinMode').value === 'off';
-    item = { id: uid(), type: 'product', name: name, cat: document.getElementById('mkNCat').value.trim(), unit: document.getElementById('mkNUnit').value.trim() || '個', stock: 0, min: mkNMinOff ? null : (parseInt(document.getElementById('mkNMin').value) ?? 3), sp: parseFloat(document.getElementById('mkNPrice').value) || 0, cost: Math.round(ac), mc: 0, sup: '', fw: 0, color: document.getElementById('mkNColor').value.trim(), brand: '', memo: '', platforms: Array.from(document.querySelectorAll('#mkNPlatforms input:checked')).map(function(cb) { return cb.value; }), recipe: recipe, photo: null };
+    item = { id: uid(), type: 'product', name: name, cat: document.getElementById('mkNCat').value.trim(), unit: document.getElementById('mkNUnit').value.trim() || '個', stock: 0, min: mkNMinOff ? null : (parseInt(document.getElementById('mkNMin').value) ?? 3), sp: parseFloat(document.getElementById('mkNPrice').value) || 0, cost: Math.round(ac), mc: 0, sup: '', fw: 0, color: document.getElementById('mkNColor').value.trim(), brand: '', memo: '', platforms: getPlatforms('mkNPlatforms'), recipe: recipe, photo: null };
     items.push(item); await svItem(item);
   } else {
     item = items.find(function(i) { return i.id === document.getElementById('mkProd').value; });
