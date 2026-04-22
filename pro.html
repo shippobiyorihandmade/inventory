@@ -1249,6 +1249,24 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
           <div><label>販売価格（円）</label><input type="number" id="imSP"></div>
           <div><label>原価（手動・レシピなし時）</label><input type="number" id="imCost" placeholder="レシピで自動計算"></div>
         </div>
+        <div class="fr" style="margin-bottom:8px">
+          <div>
+            <label>出品プラットフォーム（複数選択可）</label>
+            <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:4px" id="imPlatforms">
+              <label style="display:flex;align-items:center;gap:4px;font-size:13px;font-weight:400;cursor:pointer;margin:0"><input type="checkbox" value="minne" style="width:auto;padding:0"> minne</label>
+              <label style="display:flex;align-items:center;gap:4px;font-size:13px;font-weight:400;cursor:pointer;margin:0"><input type="checkbox" value="Creema" style="width:auto;padding:0"> Creema</label>
+              <label style="display:flex;align-items:center;gap:4px;font-size:13px;font-weight:400;cursor:pointer;margin:0"><input type="checkbox" value="BASE" style="width:auto;padding:0"> BASE</label>
+              <label style="display:flex;align-items:center;gap:4px;font-size:13px;font-weight:400;cursor:pointer;margin:0"><input type="checkbox" value="iichi" style="width:auto;padding:0"> iichi</label>
+              <label style="display:flex;align-items:center;gap:4px;font-size:13px;font-weight:400;cursor:pointer;margin:0"><input type="checkbox" value="マルシェ" style="width:auto;padding:0"> マルシェ</label>
+              <label style="display:flex;align-items:center;gap:4px;font-size:13px;font-weight:400;cursor:pointer;margin:0"><input type="checkbox" value="委託" style="width:auto;padding:0"> 委託</label>
+              <div id="imCustomPlatforms" style="display:contents"></div>
+            </div>
+            <div style="display:flex;gap:6px;margin-top:6px;align-items:center">
+              <input type="text" id="imNewPlatform" placeholder="カスタム追加..." style="flex:1;font-size:12px;padding:5px 8px">
+              <button type="button" class="btn bs bsm" onclick="addCustomPlatform()">＋</button>
+            </div>
+          </div>
+        </div>
         <div class="stl" style="margin-top:6px">🧾 材料レシピ（1点あたり）</div>
         <p class="ts tm" style="margin-bottom:8px">製作時に在庫を自動で引き、原価を自動計算します</p>
         <div id="imRL"></div>
@@ -2023,6 +2041,9 @@ function openIM(type) {
   document.getElementById('imTitle').textContent = type === 'product' ? '完成品を追加' : '材料を追加';
   document.getElementById('imType').value = type;
   ['imName', 'imCat', 'imMemo', 'imSup', 'imSP', 'imCost', 'imMC', 'imFW', 'imColor', 'imBrand', 'imCode'].forEach(function(id) { document.getElementById(id).value = ''; });
+  document.querySelectorAll('#imPlatforms input').forEach(function(cb) { cb.checked = false; });
+  document.getElementById('imCustomPlatforms').innerHTML = '';
+  document.getElementById('imNewPlatform').value = '';
   document.getElementById('imMinMode').value = 'on'; document.getElementById('imMin').style.display = 'block';
   document.getElementById('imUnit').value = type === 'product' ? '個' : '';
   document.getElementById('imStock').value = 0;
@@ -2046,6 +2067,21 @@ function editItem(id) {
   document.getElementById('imMin').style.display = minIsNull ? 'none' : 'block';
   document.getElementById('imSP').value = i.sp || '';
   document.getElementById('imCost').value = i.cost || '';
+  // プラットフォームのチェックを復元にゃ
+  document.getElementById('imCustomPlatforms').innerHTML = '';
+  if (i.platforms) {
+    var defaults = ['minne','Creema','BASE','iichi','マルシェ','委託'];
+    i.platforms.forEach(function(p) {
+      if (!defaults.includes(p)) {
+        var container = document.getElementById('imCustomPlatforms');
+        var lbl = document.createElement('label');
+        lbl.style.cssText = 'display:flex;align-items:center;gap:4px;font-size:13px;font-weight:400;cursor:pointer;margin:0';
+        lbl.innerHTML = '<input type="checkbox" value="' + p + '" style="width:auto;padding:0" checked> ' + p + ' <button type="button" onclick="this.parentNode.remove()" style="border:none;background:none;cursor:pointer;color:var(--wn);font-size:11px;padding:0 2px">✕</button>';
+        container.appendChild(lbl);
+      }
+    });
+  }
+  document.querySelectorAll('#imPlatforms input').forEach(function(cb) { cb.checked = i.platforms && i.platforms.includes(cb.value); });
   document.getElementById('imMC').value = i.mc || '';
   document.getElementById('imSup').value = i.sup || '';
   document.getElementById('imFW').value = i.fw || '';
@@ -2061,6 +2097,20 @@ function togImF() {
   document.getElementById('imProd').classList.toggle('hidden', t !== 'product');
   document.getElementById('imMat').classList.toggle('hidden', t !== 'material');
 }
+function addCustomPlatform() {
+  var name = document.getElementById('imNewPlatform').value.trim();
+  if (!name) return;
+  var container = document.getElementById('imCustomPlatforms');
+  // 既に同名があればスキップ
+  var exists = Array.from(document.querySelectorAll('#imPlatforms input')).some(function(cb) { return cb.value === name; });
+  if (exists) { document.getElementById('imNewPlatform').value = ''; return; }
+  var lbl = document.createElement('label');
+  lbl.style.cssText = 'display:flex;align-items:center;gap:4px;font-size:13px;font-weight:400;cursor:pointer;margin:0';
+  lbl.innerHTML = '<input type="checkbox" value="' + name + '" style="width:auto;padding:0" checked> ' + name + ' <button type="button" onclick="this.parentNode.remove()" style="border:none;background:none;cursor:pointer;color:var(--wn);font-size:11px;padding:0 2px">✕</button>';
+  container.appendChild(lbl);
+  document.getElementById('imNewPlatform').value = '';
+}
+
 async function saveItem() {
   var name = document.getElementById('imName').value.trim();
   if (!name) { alert('名前を入力してください'); return; }
@@ -2099,6 +2149,7 @@ async function saveItem() {
     brand: document.getElementById('imBrand').value.trim(),
     code: document.getElementById('imCode').value.trim(),
     memo: document.getElementById('imMemo').value.trim(),
+    platforms: Array.from(document.querySelectorAll('#imPlatforms input:checked')).map(function(cb) { return cb.value; }),
     recipe: recipe, photo: photoUrl || null
   };
   if (editId) {
@@ -2108,8 +2159,8 @@ async function saveItem() {
     items[idx] = obj;
   } else {
     // 件数制限チェックにゃ
-    var LIMIT_PRODUCT = 40;
-    var LIMIT_MATERIAL = 60;
+    var LIMIT_PRODUCT = 100;
+    var LIMIT_MATERIAL = 200;
     var currentCount = items.filter(function(x) { return x.type === type; }).length;
     var limit = type === 'product' ? LIMIT_PRODUCT : LIMIT_MATERIAL;
     var typeName = type === 'product' ? '完成品' : '材料';
@@ -2382,7 +2433,7 @@ async function recPurchase() {
     // 材料の件数制限チェックにゃ
     var matCount = items.filter(function(x) { return x.type === 'material'; }).length;
     if (matCount >= 60) {
-      alert('⚠️ 材料の登録件数が上限（60件）に達しています。\n不要な材料を削除してから追加してください。');
+      alert('⚠️ 材料の登録件数が上限（200件）に達しています。\n不要な材料を削除してから追加してください。');
       return;
     }
     item = { id: uid(), type: 'material', name: name, cat: cat, unit: nUnit, stock: 0, min: purNMinOff ? null : (parseInt(document.getElementById('purNMin').value) ?? 5), sp: 0, cost: 0, mc: unit, sup: sup, fw: parseFloat(document.getElementById('purNFW').value) || 0, color: nColor, brand: nBrand, code: code, memo: '', recipe: [], photo: null };
@@ -2582,6 +2633,20 @@ function updSalePrev() {
   var qty = parseInt(document.getElementById('saleQty').value) || 1;
   var el = document.getElementById('salePrev');
   if (!item) { el.innerHTML = ''; return; }
+  // 商品のプラットフォームで販売場所を絞り込むにゃ
+  var prevLoc = document.getElementById('saleLoc').value;
+  if (item.platforms && item.platforms.length > 0) {
+    var sel = document.getElementById('saleLoc');
+    var platformOpts = item.platforms.map(function(p) {
+      return '<option value="' + p + '"' + (p === prevLoc ? ' selected' : '') + '>' + p + '</option>';
+    });
+    // 手元も追加
+    var hasHandmoto = item.platforms.includes('🏠 手元（直接販売）');
+    if (!hasHandmoto) platformOpts.unshift('<option value="🏠 手元（直接販売）"' + ('🏠 手元（直接販売）' === prevLoc ? ' selected' : '') + '>🏠 手元（直接販売）</option>');
+    sel.innerHTML = platformOpts.join('');
+  } else {
+    buildLocSelect(prevLoc);
+  }
   var cost = calcCost(item);
   if (price && cost) { var p = (price - cost) * qty, m = Math.round((p / (price * qty)) * 100); el.innerHTML = '原価: ' + yen(cost) + ' x ' + qty + ' = ' + yen(cost * qty) + '  利益: <b style="color:' + (p > 0 ? 'var(--ac3)' : 'var(--wn)') + '">' + yen(p) + '</b>（' + m + '%）'; }
   else if (item.sp && !price) { el.innerHTML = '設定売価: ' + yen(item.sp); }
@@ -2600,11 +2665,21 @@ async function recSale() {
   var cost = calcCost(item);
   var saleObj = { id: uid(), itemId: item.id, itemName: item.name, qty: qty, price: price, total: price * qty, profit: (price - cost) * qty, date: date, memo: memo, loc: loc };
   sales.push(saleObj); await svSale(saleObj);
+  var prevStock = item.stock;
   item.stock = Math.max(0, item.stock - qty);
   addH(item.name, -qty, '販売（' + loc + (memo ? '・' + memo : '') + '）', item.stock);
   await svItem(item);
   document.getElementById('saleQty').value = 1; document.getElementById('salePrice').value = ''; document.getElementById('saleMemo').value = ''; buildLocSelect('🏠 手元（直接販売）');
-  rSales(); alert('販売を記録しました');
+  rSales();
+  // マルチプラットフォーム在庫変動通知にゃ
+  if (item.platforms && item.platforms.length > 0) {
+    var otherPlatforms = item.platforms.filter(function(p) { return p !== loc; });
+    if (otherPlatforms.length > 0) {
+      alert('📢 「' + item.name + '」の在庫が変わりました！\n在庫: ' + prevStock + ' → ' + item.stock + (item.unit || '個') + '\n\n以下のプラットフォームの在庫も更新してください：\n・' + otherPlatforms.join('\n・'));
+      return;
+    }
+  }
+  alert('販売を記録しました');
 }
 function renderSaleHist() {
   var month = document.getElementById('saleMF').value;
