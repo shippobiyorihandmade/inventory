@@ -2582,6 +2582,11 @@ function updSalePrev() {
   var qty = parseInt(document.getElementById('saleQty').value) || 1;
   var el = document.getElementById('salePrev');
   if (!item) { el.innerHTML = ''; return; }
+  // 販売単価を自動セットするにゃ（手動で変更済みの場合はそのまま）
+  if (item.sp && !document.getElementById('salePrice').value) {
+    document.getElementById('salePrice').value = item.sp;
+    price = item.sp;
+  }
   var cost = calcCost(item);
   if (price && cost) { var p = (price - cost) * qty, m = Math.round((p / (price * qty)) * 100); el.innerHTML = '原価: ' + yen(cost) + ' x ' + qty + ' = ' + yen(cost * qty) + '  利益: <b style="color:' + (p > 0 ? 'var(--ac3)' : 'var(--wn)') + '">' + yen(p) + '</b>（' + m + '%）'; }
   else if (item.sp && !price) { el.innerHTML = '設定売価: ' + yen(item.sp); }

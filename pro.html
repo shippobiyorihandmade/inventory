@@ -2691,6 +2691,11 @@ function updSalePrev() {
   var qty = parseInt(document.getElementById('saleQty').value) || 1;
   var el = document.getElementById('salePrev');
   if (!item) { el.innerHTML = ''; return; }
+  // 販売単価を自動セットするにゃ（手動で変更済みの場合はそのまま）
+  if (item.sp && !document.getElementById('salePrice').value) {
+    document.getElementById('salePrice').value = item.sp;
+    price = item.sp;
+  }
   // 商品のプラットフォームで販売場所を絞り込むにゃ
   var prevLoc = document.getElementById('saleLoc').value;
   if (item.platforms && item.platforms.length > 0) {
