@@ -2059,8 +2059,7 @@ function openIM(type) {
   document.getElementById('imTitle').textContent = type === 'product' ? '完成品を追加' : '材料を追加';
   document.getElementById('imType').value = type;
   ['imName', 'imCat', 'imMemo', 'imSup', 'imSP', 'imCost', 'imMC', 'imFW', 'imColor', 'imBrand', 'imCode'].forEach(function(id) { document.getElementById(id).value = ''; });
-  document.querySelectorAll('#imPlatforms .ptag').forEach(function(el) { el.classList.remove('on'); });
-  document.getElementById('imCustomPlatforms').innerHTML = '';
+  rebuildPlatformTags('imPlatforms', 'imCustomPlatforms', []);
   document.getElementById('imNewPlatform').value = '';
   document.getElementById('imMinMode').value = 'on'; document.getElementById('imMin').style.display = 'block';
   document.getElementById('imUnit').value = type === 'product' ? '個' : '';
@@ -2244,7 +2243,7 @@ function updImRC() {
 // ══════════════════════════════════════════════
 function setMkMode(mode) {
   mkMode = mode; mkRec = [];
-  if (mode === 'new') { document.querySelectorAll('#mkNPlatforms .ptag').forEach(function(el) { el.classList.remove('on'); }); var mkNC = document.getElementById('mkNCustomPlatforms'); if(mkNC) mkNC.innerHTML = ''; }
+  if (mode === 'new') { rebuildPlatformTags('mkNPlatforms', 'mkNCustomPlatforms', []); }
   document.getElementById('mkExist').classList.toggle('hidden', mode !== 'exist');
   document.getElementById('mkNew').classList.toggle('hidden', mode !== 'new');
   document.getElementById('mkExBtn').className = 'btn bsm ' + (mode === 'exist' ? 'bp' : 'bs');
