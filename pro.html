@@ -4086,17 +4086,21 @@ async function applyInvoiceToSales(date, invSalesTo) {
       ? line.consignDest
       : (invSalesTo || '請求書');
 
-    // 販売記録を追加
+    // 販売記録を追加（既存のrecSaleと同じキー構造で作るにゃ）
+    var cost = calcCost(item);
+    var total = line.qty * line.price;
+    var profit = (line.price - cost) * line.qty;
     var saleRec = {
       id: uid(),
-      item_id: item.id,
-      item_name: item.name,
+      itemId: item.id,
+      itemName: item.name,
       qty: line.qty,
       price: line.price,
-      platform: salesPlatform,
+      total: total,
+      profit: profit,
       date: date || tod(),
-      note: '請求書より自動登録',
-      created_at: new Date().toISOString()
+      memo: '請求書より自動登録',
+      loc: salesPlatform
     };
     sales.push(saleRec);
     await svSale(saleRec);
