@@ -939,7 +939,7 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
     <div class="ch">
       <span class="ct">📊 売上レポート</span>
       <div style="display:flex;gap:6px;align-items:center">
-        <button id="rptTabWeek" onclick="switchRptTab('week')" style="padding:5px 12px;border-radius:20px;border:none;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;background:var(--ac);color:#fff">週別</button>
+        <button id="rptTabWeek" onclick="switchRptTab('week')" style="padding:5px 12px;border-radius:20px;border:none;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;background:var(--ac);color:#fff">日別</button>
         <button id="rptTabMonth" onclick="switchRptTab('month')" style="padding:5px 12px;border-radius:20px;border:none;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;background:var(--sf2);color:var(--tx2)">月別</button>
       </div>
     </div>
@@ -964,7 +964,7 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
         </div>
         <!-- 週別棒グラフ -->
         <div style="margin-bottom:16px">
-          <div style="font-size:11px;font-weight:700;color:var(--tx2);margin-bottom:6px;letter-spacing:.05em">週別売上</div>
+          <div style="font-size:11px;font-weight:700;color:var(--tx2);margin-bottom:6px;letter-spacing:.05em">日別売上</div>
           <div style="overflow-x:auto">
             <canvas id="rptWeekChart" height="120" style="display:block;min-width:200px;width:100%"></canvas>
           </div>
@@ -3171,25 +3171,17 @@ function renderRptWeek() {
   setText('rptWRate',   rate + '%');
   setText('rptWCount',  totalCount + '点');
 
-  // 週に分割（第1週〜第5週）
+  // 日別データ
   var daysInMonth = new Date(y, m, 0).getDate();
-  var weeks = [];
-  var labels = [];
-  var weekNum = 1;
-  var weekStart = 1;
-  while (weekStart <= daysInMonth) {
-    var weekEnd = Math.min(weekStart + 6, daysInMonth);
-    var wSales = 0;
-    for (var d = weekStart; d <= weekEnd; d++) {
-      var ds = rptMonth + '-' + String(d).padStart(2,'0');
-      list.filter(function(s){return s.date===ds;}).forEach(function(s){wSales+=s.total||0;});
-    }
-    weeks.push(wSales);
-    labels.push('第' + weekNum + '週(' + weekStart + '〜' + weekEnd + ')');
-    weekNum++;
-    weekStart = weekEnd + 1;
+  var dayData = [];
+  var labels  = [];
+  for (var d = 1; d <= daysInMonth; d++) {
+    var ds = rptMonth + '-' + String(d).padStart(2,'0');
+    var v = list.filter(function(s){return s.date===ds;}).reduce(function(a,s){return a+(s.total||0);},0);
+    dayData.push(v);
+    labels.push(String(d));
   }
-  drawBarChart('rptWeekChart', weeks, labels, 'var(--ac)');
+  drawBarChart('rptWeekChart', dayData, labels, 'var(--ac)');
 
   renderRptPlatform(list, 'rptWPlatform', totalSales);
   renderRptRanking(list, 'rptWRanking');
@@ -3242,38 +3234,54 @@ function drawBarChart(canvasId, data, labels, color) {
   var canvas = document.getElementById(canvasId);
   if (!canvas) return;
   var W = canvas.parentElement.offsetWidth || 320;
-  canvas.width = W;
-  var H = canvas.height;
+  var H = 150;
+  var labelH = 18;
+  canvas.width  = W;
+  canvas.height = H;
   var ctx = canvas.getContext('2d');
   ctx.clearRect(0, 0, W, H);
-  var max = Math.max.apply(null, data) || 1;
-  var pad = 8, n = data.length;
-  var step = (W - pad * 2) / n;
-  var barW = Math.max(2, step * 0.6);
 
+  var max = Math.max.apply(null, data) || 1;
+  var n   = data.length;
+  var padX = 8, padTop = 8;
+  var chartH = H - padTop - labelH;
+  // 棒幅は最大60pxに制限
+  var slotW = (W - padX * 2) / n;
+  var barW  = Math.min(60, Math.max(4, slotW * 0.55));
+
+  // 目盛り線
   ctx.strokeStyle = '#e5ddd0'; ctx.lineWidth = 1;
-  for (var i = 0; i <= 4; i++) {
-    var y = pad + (H - pad*2 - 20) * (1 - i/4);
-    ctx.beginPath(); ctx.moveTo(pad, y); ctx.lineTo(W-pad, y); ctx.stroke();
+  for (var i = 0; i <= 3; i++) {
+    var gy = padTop + chartH * (1 - i / 3);
+    ctx.beginPath(); ctx.moveTo(padX, gy); ctx.lineTo(W - padX, gy); ctx.stroke();
   }
+
+  // 棒
   data.forEach(function(v, i) {
-    if (!v) return;
-    var bH = Math.max(2, (v/max)*(H-pad*2-20));
-    var x = pad + step*i + step/2 - barW/2;
-    var y = H - 20 - bH;
-    ctx.fillStyle = color;
-    if (ctx.roundRect) ctx.roundRect(x, y, barW, bH, [3,3,0,0]);
-    else ctx.rect(x, y, barW, bH);
-    ctx.fill();
+    var cx = padX + slotW * i + slotW / 2;
+    if (v > 0) {
+      var bH = Math.max(3, (v / max) * chartH);
+      var bx = cx - barW / 2;
+      var by = padTop + chartH - bH;
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      if (ctx.roundRect) ctx.roundRect(bx, by, barW, bH, [4, 4, 0, 0]);
+      else { ctx.moveTo(bx, by); ctx.lineTo(bx + barW, by); ctx.lineTo(bx + barW, by + bH); ctx.lineTo(bx, by + bH); ctx.closePath(); }
+      ctx.fill();
+      // 値ラベル
+      ctx.fillStyle = 'var(--ac)';
+      ctx.font = 'bold 10px sans-serif';
+      ctx.textAlign = 'center';
+      var valStr = v >= 10000 ? Math.round(v/1000) + 'k' : v >= 1000 ? (v/1000).toFixed(1) + 'k' : String(v);
+      ctx.fillText(valStr, cx, by - 3);
+    }
   });
+
+  // X軸ラベル
   ctx.fillStyle = '#7a6e60'; ctx.font = '10px sans-serif'; ctx.textAlign = 'center';
   labels.forEach(function(l, i) {
-    // 改行対応
-    var parts = l.split('\n');
-    var cx = pad + step*i + step/2;
-    parts.forEach(function(part, pi) {
-      ctx.fillText(part, cx, H - 8 + (pi - parts.length + 1) * 11);
-    });
+    var cx = padX + slotW * i + slotW / 2;
+    ctx.fillText(l, cx, H - 3);
   });
 }
 
