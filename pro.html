@@ -4074,7 +4074,7 @@ async function applyInvoiceToSales(date, invSalesTo) {
 
     // 販売記録を追加
     var saleRec = {
-      id: 'inv_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+      id: uid(),
       item_id: item.id,
       item_name: item.name,
       qty: line.qty,
@@ -4084,9 +4084,8 @@ async function applyInvoiceToSales(date, invSalesTo) {
       note: '請求書より自動登録',
       created_at: new Date().toISOString()
     };
-    try {
-      await sb.from('sales').insert([saleRec]);
-    } catch(e) {}
+    sales.push(saleRec);
+    await svSale(saleRec);
 
     addH(item.name, -line.qty, '請求書販売×' + line.qty + ' ' + (date || tod()), item.stock);
     await svItem(item);
