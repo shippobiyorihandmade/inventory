@@ -2102,46 +2102,10 @@ function togImF() {
   document.getElementById('imProd').classList.toggle('hidden', t !== 'product');
   document.getElementById('imMat').classList.toggle('hidden', t !== 'material');
 }
-function addMkNCustomPlatform() {
-  var name = document.getElementById('mkNNewPlatform').value.trim();
-  if (!name) return;
-  var container = document.getElementById('mkNCustomPlatforms');
-  var exists = Array.from(document.querySelectorAll('#mkNPlatforms input')).some(function(cb) { return cb.value === name; });
-  if (exists) { document.getElementById('mkNNewPlatform').value = ''; return; }
-  var lbl = document.createElement('label');
-  lbl.style.cssText = 'display:flex;align-items:center;gap:4px;font-size:13px;font-weight:400;cursor:pointer;margin:0';
-  lbl.innerHTML = '<input type="checkbox" value="' + name + '" style="width:auto;padding:0" checked> ' + name + ' <button type="button" onclick="this.parentNode.remove()" style="border:none;background:none;cursor:pointer;color:var(--wn);font-size:11px;padding:0 2px">✕</button>';
-  container.appendChild(lbl);
-  document.getElementById('mkNNewPlatform').value = '';
-}
-function addMkNCustomPlatform() {
-  var name = document.getElementById('mkNNewPlatform').value.trim();
-  if (!name) return;
-  var exists = Array.from(document.querySelectorAll('#mkNPlatforms .ptag')).some(function(el) { return el.dataset.value === name; });
-  if (exists) { document.getElementById('mkNNewPlatform').value = ''; return; }
-  var container = document.getElementById('mkNCustomPlatforms');
-  var span = document.createElement('span');
-  span.className = 'ptag on'; span.dataset.value = name;
-  span.onclick = function() { togglePtag(this); };
-  span.innerHTML = name + ' <button type="button" onclick="event.stopPropagation();this.parentNode.remove()" style="border:none;background:none;cursor:pointer;color:rgba(255,255,255,.8);font-size:10px;padding:0 2px">✕</button>';
-  container.appendChild(span);
-  document.getElementById('mkNNewPlatform').value = '';
-}
 
 
-function addCustomPlatform() {
-  var name = document.getElementById('imNewPlatform').value.trim();
-  if (!name) return;
-  var exists = Array.from(document.querySelectorAll('#imPlatforms .ptag')).some(function(el) { return el.dataset.value === name; });
-  if (exists) { document.getElementById('imNewPlatform').value = ''; return; }
-  var container = document.getElementById('imCustomPlatforms');
-  var span = document.createElement('span');
-  span.className = 'ptag on'; span.dataset.value = name;
-  span.onclick = function() { togglePtag(this); };
-  span.innerHTML = name + ' <button type="button" onclick="event.stopPropagation();this.parentNode.remove()" style="border:none;background:none;cursor:pointer;color:rgba(255,255,255,.8);font-size:10px;padding:0 2px">✕</button>';
-  container.appendChild(span);
-  document.getElementById('imNewPlatform').value = '';
-}
+
+
 
 async function saveItem() {
   var name = document.getElementById('imName').value.trim();
@@ -2572,7 +2536,106 @@ async function saveAdj() {
 
 // ══════════════════════════════════════════════
 // SALES
-// ── SALES LOCATIONS → platforms で統合管理にゃ ──
+// ── プラットフォーム管理 ──
+
+function getAllPlatforms() {
+  var all = DEFAULT_PLATFORMS.slice();
+  customPlatforms.forEach(function(p) { if (!all.includes(p.name)) all.push(p.name); });
+  return all;
+}
+
+function buildLocSelect(selectedVal) {
+  var sel = document.getElementById('saleLoc');
+  if (!sel) return;
+  var prev = selectedVal || sel.value || '🏠 手元（直接販売）';
+  var all = ['🏠 手元（直接販売）'].concat(getAllPlatforms());
+  sel.innerHTML = all.map(function(n) {
+    return '<option value="' + n + '"' + (n === prev ? ' selected' : '') + '>' + n + '</option>';
+  }).join('');
+}
+
+function togglePtag(el) { el.classList.toggle('on'); }
+
+function getPlatforms(containerId) {
+  return Array.from(document.querySelectorAll('#' + containerId + ' .ptag.on')).map(function(el) { return el.dataset.value; });
+}
+
+function rebuildPlatformTags(containerId, customContainerId, selectedValues) {
+  selectedValues = selectedValues || [];
+  document.querySelectorAll('#' + containerId + ' .ptag[data-default]').forEach(function(el) {
+    el.classList.toggle('on', selectedValues.includes(el.dataset.value));
+  });
+  var customContainer = document.getElementById(customContainerId);
+  if (!customContainer) return;
+  customContainer.innerHTML = '';
+  customPlatforms.forEach(function(p) {
+    var span = document.createElement('span');
+    span.className = 'ptag' + (selectedValues.includes(p.name) ? ' on' : '');
+    span.dataset.value = p.name;
+    span.onclick = function() { togglePtag(this); };
+    span.innerHTML = p.name;
+    customContainer.appendChild(span);
+  });
+}
+
+async function addCustomPlatformFromMgr() {
+  var name = document.getElementById('dlvDestNewName').value.trim();
+  if (!name) return;
+  if (getAllPlatforms().includes(name)) { alert('同じ名前がすでにあります'); return; }
+  var obj = { id: crypto.randomUUID ? crypto.randomUUID() : uid(), user_id: currentUser.id, name: name };
+  customPlatforms.push(obj);
+  try {
+    await fetch(SB_URL + '/rest/v1/platforms', { method: 'POST', headers: sbHeaders(), body: JSON.stringify({ id: obj.id, user_id: obj.user_id, name: obj.name }) });
+  } catch(e) { console.error(e); }
+  document.getElementById('dlvDestNewName').value = '';
+  openDlvDestMgr();
+  buildLocSelect();
+  rDeliveryPg();
+}
+
+async function delCustomPlatformFromMgr(id) {
+  if (!confirm('このプラットフォームを削除しますか？')) return;
+  customPlatforms = customPlatforms.filter(function(p) { return p.id !== id; });
+  try { await fetch(SB_URL + '/rest/v1/platforms?id=eq.' + id, { method: 'DELETE', headers: sbHeaders() }); } catch(e) { console.error(e); }
+  openDlvDestMgr();
+  buildLocSelect();
+  rDeliveryPg();
+}
+
+function openDlvDestMgr() {
+  var el = document.getElementById('dlvDestMgrList');
+  if (!customPlatforms.length) {
+    el.innerHTML = '<p class="ts tm">カスタムプラットフォームはまだありません。上から追加してください。</p>';
+  } else {
+    el.innerHTML = customPlatforms.map(function(p) {
+      return '<div class="ar"><span class="an fw7">✨ ' + p.name + '</span><button class="bi bdl" onclick="delCustomPlatformFromMgr(\'' + p.id + '\')">🗑</button></div>';
+    }).join('');
+  }
+  openMod('dlvDestMgrOv');
+}
+
+async function addCustomPlatform() {
+  var name = document.getElementById('imNewPlatform').value.trim();
+  if (!name) return;
+  if (getAllPlatforms().includes(name)) { alert('同じ名前がすでにあります'); return; }
+  var obj = { id: crypto.randomUUID ? crypto.randomUUID() : uid(), user_id: currentUser.id, name: name };
+  customPlatforms.push(obj);
+  try { await fetch(SB_URL + '/rest/v1/platforms', { method: 'POST', headers: sbHeaders(), body: JSON.stringify({ id: obj.id, user_id: obj.user_id, name: obj.name }) }); } catch(e) { console.error(e); }
+  document.getElementById('imNewPlatform').value = '';
+  rebuildPlatformTags('imPlatforms', 'imCustomPlatforms', getPlatforms('imPlatforms'));
+}
+
+async function addMkNCustomPlatform() {
+  var name = document.getElementById('mkNNewPlatform').value.trim();
+  if (!name) return;
+  if (getAllPlatforms().includes(name)) { alert('同じ名前がすでにあります'); return; }
+  var obj = { id: crypto.randomUUID ? crypto.randomUUID() : uid(), user_id: currentUser.id, name: name };
+  customPlatforms.push(obj);
+  try { await fetch(SB_URL + '/rest/v1/platforms', { method: 'POST', headers: sbHeaders(), body: JSON.stringify({ id: obj.id, user_id: obj.user_id, name: obj.name }) }); } catch(e) { console.error(e); }
+  document.getElementById('mkNNewPlatform').value = '';
+  rebuildPlatformTags('mkNPlatforms', 'mkNCustomPlatforms', getPlatforms('mkNPlatforms'));
+}
+
 function getSaleLoc() {
   return document.getElementById('saleLoc').value;
 }
