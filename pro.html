@@ -681,12 +681,9 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
             <div>
               <label>出品プラットフォーム（複数選択可）</label>
               <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px" id="mkNPlatforms">
-                <span class="ptag" data-value="minne" onclick="togglePtag(this)">minne</span>
-                <span class="ptag" data-value="Creema" onclick="togglePtag(this)">Creema</span>
-                <span class="ptag" data-value="BASE" onclick="togglePtag(this)">BASE</span>
-                <span class="ptag" data-value="iichi" onclick="togglePtag(this)">iichi</span>
-                <span class="ptag" data-value="マルシェ" onclick="togglePtag(this)">マルシェ</span>
-                <span class="ptag" data-value="委託" onclick="togglePtag(this)">委託</span>
+                <span class="ptag" data-value="BASE" data-default="1" onclick="togglePtag(this)">BASE</span>
+                <span class="ptag" data-value="minne" data-default="1" onclick="togglePtag(this)">minne</span>
+                <span class="ptag" data-value="Creema" data-default="1" onclick="togglePtag(this)">Creema</span>
                 <div id="mkNCustomPlatforms" style="display:contents"></div>
               </div>
               <div style="display:flex;gap:6px;margin-top:6px;align-items:center">
@@ -907,7 +904,7 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
       </div>
       <div class="fr c2">
         <div><label>販売場所
-          <button type="button" onclick="openLocMgr()" style="margin-left:8px;font-size:10px;padding:2px 8px;border-radius:20px;border:1px solid var(--bd);background:var(--sf2);cursor:pointer;font-family:inherit;color:var(--tx2)">⚙️ 管理</button>
+
         </label>
           <select id="saleLoc"></select>
         </div>
@@ -1009,7 +1006,9 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
     <div class="cb">
       <div class="fr c2">
         <div>
-          <label>納品先 *</label>
+          <label>納品先 *
+            <button type="button" onclick="openDlvDestMgr()" style="margin-left:8px;font-size:10px;padding:2px 8px;border-radius:20px;border:1px solid var(--bd);background:var(--sf2);cursor:pointer;font-family:inherit;color:var(--tx2)">⚙️ 管理</button>
+          </label>
           <select id="dlvDest"></select>
         </div>
         <div>
@@ -1195,23 +1194,23 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
   </div>
 </div>
 
-<!-- 販売場所管理モーダル -->
-<div class="ov" id="locMgrOv">
+<!-- 納品先管理モーダル -->
+<div class="ov" id="dlvDestMgrOv">
   <div class="md" style="max-width:400px">
     <div class="mh">
-      <span class="mt2">⚙️ 販売場所を管理</span>
-      <button class="bi" onclick="closeMod('locMgrOv')">✕</button>
+      <span class="mt2">⚙️ 納品先・プラットフォームを管理</span>
+      <button class="bi" onclick="closeMod('dlvDestMgrOv')">✕</button>
     </div>
     <div class="mb">
-      <p class="ts tm" style="margin-bottom:12px">よく使う販売場所を登録しておくと選択肢に表示されます。</p>
+      <p class="ts tm" style="margin-bottom:12px">委託先・マルシェなど追加のプラットフォームを登録できます。<br>販売記録・納品書の選択肢に反映されます。</p>
       <div style="display:flex;gap:7px;margin-bottom:14px">
-        <input type="text" id="locNewName" placeholder="例：BASE、〇〇マルシェ" style="flex:1;margin:0">
-        <button class="btn bg bsm" onclick="addLocation()">＋ 追加</button>
+        <input type="text" id="dlvDestNewName" placeholder="例：〇〇マルシェ、△△委託" style="flex:1;margin:0" onkeydown="if(event.key==='Enter')addCustomPlatformFromMgr()">
+        <button class="btn bg bsm" onclick="addCustomPlatformFromMgr()">＋ 追加</button>
       </div>
-      <div id="locMgrList"></div>
+      <div id="dlvDestMgrList"></div>
     </div>
     <div class="mft">
-      <button class="btn bs" onclick="closeMod('locMgrOv')">閉じる</button>
+      <button class="btn bs" onclick="closeMod('dlvDestMgrOv')">閉じる</button>
     </div>
   </div>
 </div>
@@ -1274,12 +1273,9 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
           <div>
             <label>出品プラットフォーム（複数選択可）</label>
             <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px" id="imPlatforms">
-              <span class="ptag" data-value="minne" onclick="togglePtag(this)">minne</span>
-              <span class="ptag" data-value="Creema" onclick="togglePtag(this)">Creema</span>
-              <span class="ptag" data-value="BASE" onclick="togglePtag(this)">BASE</span>
-              <span class="ptag" data-value="iichi" onclick="togglePtag(this)">iichi</span>
-              <span class="ptag" data-value="マルシェ" onclick="togglePtag(this)">マルシェ</span>
-              <span class="ptag" data-value="委託" onclick="togglePtag(this)">委託</span>
+              <span class="ptag" data-value="BASE" data-default="1" onclick="togglePtag(this)">BASE</span>
+              <span class="ptag" data-value="minne" data-default="1" onclick="togglePtag(this)">minne</span>
+              <span class="ptag" data-value="Creema" data-default="1" onclick="togglePtag(this)">Creema</span>
               <div id="imCustomPlatforms" style="display:contents"></div>
             </div>
             <div style="display:flex;gap:6px;margin-top:6px;align-items:center">
@@ -1531,7 +1527,8 @@ async function sbDelete(table, id) {
 // ══════════════════════════════════════════════
 // DATA
 // ══════════════════════════════════════════════
-var items = [], sales = [], hist = [], purch = [], makes = [], locs = [];
+var items = [], sales = [], hist = [], purch = [], makes = [], customPlatforms = [];
+var DEFAULT_PLATFORMS = ['BASE', 'minne', 'Creema'];
 var editId = null;
 var stCounts = {};
 var pendAdj = {};
@@ -1680,7 +1677,7 @@ async function loadAll() {
     hist  = await sbGet('history');
     purch = await sbGet('purchases');
     makes = await sbGet('makes');
-    locs  = await sbGetDirect('locations');
+    customPlatforms = await sbGetDirect('platforms');
     await loadProfile();
     setSyncing('ok');
     // 現在開いてるページを再描画するにゃ（ダッシュボードに強制移動しない）
@@ -2089,23 +2086,7 @@ function editItem(id) {
   document.getElementById('imSP').value = i.sp || '';
   document.getElementById('imCost').value = i.cost || '';
   // プラットフォームのタグを復元にゃ
-  document.getElementById('imCustomPlatforms').innerHTML = '';
-  document.querySelectorAll('#imPlatforms .ptag').forEach(function(el) { el.classList.remove('on'); });
-  if (i.platforms) {
-    var defaults = ['minne','Creema','BASE','iichi','マルシェ','委託'];
-    i.platforms.forEach(function(p) {
-      var existing = document.querySelector('#imPlatforms .ptag[data-value="' + p + '"]');
-      if (existing) { existing.classList.add('on'); }
-      else {
-        var container = document.getElementById('imCustomPlatforms');
-        var span = document.createElement('span');
-        span.className = 'ptag on'; span.dataset.value = p;
-        span.onclick = function() { togglePtag(this); };
-        span.innerHTML = p + ' <button type="button" onclick="event.stopPropagation();this.parentNode.remove()" style="border:none;background:none;cursor:pointer;color:rgba(255,255,255,.8);font-size:10px;padding:0 2px">✕</button>';
-        container.appendChild(span);
-      }
-    });
-  }
+  rebuildPlatformTags('imPlatforms', 'imCustomPlatforms', i.platforms || []);
   document.getElementById('imMC').value = i.mc || '';
   document.getElementById('imSup').value = i.sup || '';
   document.getElementById('imFW').value = i.fw || '';
@@ -2121,12 +2102,6 @@ function togImF() {
   document.getElementById('imProd').classList.toggle('hidden', t !== 'product');
   document.getElementById('imMat').classList.toggle('hidden', t !== 'material');
 }
-function togglePtag(el) { el.classList.toggle('on'); }
-
-function getPlatforms(containerId) {
-  return Array.from(document.querySelectorAll('#' + containerId + ' .ptag.on')).map(function(el) { return el.dataset.value; });
-}
-
 function addMkNCustomPlatform() {
   var name = document.getElementById('mkNNewPlatform').value.trim();
   if (!name) return;
@@ -2597,79 +2572,7 @@ async function saveAdj() {
 
 // ══════════════════════════════════════════════
 // SALES
-// ══════════════════════════════════════════════
-// ══════════════════════════════════════════════
-// SALES LOCATIONS
-// ══════════════════════════════════════════════
-var DEFAULT_LOCS = [
-  { id: 'hand',    name: '🏠 手元（直接販売）' },
-  { id: 'consign', name: '🏪 委託' },
-  { id: 'minne',   name: '💻 minne' },
-  { id: 'creema',  name: '💻 Creema' },
-  { id: 'netother',name: '📱 ネットその他' },
-  { id: 'marche',  name: '⛺ マルシェ' },
-  { id: 'other',   name: '… その他' },
-];
-
-function buildLocSelect(selectedVal) {
-  var sel = document.getElementById('saleLoc');
-  if (!sel) return;
-  var prev = selectedVal || sel.value || '🏠 手元（直接販売）';
-  var opts = DEFAULT_LOCS.map(function(l) {
-    return '<option value="' + l.name + '"' + (l.name === prev ? ' selected' : '') + '>' + l.name + '</option>';
-  });
-  locs.forEach(function(l) {
-    opts.push('<option value="' + l.name + '"' + (l.name === prev ? ' selected' : '') + '>✨ ' + l.name + '</option>');
-  });
-  sel.innerHTML = opts.join('');
-}
-
-function openLocMgr() {
-  renderLocMgrList();
-  openMod('locMgrOv');
-}
-
-function renderLocMgrList() {
-  var el = document.getElementById('locMgrList');
-  if (!locs.length) {
-    el.innerHTML = '<p class="ts tm">カスタムの販売場所はまだありません。上から追加してください。</p>';
-    return;
-  }
-  el.innerHTML = locs.map(function(l) {
-    return '<div class="ar"><span class="an fw7">✨ ' + l.name + '</span><button class="bi bdl" onclick="delLocation(\'' + l.id + '\')">🗑</button></div>';
-  }).join('');
-}
-
-async function addLocation() {
-  var name = document.getElementById('locNewName').value.trim();
-  if (!name) { alert('販売場所名を入力してください'); return; }
-  if (locs.find(function(l) { return l.name === name; })) { alert('同じ名前がすでにあります'); return; }
-  // locationsテーブルはUUID型が必要なのでcrypto.randomUUIDを使うにゃ
-  var newId = crypto.randomUUID ? crypto.randomUUID() : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) { var r = Math.random() * 16 | 0; return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16); });
-  var obj = { id: newId, name: name, user_id: currentUser ? currentUser.id : null };
-  locs.push(obj);
-  setSyncing('syncing');
-  try {
-    await fetch(SB_URL + '/rest/v1/locations', {
-      method: 'POST',
-      headers: sbHeaders(),
-      body: JSON.stringify({ id: obj.id, user_id: obj.user_id, name: obj.name })
-    });
-    setSyncing('ok');
-  } catch(e) { setSyncing('error'); console.error(e); }
-  document.getElementById('locNewName').value = '';
-  buildLocSelect();
-  renderLocMgrList();
-}
-
-async function delLocation(id) {
-  if (!confirm('この販売場所を削除しますか？')) return;
-  locs = locs.filter(function(l) { return l.id !== id; });
-  try { await sbDelete('locations', id); } catch(e) { console.error(e); }
-  buildLocSelect();
-  renderLocMgrList();
-}
-
+// ── SALES LOCATIONS → platforms で統合管理にゃ ──
 function getSaleLoc() {
   return document.getElementById('saleLoc').value;
 }
@@ -2699,14 +2602,10 @@ function updSalePrev() {
   // 商品のプラットフォームで販売場所を絞り込むにゃ
   var prevLoc = document.getElementById('saleLoc').value;
   if (item.platforms && item.platforms.length > 0) {
-    var sel = document.getElementById('saleLoc');
-    var platformOpts = item.platforms.map(function(p) {
+    var pOpts = ['🏠 手元（直接販売）'].concat(item.platforms);
+    document.getElementById('saleLoc').innerHTML = pOpts.map(function(p) {
       return '<option value="' + p + '"' + (p === prevLoc ? ' selected' : '') + '>' + p + '</option>';
-    });
-    // 手元も追加
-    var hasHandmoto = item.platforms.includes('🏠 手元（直接販売）');
-    if (!hasHandmoto) platformOpts.unshift('<option value="🏠 手元（直接販売）"' + ('🏠 手元（直接販売）' === prevLoc ? ' selected' : '') + '>🏠 手元（直接販売）</option>');
-    sel.innerHTML = platformOpts.join('');
+    }).join('');
   } else {
     buildLocSelect(prevLoc);
   }
@@ -3099,18 +2998,15 @@ function init() {
 var dlvLines = []; // { itemId, qty, price }
 
 function rDeliveryPg() {
-  // 納品先セレクト構築
-  var sel = document.getElementById('dlvDest');
-  var prev = sel ? sel.value : '';
-  var destOpts = DEFAULT_LOCS.filter(function(l) {
-    return l.id !== 'hand' && l.id !== 'minne' && l.id !== 'creema' && l.id !== 'netother';
-  }).map(function(l) {
-    return '<option value="' + l.name + '"' + (l.name === prev ? ' selected' : '') + '>' + l.name + '</option>';
-  });
-  locs.forEach(function(l) {
-    destOpts.push('<option value="' + l.name + '"' + (l.name === prev ? ' selected' : '') + '>✨ ' + l.name + '</option>');
-  });
-  if (sel) sel.innerHTML = destOpts.join('');
+  // 納品先セレクト構築（全プラットフォームを表示にゃ）
+  var dlvSel = document.getElementById('dlvDest');
+  if (dlvSel) {
+    var prev = dlvSel.value;
+    var all = getAllPlatforms();
+    dlvSel.innerHTML = all.length ? all.map(function(n) {
+      return '<option value="' + n + '"' + (n === prev ? ' selected' : '') + '>' + n + '</option>';
+    }).join('') : '<option value="">プラットフォームを追加してください</option>';
+  }
   if (!document.getElementById('dlvDate').value) dpSet('dlvDate', tod());
   if (!document.getElementById('retDate').value) dpSet('retDate', tod());
   renderDlvLines();
