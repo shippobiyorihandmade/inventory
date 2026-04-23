@@ -2092,7 +2092,7 @@ function openIM(type) {
   ['imName', 'imCat', 'imMemo', 'imSup', 'imSP', 'imCost', 'imMC', 'imFW', 'imColor', 'imBrand', 'imCode'].forEach(function(id) { document.getElementById(id).value = ''; });
   rebuildPlatformTags('imPlatforms', 'imCustomPlatforms', [], true);
   document.getElementById('imNewPlatform').value = '';
-  renderImAddonArea();
+  renderImAddonArea(costAddons.filter(function(a){return a.is_active;}).map(function(a){return a.id;}));
   document.getElementById('imMinMode').value = 'on'; document.getElementById('imMin').style.display = 'block';
   document.getElementById('imUnit').value = type === 'product' ? '個' : '';
   document.getElementById('imStock').value = 0;
@@ -2126,7 +2126,7 @@ function editItem(id) {
   document.getElementById('imCode').value = i.code || '';
   document.getElementById('imMemo').value = i.memo || '';
   if (i.photo) { showPhotoPreview(i.photo); } else { resetPhotoUI(); }
-  renderImAddonArea();
+  renderImAddonArea(i.addon_ids || []);
   togImF(); rImRL(); openMod('itemOv');
 }
 function togImF() {
@@ -2177,6 +2177,7 @@ async function saveItem() {
     brand: document.getElementById('imBrand').value.trim(),
     code: document.getElementById('imCode').value.trim(),
     memo: document.getElementById('imMemo').value.trim(),
+    addon_ids: getImAddonIds(),
     platforms: getPlatforms('imPlatforms'),
     recipe: recipe, photo: photoUrl || null
   };
@@ -2341,21 +2342,42 @@ function renderAddonSummary() {
   el.innerHTML = '<p class="ts" style="margin:0">✅ 原価追加中：' + actives.map(function(a) { return '<b>' + a.name + '</b>（¥' + Math.round(a.unit_cost * a.qty) + '/点）'; }).join('・') + '</p>';
 }
 
-function renderImAddonArea() {
+function renderImAddonArea(addonIds) {
   var el = document.getElementById('imAddonArea');
   if (!el) return;
   if (!costAddons.length) { el.innerHTML = ''; return; }
+  // 現在の選択状態を取得（引数がある場合はそれを使う）
+  if (addonIds !== undefined) { el.dataset.addonIds = JSON.stringify(addonIds); }
+  var currentIds = JSON.parse(el.dataset.addonIds || '[]');
   el.innerHTML = '<div style="padding:8px 10px;background:var(--sf2);border-radius:8px;margin-top:2px">'
     + '<div style="font-size:12px;font-weight:700;color:var(--tx2);margin-bottom:6px">🧮 原価追加項目（ON/OFFで個別設定）</div>'
     + costAddons.map(function(a) {
-        var badge = a.is_active
-          ? '<span style="font-size:10px;background:var(--ac);color:#fff;padding:2px 8px;border-radius:10px;cursor:pointer;font-weight:700" onclick="toggleAddon(\'' + a.id + '\');renderImAddonArea()">ON</span>'
-          : '<span style="font-size:10px;background:var(--sf);color:var(--tx2);padding:2px 8px;border-radius:10px;border:1px solid var(--bd);cursor:pointer;font-weight:700" onclick="toggleAddon(\'' + a.id + '\');renderImAddonArea()">OFF</span>';
+        var isOn = currentIds.includes(a.id);
+        var badge = isOn
+          ? '<span style="font-size:10px;background:var(--ac);color:#fff;padding:2px 8px;border-radius:10px;cursor:pointer;font-weight:700" onclick="toggleImAddon(\'' + a.id + '\')">ON</span>'
+          : '<span style="font-size:10px;background:var(--sf);color:var(--tx2);padding:2px 8px;border-radius:10px;border:1px solid var(--bd);cursor:pointer;font-weight:700" onclick="toggleImAddon(\'' + a.id + '\')">OFF</span>';
         return '<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">'
           + '<span style="flex:1;font-size:12px">' + a.name + ' <span class="ts tm">¥' + Math.round(a.unit_cost * a.qty) + '/点</span></span>'
           + badge + '</div>';
       }).join('')
     + '</div>';
+}
+
+function toggleImAddon(id) {
+  var el = document.getElementById('imAddonArea');
+  var currentIds = JSON.parse(el.dataset.addonIds || '[]');
+  if (currentIds.includes(id)) {
+    currentIds = currentIds.filter(function(x) { return x !== id; });
+  } else {
+    currentIds.push(id);
+  }
+  el.dataset.addonIds = JSON.stringify(currentIds);
+  renderImAddonArea();
+}
+
+function getImAddonIds() {
+  var el = document.getElementById('imAddonArea');
+  return el ? JSON.parse(el.dataset.addonIds || '[]') : [];
 }
 
 async function addCostAddon() {
@@ -2396,8 +2418,12 @@ async function delCostAddon(id) {
   renderAddonList();
 }
 
-function calcAddonCost(qty) {
-  return costAddons.filter(function(a) { return a.is_active; }).reduce(function(sum, a) {
+function calcAddonCost(qty, addonIds) {
+  // addonIdsが指定されてる場合はそれを使う、なければis_activeで判断（製作記録の設定画面用）
+  var targets = addonIds !== undefined
+    ? costAddons.filter(function(a) { return addonIds.includes(a.id); })
+    : costAddons.filter(function(a) { return a.is_active; });
+  return targets.reduce(function(sum, a) {
     return sum + Math.round(a.unit_cost * a.qty) * qty;
   }, 0);
 }
@@ -2428,10 +2454,11 @@ function onMkProdChange() {
     return '<div class="rl"><span style="flex:1;font-size:13px;font-weight:500">' + mat.name + '</span><span class="mn" style="min-width:90px">' + r.qty + '/個 × ' + qty + ' = <b>' + use + '</b> ' + (mat.unit || '個') + '</span><span class="ts" style="min-width:58px;color:' + (short ? 'var(--wn)' : 'var(--tx2)') + '">在庫:' + mat.stock + (short ? ' ⚠' : '') + '</span><span class="mn ts" style="min-width:58px;text-align:right">' + (mat.mc ? yen(Math.round(lc)) : '—') + '</span></div>';
   }).join('');
   prev.innerHTML = '<div style="padding:11px;background:var(--sf2);border-radius:8px"><div class="stl" style="margin-bottom:7px">使用する材料（合計 ' + qty + '点分）</div>' + rows + '</div>';
-  var addonTotal = calcAddonCost(qty);
+  var addonTotal = calcAddonCost(qty, item && item.addon_ids !== undefined ? item.addon_ids : undefined);
   var addonText = '';
   if (addonTotal > 0) {
-    var actives = costAddons.filter(function(a) { return a.is_active; });
+    var _addonIds = item && item.addon_ids !== undefined ? item.addon_ids : costAddons.filter(function(a){return a.is_active;}).map(function(a){return a.id;});
+    var actives = costAddons.filter(function(a) { return _addonIds.includes(a.id); });
     addonText = '<div style="margin-top:5px;font-size:12px;color:var(--tx2)">🧮 原価追加：' + actives.map(function(a) { return a.name + ' ¥' + (Math.round(a.unit_cost * a.qty) * qty); }).join('・') + '　合計: <b style="color:var(--ac3)">¥' + addonTotal + '</b></div>';
   }
   var grandTotal = Math.round(tot) + addonTotal;
@@ -2449,8 +2476,9 @@ async function recMake(memoOnly) {
     recipe = mkRec.filter(function(r) { return r.mid && r.qty > 0; });
     var ac = recipe.reduce(function(a, r) { var m = items.find(function(x) { return x.id === r.mid; }); return a + (m ? m.mc || 0 : 0) * r.qty; }, 0);
     var mkNMinOff = document.getElementById('mkNMinMode').value === 'off';
-    var mkAddonCostPer1 = costAddons.filter(function(a) { return a.is_active; }).reduce(function(s, a) { return s + Math.round(a.unit_cost * a.qty); }, 0);
-    item = { id: uid(), type: 'product', name: name, cat: document.getElementById('mkNCat').value.trim(), unit: document.getElementById('mkNUnit').value.trim() || '個', stock: 0, min: mkNMinOff ? null : (parseInt(document.getElementById('mkNMin').value) ?? 3), sp: parseFloat(document.getElementById('mkNPrice').value) || 0, cost: Math.round(ac) + mkAddonCostPer1, mc: 0, sup: '', fw: 0, color: document.getElementById('mkNColor').value.trim(), brand: '', memo: '', platforms: getPlatforms('mkNPlatforms'), recipe: recipe, photo: null };
+    var _mkAddonIds = getImAddonIds !== undefined ? (document.getElementById('imAddonArea') ? getImAddonIds() : costAddons.filter(function(a){return a.is_active;}).map(function(a){return a.id;})) : [];
+    var mkAddonCostPer1 = calcAddonCost(1, _mkAddonIds);
+    item = { id: uid(), type: 'product', name: name, cat: document.getElementById('mkNCat').value.trim(), unit: document.getElementById('mkNUnit').value.trim() || '個', stock: 0, min: mkNMinOff ? null : (parseInt(document.getElementById('mkNMin').value) ?? 3), sp: parseFloat(document.getElementById('mkNPrice').value) || 0, cost: Math.round(ac) + mkAddonCostPer1, mc: 0, sup: '', fw: 0, color: document.getElementById('mkNColor').value.trim(), brand: '', memo: '', addon_ids: _mkAddonIds, platforms: getPlatforms('mkNPlatforms'), recipe: recipe, photo: null };
     items.push(item); await svItem(item);
   } else {
     item = items.find(function(i) { return i.id === document.getElementById('mkProd').value; });
