@@ -934,6 +934,91 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
       <button class="btn bp m8" onclick="recSale()">💴 販売を記録</button>
     </div>
   </div>
+  <!-- 売上レポート -->
+  <div class="card">
+    <div class="ch">
+      <span class="ct">📊 売上レポート</span>
+      <div style="display:flex;gap:6px;align-items:center">
+        <button id="rptTabMonth" onclick="switchRptTab('month')" style="padding:5px 12px;border-radius:20px;border:none;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;background:var(--ac);color:#fff">月別</button>
+        <button id="rptTabYear" onclick="switchRptTab('year')" style="padding:5px 12px;border-radius:20px;border:none;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;background:var(--sf2);color:var(--tx2)">年別</button>
+      </div>
+    </div>
+    <div class="cb">
+
+      <!-- 月別レポート -->
+      <div id="rptSec-month">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+          <div style="display:flex;align-items:center;gap:4px">
+            <button onclick="rptMonthMv(-1)" style="width:28px;height:28px;border:1px solid var(--bd);border-radius:6px;background:var(--sf2);cursor:pointer;font-size:14px">❮</button>
+            <span id="rptMonthLbl" style="font-size:14px;font-weight:700;min-width:90px;text-align:center"></span>
+            <button onclick="rptMonthMv(1)" style="width:28px;height:28px;border:1px solid var(--bd);border-radius:6px;background:var(--sf2);cursor:pointer;font-size:14px">❯</button>
+          </div>
+          <button onclick="rptMonthToday()" style="font-size:11px;padding:4px 10px;border-radius:20px;border:1px solid var(--bd);background:var(--sf2);cursor:pointer;font-family:inherit;color:var(--tx2)">今月</button>
+        </div>
+        <!-- サマリー数字 -->
+        <div class="ss" style="margin-bottom:14px">
+          <div class="sc"><span class="snum" id="rptMSales">¥0</span><span class="sl">売上合計</span></div>
+          <div class="sc"><span class="snum" id="rptMProfit" style="color:var(--ac3)">¥0</span><span class="sl">利益合計</span></div>
+          <div class="sc"><span class="snum" id="rptMRate">0%</span><span class="sl">利益率</span></div>
+          <div class="sc"><span class="snum" id="rptMCount">0</span><span class="sl">販売点数</span></div>
+        </div>
+        <!-- 日別棒グラフ -->
+        <div style="margin-bottom:16px">
+          <div style="font-size:11px;font-weight:700;color:var(--tx2);margin-bottom:6px;letter-spacing:.05em">日別売上</div>
+          <div style="overflow-x:auto">
+            <canvas id="rptMonthChart" height="120" style="display:block;min-width:300px;width:100%"></canvas>
+          </div>
+        </div>
+        <!-- プラットフォーム別 -->
+        <div style="margin-bottom:16px">
+          <div style="font-size:11px;font-weight:700;color:var(--tx2);margin-bottom:8px;letter-spacing:.05em">販売場所別</div>
+          <div id="rptMPlatform"></div>
+        </div>
+        <!-- 商品ランキング -->
+        <div>
+          <div style="font-size:11px;font-weight:700;color:var(--tx2);margin-bottom:8px;letter-spacing:.05em">商品別売上ランキング</div>
+          <div id="rptMRanking"></div>
+        </div>
+      </div>
+
+      <!-- 年別レポート -->
+      <div id="rptSec-year" style="display:none">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+          <div style="display:flex;align-items:center;gap:4px">
+            <button onclick="rptYearMv(-1)" style="width:28px;height:28px;border:1px solid var(--bd);border-radius:6px;background:var(--sf2);cursor:pointer;font-size:14px">❮</button>
+            <span id="rptYearLbl" style="font-size:14px;font-weight:700;min-width:60px;text-align:center"></span>
+            <button onclick="rptYearMv(1)" style="width:28px;height:28px;border:1px solid var(--bd);border-radius:6px;background:var(--sf2);cursor:pointer;font-size:14px">❯</button>
+          </div>
+        </div>
+        <!-- 年間サマリー -->
+        <div class="ss" style="margin-bottom:14px">
+          <div class="sc"><span class="snum" id="rptYSales">¥0</span><span class="sl">年間売上</span></div>
+          <div class="sc"><span class="snum" id="rptYProfit" style="color:var(--ac3)">¥0</span><span class="sl">年間利益</span></div>
+          <div class="sc"><span class="snum" id="rptYRate">0%</span><span class="sl">利益率</span></div>
+          <div class="sc"><span class="snum" id="rptYCount">0</span><span class="sl">販売点数</span></div>
+        </div>
+        <!-- 月別推移グラフ -->
+        <div style="margin-bottom:16px">
+          <div style="font-size:11px;font-weight:700;color:var(--tx2);margin-bottom:6px;letter-spacing:.05em">月別推移</div>
+          <div style="overflow-x:auto">
+            <canvas id="rptYearChart" height="140" style="display:block;min-width:300px;width:100%"></canvas>
+          </div>
+        </div>
+        <!-- プラットフォーム別 -->
+        <div style="margin-bottom:16px">
+          <div style="font-size:11px;font-weight:700;color:var(--tx2);margin-bottom:8px;letter-spacing:.05em">販売場所別</div>
+          <div id="rptYPlatform"></div>
+        </div>
+        <!-- 商品ランキング -->
+        <div>
+          <div style="font-size:11px;font-weight:700;color:var(--tx2);margin-bottom:8px;letter-spacing:.05em">商品別売上ランキング</div>
+          <div id="rptYRanking"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
   <div class="card">
     <div class="ch">
       <span class="ct">📈 販売履歴</span>
@@ -3031,6 +3116,267 @@ function getSaleLoc() {
 // ══════════════════════════════════════════════
 // SALES
 // ══════════════════════════════════════════════
+// ══════════════════════════════════════════════
+// 売上レポート
+// ══════════════════════════════════════════════
+var rptMonth = ''; // YYYY-MM
+var rptYear  = 0;
+var rptCurrentTab = 'month';
+
+function initRpt() {
+  var now = new Date();
+  rptMonth = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
+  rptYear  = now.getFullYear();
+}
+
+function switchRptTab(tab) {
+  rptCurrentTab = tab;
+  ['month','year'].forEach(function(t) {
+    var sec = document.getElementById('rptSec-' + t);
+    var btn = document.getElementById('rptTab' + (t === 'month' ? 'Month' : 'Year'));
+    if (!sec || !btn) return;
+    sec.style.display = t === tab ? '' : 'none';
+    btn.style.background = t === tab ? 'var(--ac)' : 'var(--sf2)';
+    btn.style.color = t === tab ? '#fff' : 'var(--tx2)';
+  });
+  renderRpt();
+}
+
+function rptMonthMv(d) {
+  var p = rptMonth.split('-');
+  var y = parseInt(p[0]), m = parseInt(p[1]) - 1 + d;
+  if (m > 11) { m = 0; y++; } if (m < 0) { m = 11; y--; }
+  rptMonth = y + '-' + String(m + 1).padStart(2, '0');
+  renderRptMonth();
+}
+function rptMonthToday() {
+  var now = new Date();
+  rptMonth = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
+  renderRptMonth();
+}
+function rptYearMv(d) { rptYear += d; renderRptYear(); }
+
+function renderRpt() {
+  if (rptCurrentTab === 'month') renderRptMonth();
+  else renderRptYear();
+}
+
+function renderRptMonth() {
+  if (!rptMonth) initRpt();
+  var p = rptMonth.split('-');
+  var lbl = document.getElementById('rptMonthLbl');
+  if (lbl) lbl.textContent = p[0] + '年' + parseInt(p[1]) + '月';
+
+  var list = sales.filter(function(s) { return s.date && s.date.startsWith(rptMonth); });
+
+  // サマリー
+  var totalSales  = list.reduce(function(a, s) { return a + (s.total  || 0); }, 0);
+  var totalProfit = list.reduce(function(a, s) { return a + (s.profit || 0); }, 0);
+  var totalCount  = list.reduce(function(a, s) { return a + (s.qty   || 0); }, 0);
+  var rate = totalSales > 0 ? Math.round((totalProfit / totalSales) * 100) : 0;
+  setText('rptMSales',  yen(totalSales));
+  setText('rptMProfit', yen(totalProfit));
+  setText('rptMRate',   rate + '%');
+  setText('rptMCount',  totalCount + '点');
+
+  // 日別棒グラフ
+  var daysInMonth = new Date(parseInt(p[0]), parseInt(p[1]), 0).getDate();
+  var dayData = [];
+  for (var d = 1; d <= daysInMonth; d++) {
+    var ds = rptMonth + '-' + String(d).padStart(2, '0');
+    var daySales = list.filter(function(s) { return s.date === ds; })
+                       .reduce(function(a, s) { return a + (s.total || 0); }, 0);
+    dayData.push(daySales);
+  }
+  drawBarChart('rptMonthChart', dayData, Array.from({length: daysInMonth}, function(_, i) { return String(i + 1); }), 'var(--ac)');
+
+  // プラットフォーム別
+  renderRptPlatform(list, 'rptMPlatform', totalSales);
+  // 商品ランキング
+  renderRptRanking(list, 'rptMRanking');
+}
+
+function renderRptYear() {
+  if (!rptYear) initRpt();
+  var lbl = document.getElementById('rptYearLbl');
+  if (lbl) lbl.textContent = rptYear + '年';
+
+  var list = sales.filter(function(s) { return s.date && s.date.startsWith(String(rptYear)); });
+
+  // サマリー
+  var totalSales  = list.reduce(function(a, s) { return a + (s.total  || 0); }, 0);
+  var totalProfit = list.reduce(function(a, s) { return a + (s.profit || 0); }, 0);
+  var totalCount  = list.reduce(function(a, s) { return a + (s.qty   || 0); }, 0);
+  var rate = totalSales > 0 ? Math.round((totalProfit / totalSales) * 100) : 0;
+  setText('rptYSales',  yen(totalSales));
+  setText('rptYProfit', yen(totalProfit));
+  setText('rptYRate',   rate + '%');
+  setText('rptYCount',  totalCount + '点');
+
+  // 月別棒グラフ（売上・利益2系列）
+  var months = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
+  var salesData  = [];
+  var profitData = [];
+  for (var m = 1; m <= 12; m++) {
+    var ms = String(rptYear) + '-' + String(m).padStart(2, '0');
+    var mList = list.filter(function(s) { return s.date && s.date.startsWith(ms); });
+    salesData.push(mList.reduce(function(a, s) { return a + (s.total || 0); }, 0));
+    profitData.push(mList.reduce(function(a, s) { return a + (s.profit || 0); }, 0));
+  }
+  drawDoubleBarChart('rptYearChart', salesData, profitData, months);
+
+  // プラットフォーム別
+  renderRptPlatform(list, 'rptYPlatform', totalSales);
+  // 商品ランキング
+  renderRptRanking(list, 'rptYRanking');
+}
+
+function setText(id, val) {
+  var el = document.getElementById(id);
+  if (el) el.textContent = val;
+}
+
+function drawBarChart(canvasId, data, labels, color) {
+  var canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+  var W = canvas.parentElement.offsetWidth || 320;
+  canvas.width = W;
+  var H = canvas.height;
+  var ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, W, H);
+  var max = Math.max.apply(null, data) || 1;
+  var pad = 8, barW = Math.max(2, (W - pad * 2) / data.length - 2);
+  var step = (W - pad * 2) / data.length;
+
+  // 目盛り線
+  ctx.strokeStyle = '#e5ddd0'; ctx.lineWidth = 1;
+  for (var i = 0; i <= 4; i++) {
+    var y = pad + (H - pad * 2 - 16) * (1 - i / 4);
+    ctx.beginPath(); ctx.moveTo(pad, y); ctx.lineTo(W - pad, y); ctx.stroke();
+  }
+
+  data.forEach(function(v, i) {
+    if (!v) return;
+    var bH = Math.max(2, (v / max) * (H - pad * 2 - 16));
+    var x = pad + step * i + step / 2 - barW / 2;
+    var y = H - 16 - bH;
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.roundRect ? ctx.roundRect(x, y, barW, bH, [2, 2, 0, 0]) : ctx.rect(x, y, barW, bH);
+    ctx.fill();
+  });
+
+  // ラベル（5個おき）
+  ctx.fillStyle = '#7a6e60'; ctx.font = '9px sans-serif'; ctx.textAlign = 'center';
+  var step2 = Math.ceil(data.length / 10);
+  labels.forEach(function(l, i) {
+    if (i % step2 !== 0) return;
+    ctx.fillText(l, pad + step * i + step / 2, H - 3);
+  });
+}
+
+function drawDoubleBarChart(canvasId, data1, data2, labels) {
+  var canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+  var W = canvas.parentElement.offsetWidth || 320;
+  canvas.width = W;
+  var H = canvas.height;
+  var ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, W, H);
+  var max = Math.max.apply(null, data1.concat(data2)) || 1;
+  var pad = 8, groupW = (W - pad * 2) / labels.length;
+  var bW = Math.max(2, groupW * 0.35);
+
+  ctx.strokeStyle = '#e5ddd0'; ctx.lineWidth = 1;
+  for (var i = 0; i <= 4; i++) {
+    var y = pad + (H - pad * 2 - 16) * (1 - i / 4);
+    ctx.beginPath(); ctx.moveTo(pad, y); ctx.lineTo(W - pad, y); ctx.stroke();
+  }
+
+  labels.forEach(function(l, i) {
+    var cx = pad + groupW * i + groupW / 2;
+    // 売上
+    var h1 = Math.max(data1[i] ? 2 : 0, (data1[i] / max) * (H - pad * 2 - 16));
+    ctx.fillStyle = 'var(--ac)';
+    ctx.beginPath();
+    ctx.roundRect ? ctx.roundRect(cx - bW - 1, H - 16 - h1, bW, h1, [2,2,0,0]) : ctx.rect(cx - bW - 1, H - 16 - h1, bW, h1);
+    ctx.fill();
+    // 利益
+    var h2 = Math.max(data2[i] ? 2 : 0, (data2[i] / max) * (H - pad * 2 - 16));
+    ctx.fillStyle = 'var(--ac3)';
+    ctx.beginPath();
+    ctx.roundRect ? ctx.roundRect(cx + 1, H - 16 - h2, bW, h2, [2,2,0,0]) : ctx.rect(cx + 1, H - 16 - h2, bW, h2);
+    ctx.fill();
+    // ラベル
+    ctx.fillStyle = '#7a6e60'; ctx.font = '9px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText(l, cx, H - 3);
+  });
+
+  // 凡例
+  ctx.fillStyle = 'var(--ac)'; ctx.fillRect(pad, pad - 4, 10, 8);
+  ctx.fillStyle = '#2c2416'; ctx.font = '10px sans-serif'; ctx.textAlign = 'left';
+  ctx.fillText('売上', pad + 13, pad + 4);
+  ctx.fillStyle = 'var(--ac3)'; ctx.fillRect(pad + 45, pad - 4, 10, 8);
+  ctx.fillStyle = '#2c2416';
+  ctx.fillText('利益', pad + 58, pad + 4);
+}
+
+function renderRptPlatform(list, elId, totalSales) {
+  var el = document.getElementById(elId);
+  if (!el) return;
+  var byPf = {};
+  list.forEach(function(s) {
+    var p = s.loc || '不明';
+    if (!byPf[p]) byPf[p] = { sales: 0, count: 0 };
+    byPf[p].sales += s.total || 0;
+    byPf[p].count += s.qty   || 0;
+  });
+  var sorted = Object.entries(byPf).sort(function(a, b) { return b[1].sales - a[1].sales; });
+  if (!sorted.length) { el.innerHTML = '<p class="ts tm">データがありません</p>'; return; }
+  el.innerHTML = sorted.map(function(e) {
+    var pct = totalSales > 0 ? Math.round((e[1].sales / totalSales) * 100) : 0;
+    return '<div style="margin-bottom:8px">'
+      + '<div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px">'
+      + '<span class="fw7">' + e[0] + '</span>'
+      + '<span class="mn">' + yen(e[1].sales) + ' <span class="tm">(' + pct + '%)</span></span>'
+      + '</div>'
+      + '<div style="background:var(--sf2);border-radius:4px;height:8px;overflow:hidden">'
+      + '<div style="background:var(--ac);height:100%;border-radius:4px;width:' + pct + '%"></div>'
+      + '</div>'
+      + '</div>';
+  }).join('');
+}
+
+function renderRptRanking(list, elId) {
+  var el = document.getElementById(elId);
+  if (!el) return;
+  var byItem = {};
+  list.forEach(function(s) {
+    var n = s.itemName || '不明';
+    if (!byItem[n]) byItem[n] = { sales: 0, profit: 0, count: 0 };
+    byItem[n].sales  += s.total  || 0;
+    byItem[n].profit += s.profit || 0;
+    byItem[n].count  += s.qty    || 0;
+  });
+  var sorted = Object.entries(byItem).sort(function(a, b) { return b[1].sales - a[1].sales; }).slice(0, 10);
+  if (!sorted.length) { el.innerHTML = '<p class="ts tm">データがありません</p>'; return; }
+  var medals = ['🥇','🥈','🥉'];
+  el.innerHTML = sorted.map(function(e, i) {
+    var rate = e[1].sales > 0 ? Math.round((e[1].profit / e[1].sales) * 100) : 0;
+    return '<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--bd)">'
+      + '<span style="font-size:14px;min-width:20px;text-align:center">' + (medals[i] || (i + 1) + '.') + '</span>'
+      + '<div style="flex:1;min-width:0">'
+      + '<div class="fw7" style="font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + e[0] + '</div>'
+      + '<div class="ts tm">' + e[1].count + '点販売</div>'
+      + '</div>'
+      + '<div style="text-align:right">'
+      + '<div class="mn fw7" style="font-size:13px">' + yen(e[1].sales) + '</div>'
+      + '<div class="ts" style="color:' + (rate >= 40 ? 'var(--ac3)' : 'var(--wn)') + '">利益率 ' + rate + '%</div>'
+      + '</div>'
+      + '</div>';
+  }).join('');
+}
+
 function rSales() {
   var prods = items.filter(function(i) { return i.type === 'product'; });
   document.getElementById('saleItem').innerHTML = prods.length ? prods.map(function(i) { var label = i.name + (i.color ? '【' + i.color + '】' : '') + '（在庫:' + i.stock + '）'; return '<option value="' + i.id + '">' + label + '</option>'; }).join('') : '<option value="">完成品がありません</option>';
@@ -3038,6 +3384,9 @@ function rSales() {
   if (!document.getElementById('saleDate').value) dpSet('saleDate', tod());
   if (!document.getElementById('saleMF').value) document.getElementById('saleMF').value = mstr();
   updSalePrev(); renderSaleHist();
+  // レポート初期化・描画
+  if (!rptMonth) initRpt();
+  setTimeout(renderRpt, 50); // canvasサイズ確定後に描画
 }
 function updSalePrev() {
   var item = items.find(function(i) { return i.id === document.getElementById('saleItem').value; });
