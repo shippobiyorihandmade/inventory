@@ -2747,7 +2747,7 @@ function getPlatforms(containerId) {
   return Array.from(document.querySelectorAll('#' + containerId + ' .ptag.on')).map(function(el) { return el.dataset.value; });
 }
 
-function rebuildPlatformTags(containerId, customContainerId, selectedValues) {
+function rebuildPlatformTags(containerId, customContainerId, selectedValues, onlineOnly) {
   selectedValues = selectedValues || [];
   document.querySelectorAll('#' + containerId + ' .ptag[data-default]').forEach(function(el) {
     el.classList.toggle('on', selectedValues.includes(el.dataset.value));
@@ -2755,7 +2755,11 @@ function rebuildPlatformTags(containerId, customContainerId, selectedValues) {
   var customContainer = document.getElementById(customContainerId);
   if (!customContainer) return;
   customContainer.innerHTML = '';
-  customPlatforms.forEach(function(p) {
+  // onlineOnly=trueのときは🌐ネット販売のみ表示（委託・実店舗を除外）にゃ
+  var filtered = onlineOnly
+    ? customPlatforms.filter(function(p) { return p.type === 'online'; })
+    : customPlatforms;
+  filtered.forEach(function(p) {
     var span = document.createElement('span');
     span.className = 'ptag' + (selectedValues.includes(p.name) ? ' on' : '');
     span.dataset.value = p.name;
