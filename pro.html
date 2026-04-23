@@ -1117,13 +1117,22 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
       <div class="cb">
         <div class="fr c2">
           <div>
-            <label>請求先（自由入力）*</label>
-            <input type="text" id="invTo" placeholder="例：〇〇ギャラリー 御中">
+            <label>請求先（委託先から選択）</label>
+            <select id="invToSel" onchange="onInvToSelChange(this.value)">
+              <option value="">— 選択してください —</option>
+            </select>
           </div>
           <div>
             <label>請求日 *</label>
             <div class="df"><button type="button" class="dd" id="invDate_btn" onclick="dpOpen('invDate')"><span id="invDate_lbl" class="ph">日付を選択</span><span>📅</span></button></div>
             <input type="hidden" id="invDate">
+          </div>
+        </div>
+        <div class="fr">
+          <div>
+            <label>請求先名（自由入力・PDFに使用）*</label>
+            <input type="text" id="invTo" placeholder="例：〇〇ギャラリー 御中" style="background:var(--sf)">
+            <div style="font-size:11px;color:var(--tx2);margin-top:3px">上のリストで選ぶと自動で入力されます。直接編集もできます。</div>
           </div>
         </div>
         <div class="fr c2">
@@ -3394,6 +3403,7 @@ function rDeliveryPg() {
   renderDlvStockList();
   renderRetSrc();
   renderInvLines();
+  renderInvToSel();
 }
 
 // 委託先在庫一覧を描画するにゃ
@@ -3544,6 +3554,28 @@ function clearDelivery() {
   renderDlvLines();
 }
 
+// 請求先セレクトを委託先リストで構築するにゃ
+function renderInvToSel() {
+  var sel = document.getElementById('invToSel');
+  if (!sel) return;
+  var prev = sel.value;
+  // 全プラットフォームを取得（委託先タイプ・全部）
+  var all = getAllPlatforms ? getAllPlatforms() : [];
+  sel.innerHTML = '<option value="">— 選択してください —</option>'
+    + all.map(function(n) {
+      return '<option value="' + n + '"' + (n === prev ? ' selected' : '') + '>' + n + '</option>';
+    }).join('');
+}
+
+function onInvToSelChange(val) {
+  var inp = document.getElementById('invTo');
+  if (!inp) return;
+  if (val) {
+    inp.value = val + ' 御中';
+  }
+  // 自由入力欄はそのまま編集可能にするにゃ
+}
+
 // ══════════════════════════════════════════════
 // 書類作成タブ切り替え
 // ══════════════════════════════════════════════
@@ -3659,6 +3691,7 @@ function clearInvoice() {
   if (!confirm('請求書の内容をリセットしますか？')) return;
   invLines = [];
   document.getElementById('invTo').value = '';
+  if (document.getElementById('invToSel')) document.getElementById('invToSel').value = '';
   document.getElementById('invNo').value = '';
   document.getElementById('invNote').value = '';
   document.getElementById('invDue').value = '';
