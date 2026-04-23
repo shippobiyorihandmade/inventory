@@ -2714,6 +2714,11 @@ async function recSale() {
   sales.push(saleObj); await svSale(saleObj);
   var prevStock = item.stock;
   item.stock = Math.max(0, item.stock - qty);
+  // 🏪委託・実店舗での販売はlocationsの在庫も減らすにゃ
+  var physicals = getPhysicalPlatforms();
+  if (physicals.includes(loc) && item.locations && item.locations[loc] !== undefined) {
+    item.locations[loc] = Math.max(0, (item.locations[loc] || 0) - qty);
+  }
   addH(item.name, -qty, '販売（' + loc + (memo ? '・' + memo : '') + '）', item.stock);
   await svItem(item);
   document.getElementById('saleQty').value = 1; document.getElementById('salePrice').value = ''; document.getElementById('saleMemo').value = ''; buildLocSelect('🏠 手元（直接販売）');
