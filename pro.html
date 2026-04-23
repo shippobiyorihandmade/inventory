@@ -740,6 +740,26 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
   </div>
   <div class="card">
     <div class="ch">
+      <span class="ct">🧮 原価追加項目</span>
+      <button class="btn bs bsm" onclick="toggleAddonSection()">⚙️ 設定</button>
+    </div>
+    <div id="addonSection" style="display:none">
+      <div class="cb" style="padding-bottom:8px">
+        <p class="ts tm" style="margin-bottom:10px;line-height:1.7">ミシン糸・梱包資材など、レシピに含まない消耗品を登録できます。<br>製作時の原価に自動加算されます。ONにした項目のみ加算されます。</p>
+        <div style="display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap">
+          <input type="text" id="addonName" placeholder="例：ミシン糸" style="flex:2;min-width:100px;margin:0">
+          <input type="number" id="addonCost" placeholder="単価（円）" min="0" style="flex:1;min-width:70px;margin:0">
+          <input type="number" id="addonQty" placeholder="数量" min="0.01" step="0.01" value="1" style="flex:1;min-width:55px;margin:0">
+          <input type="text" id="addonUnit" placeholder="単位" style="width:50px;margin:0" value="個">
+          <button class="btn bg bsm" onclick="addCostAddon()">＋</button>
+        </div>
+        <div id="addonList"></div>
+      </div>
+    </div>
+    <div id="addonSummary" class="cb" style="padding-top:8px"></div>
+  </div>
+  <div class="card">
+    <div class="ch">
       <span class="ct">📋 製作履歴</span>
       <input type="month" id="mkMF" onchange="renderMkHist()" style="width:auto;font-size:12px;padding:5px 9px;border:1px solid var(--bd);border-radius:6px">
     </div>
@@ -1536,7 +1556,7 @@ async function sbDelete(table, id) {
 // ══════════════════════════════════════════════
 // DATA
 // ══════════════════════════════════════════════
-var items = [], sales = [], hist = [], purch = [], makes = [], customPlatforms = [];
+var items = [], sales = [], hist = [], purch = [], makes = [], customPlatforms = [], costAddons = [];
 var DEFAULT_PLATFORMS = ['BASE', 'minne', 'Creema'];
 var editId = null;
 var stCounts = {};
@@ -1688,6 +1708,7 @@ async function loadAll() {
     purch = await sbGet('purchases');
     makes = await sbGet('makes');
     customPlatforms = await sbGetDirect('platforms');
+    costAddons = await sbGetDirect('cost_addons');
     await loadProfile();
     setSyncing('ok');
     // 現在開いてるページを再描画するにゃ（ダッシュボードに強制移動しない）
@@ -2288,7 +2309,101 @@ function rMkREdit() {
   mkRec.forEach(function(r) { var m = items.find(function(x) { return x.id === r.mid; }); if (m && m.mc) tot += m.mc * r.qty; else ok = false; });
   document.getElementById('mkRCalc').innerHTML = !mkRec.length ? '' : !ok ? '一部の材料に単価が未設定です' : '材料費合計: <b style="color:var(--ac)">' + yen(Math.round(tot * qty)) + '</b>（' + qty + '個分）  1個あたり: <b style="color:var(--ac3)">' + yen(Math.round(tot)) + '</b>';
 }
+// ── 原価追加項目管理 ──
+function toggleAddonSection() {
+  var el = document.getElementById('addonSection');
+  if (el) el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+
+function renderAddonList() {
+  var el = document.getElementById('addonList');
+  if (!el) return;
+  if (!costAddons.length) { el.innerHTML = '<p class="ts tm">まだ登録されていません。</p>'; renderAddonSummary(); return; }
+  el.innerHTML = costAddons.map(function(a) {
+    var badge = a.is_active
+      ? '<span style="font-size:10px;background:var(--ac);color:#fff;padding:2px 8px;border-radius:10px;cursor:pointer;font-weight:700" onclick="toggleAddon(\'' + a.id + '\')">ON</span>'
+      : '<span style="font-size:10px;background:var(--sf2);color:var(--tx2);padding:2px 8px;border-radius:10px;border:1px solid var(--bd);cursor:pointer;font-weight:700" onclick="toggleAddon(\'' + a.id + '\')">OFF</span>';
+    return '<div class="ar" style="flex-wrap:wrap;gap:6px">'
+      + '<span class="an fw7" style="flex:1;min-width:100px">' + a.name + '</span>'
+      + '<span class="ts tm">¥' + a.unit_cost + ' × ' + a.qty + (a.unit||'個') + '/点 = <b>¥' + Math.round(a.unit_cost * a.qty) + '</b></span>'
+      + '<div style="display:flex;gap:6px;align-items:center">' + badge
+      + '<button class="bi bdl" onclick="delCostAddon(\'' + a.id + '\')">🗑</button></div>'
+      + '</div>';
+  }).join('');
+  renderAddonSummary();
+}
+
+function renderAddonSummary() {
+  var el = document.getElementById('addonSummary');
+  if (!el) return;
+  var actives = costAddons.filter(function(a) { return a.is_active; });
+  if (!actives.length) { el.innerHTML = '<p class="ts tm" style="margin:0">原価追加項目：なし（⚙️設定から追加できます）</p>'; return; }
+  el.innerHTML = '<p class="ts" style="margin:0">✅ 原価追加中：' + actives.map(function(a) { return '<b>' + a.name + '</b>（¥' + Math.round(a.unit_cost * a.qty) + '/点）'; }).join('・') + '</p>';
+}
+
+function renderImAddonArea() {
+  var el = document.getElementById('imAddonArea');
+  if (!el) return;
+  if (!costAddons.length) { el.innerHTML = ''; return; }
+  el.innerHTML = '<div style="padding:8px 10px;background:var(--sf2);border-radius:8px;margin-top:2px">'
+    + '<div style="font-size:12px;font-weight:700;color:var(--tx2);margin-bottom:6px">🧮 原価追加項目（ON/OFFで個別設定）</div>'
+    + costAddons.map(function(a) {
+        var badge = a.is_active
+          ? '<span style="font-size:10px;background:var(--ac);color:#fff;padding:2px 8px;border-radius:10px;cursor:pointer;font-weight:700" onclick="toggleAddon(\'' + a.id + '\');renderImAddonArea()">ON</span>'
+          : '<span style="font-size:10px;background:var(--sf);color:var(--tx2);padding:2px 8px;border-radius:10px;border:1px solid var(--bd);cursor:pointer;font-weight:700" onclick="toggleAddon(\'' + a.id + '\');renderImAddonArea()">OFF</span>';
+        return '<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">'
+          + '<span style="flex:1;font-size:12px">' + a.name + ' <span class="ts tm">¥' + Math.round(a.unit_cost * a.qty) + '/点</span></span>'
+          + badge + '</div>';
+      }).join('')
+    + '</div>';
+}
+
+async function addCostAddon() {
+  var name = document.getElementById('addonName').value.trim();
+  var cost = parseInt(document.getElementById('addonCost').value) || 0;
+  var qty = parseFloat(document.getElementById('addonQty').value) || 1;
+  var unit = document.getElementById('addonUnit').value.trim() || '個';
+  if (!name) { alert('項目名を入力してください'); return; }
+  if (!cost) { alert('単価を入力してください'); return; }
+  var obj = { id: crypto.randomUUID ? crypto.randomUUID() : uid(), user_id: currentUser.id, name: name, unit_cost: cost, qty: qty, unit: unit, is_active: true };
+  costAddons.push(obj);
+  setSyncing('syncing');
+  try {
+    await fetch(SB_URL + '/rest/v1/cost_addons', { method: 'POST', headers: sbHeaders(), body: JSON.stringify({ id: obj.id, user_id: obj.user_id, name: obj.name, unit_cost: obj.unit_cost, qty: obj.qty, unit: obj.unit, is_active: obj.is_active }) });
+    setSyncing('ok');
+  } catch(e) { setSyncing('error'); console.error(e); }
+  document.getElementById('addonName').value = '';
+  document.getElementById('addonCost').value = '';
+  document.getElementById('addonQty').value = 1;
+  document.getElementById('addonUnit').value = '個';
+  renderAddonList();
+}
+
+async function toggleAddon(id) {
+  var a = costAddons.find(function(x) { return x.id === id; });
+  if (!a) return;
+  a.is_active = !a.is_active;
+  try {
+    await fetch(SB_URL + '/rest/v1/cost_addons?id=eq.' + id, { method: 'PATCH', headers: sbHeaders(), body: JSON.stringify({ is_active: a.is_active }) });
+  } catch(e) { console.error(e); }
+  renderAddonList();
+}
+
+async function delCostAddon(id) {
+  if (!confirm('この項目を削除しますか？')) return;
+  costAddons = costAddons.filter(function(x) { return x.id !== id; });
+  try { await fetch(SB_URL + '/rest/v1/cost_addons?id=eq.' + id, { method: 'DELETE', headers: sbHeaders() }); } catch(e) { console.error(e); }
+  renderAddonList();
+}
+
+function calcAddonCost(qty) {
+  return costAddons.filter(function(a) { return a.is_active; }).reduce(function(sum, a) {
+    return sum + Math.round(a.unit_cost * a.qty) * qty;
+  }, 0);
+}
+
 function rMakePg() {
+  renderAddonList();
   var prods = items.filter(function(i) { return i.type === 'product'; });
   document.getElementById('mkProd').innerHTML = prods.length ? prods.map(function(i) { return '<option value="' + i.id + '">' + i.name + (i.cat ? ' (' + i.cat + ')' : '') + '</option>'; }).join('') : '<option value="">完成品がありません</option>';
   if (!document.getElementById('mkDate').value) dpSet('mkDate', tod());
@@ -2313,7 +2428,14 @@ function onMkProdChange() {
     return '<div class="rl"><span style="flex:1;font-size:13px;font-weight:500">' + mat.name + '</span><span class="mn" style="min-width:90px">' + r.qty + '/個 × ' + qty + ' = <b>' + use + '</b> ' + (mat.unit || '個') + '</span><span class="ts" style="min-width:58px;color:' + (short ? 'var(--wn)' : 'var(--tx2)') + '">在庫:' + mat.stock + (short ? ' ⚠' : '') + '</span><span class="mn ts" style="min-width:58px;text-align:right">' + (mat.mc ? yen(Math.round(lc)) : '—') + '</span></div>';
   }).join('');
   prev.innerHTML = '<div style="padding:11px;background:var(--sf2);border-radius:8px"><div class="stl" style="margin-bottom:7px">使用する材料（合計 ' + qty + '点分）</div>' + rows + '</div>';
-  cprev.innerHTML = tot ? '材料費合計: <b style="color:var(--ac)">' + yen(Math.round(tot)) + '</b>（' + qty + '点分）  1点あたり: <b style="color:var(--ac3)">' + yen(Math.round(tot / qty)) + '</b>' : '';
+  var addonTotal = calcAddonCost(qty);
+  var addonText = '';
+  if (addonTotal > 0) {
+    var actives = costAddons.filter(function(a) { return a.is_active; });
+    addonText = '<div style="margin-top:5px;font-size:12px;color:var(--tx2)">🧮 原価追加：' + actives.map(function(a) { return a.name + ' ¥' + (Math.round(a.unit_cost * a.qty) * qty); }).join('・') + '　合計: <b style="color:var(--ac3)">¥' + addonTotal + '</b></div>';
+  }
+  var grandTotal = Math.round(tot) + addonTotal;
+  cprev.innerHTML = tot ? '材料費合計: <b style="color:var(--ac)">' + yen(Math.round(tot)) + '</b>（' + qty + '点分）  1点あたり: <b style="color:var(--ac3)">' + yen(Math.round(tot / qty)) + '</b>' + addonText + (addonTotal > 0 ? '<div style="margin-top:4px;font-size:13px;font-weight:700">総原価: <b style="color:var(--ac3)">' + yen(grandTotal) + '</b>（' + qty + '点分）  1点あたり: <b>' + yen(Math.round(grandTotal / qty)) + '</b></div>' : '') : '';
 }
 async function recMake(memoOnly) {
   var date = document.getElementById('mkDate').value || tod();
@@ -2327,7 +2449,8 @@ async function recMake(memoOnly) {
     recipe = mkRec.filter(function(r) { return r.mid && r.qty > 0; });
     var ac = recipe.reduce(function(a, r) { var m = items.find(function(x) { return x.id === r.mid; }); return a + (m ? m.mc || 0 : 0) * r.qty; }, 0);
     var mkNMinOff = document.getElementById('mkNMinMode').value === 'off';
-    item = { id: uid(), type: 'product', name: name, cat: document.getElementById('mkNCat').value.trim(), unit: document.getElementById('mkNUnit').value.trim() || '個', stock: 0, min: mkNMinOff ? null : (parseInt(document.getElementById('mkNMin').value) ?? 3), sp: parseFloat(document.getElementById('mkNPrice').value) || 0, cost: Math.round(ac), mc: 0, sup: '', fw: 0, color: document.getElementById('mkNColor').value.trim(), brand: '', memo: '', platforms: getPlatforms('mkNPlatforms'), recipe: recipe, photo: null };
+    var mkAddonCostPer1 = costAddons.filter(function(a) { return a.is_active; }).reduce(function(s, a) { return s + Math.round(a.unit_cost * a.qty); }, 0);
+    item = { id: uid(), type: 'product', name: name, cat: document.getElementById('mkNCat').value.trim(), unit: document.getElementById('mkNUnit').value.trim() || '個', stock: 0, min: mkNMinOff ? null : (parseInt(document.getElementById('mkNMin').value) ?? 3), sp: parseFloat(document.getElementById('mkNPrice').value) || 0, cost: Math.round(ac) + mkAddonCostPer1, mc: 0, sup: '', fw: 0, color: document.getElementById('mkNColor').value.trim(), brand: '', memo: '', platforms: getPlatforms('mkNPlatforms'), recipe: recipe, photo: null };
     items.push(item); await svItem(item);
   } else {
     item = items.find(function(i) { return i.id === document.getElementById('mkProd').value; });
