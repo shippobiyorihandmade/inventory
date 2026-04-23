@@ -1667,7 +1667,8 @@ function clearMkPhoto() {
 async function uploadPhoto(file, itemId) {
   var mimeToExt = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp', 'image/gif': 'gif' };
   var ext = mimeToExt[file.type] || 'jpg';
-  var path = 'items/' + itemId + '.' + ext;
+  var userId = currentUser ? currentUser.id : 'unknown';
+  var path = 'items/' + userId + '/' + itemId + '.' + ext;
   var res = await fetch(SB_URL + '/storage/v1/object/item-photos/' + path, {
     method: 'POST',
     headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + (accessToken || SB_KEY), 'Content-Type': file.type, 'x-upsert': 'true' },
@@ -2215,13 +2216,16 @@ async function delItem(id) {
   setSyncing('syncing');
   try {
     if (i.photo) {
-      var exts = ['jpg', 'jpeg', 'png', 'webp', 'gif'];
-      for (var ext of exts) {
-        await fetch(SB_URL + '/storage/v1/object/item-photos/items/' + id + '.' + ext, {
-          method: 'DELETE',
-          headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + (accessToken || SB_KEY) }
-        });
-      }
+      // photoURLからパスを直接取得して削除にゃ
+      try {
+        var photoPath = i.photo.split('/object/public/item-photos/')[1];
+        if (photoPath) {
+          await fetch(SB_URL + '/storage/v1/object/item-photos/' + photoPath, {
+            method: 'DELETE',
+            headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + (accessToken || SB_KEY) }
+          });
+        }
+      } catch(e) { console.error('写真削除失敗:', e); }
     }
     await sbDelete('items', id); setSyncing('ok');
   } catch(e) { setSyncing('error'); }
