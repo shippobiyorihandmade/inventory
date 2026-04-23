@@ -452,9 +452,9 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
   <button class="tab" onclick="showPage('sales')">💴 販売記録</button>
   <button class="tab" onclick="showPage('adjust')">± 在庫調整</button>
   <button class="tab" onclick="showPage('history')">📋 履歴</button>
+  <button class="tab" onclick="showPage('delivery')">📄 書類作成</button>
   <button class="tab" onclick="showPage('contact')">💬 問い合わせ</button>
   <button class="tab" onclick="showPage('account')">⚙️ アカウント設定</button>
-  <button class="tab" onclick="showPage('delivery')">📄 書類作成</button>
 </nav>
 
 <!-- ボトムナビ（スマホ専用） -->
@@ -512,6 +512,10 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
         <span style="font-size:28px">📋</span>
         <span>履歴</span>
       </button>
+      <button class="bn-sheet-item" onclick="bnNav('delivery');closeBnMore()">
+        <span style="font-size:28px">📄</span>
+        <span>書類作成</span>
+      </button>
       <button class="bn-sheet-item" onclick="bnNav('contact');closeBnMore()">
         <span style="font-size:28px">💬</span>
         <span>問い合わせ</span>
@@ -519,10 +523,6 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
       <button class="bn-sheet-item" onclick="bnNav('account');closeBnMore()">
         <span style="font-size:28px">⚙️</span>
         <span>アカウント</span>
-      </button>
-      <button class="bn-sheet-item" onclick="bnNav('delivery');closeBnMore()">
-        <span style="font-size:28px">📄</span>
-        <span>書類作成</span>
       </button>
     </div>
   </div>
