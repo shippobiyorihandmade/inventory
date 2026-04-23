@@ -3568,12 +3568,19 @@ function renderInvToSel() {
 }
 
 function onInvToSelChange(val) {
+  // ③ 選び直しでも必ず反映
   var inp = document.getElementById('invTo');
-  if (!inp) return;
+  if (inp && val) inp.value = val + ' 御中';
+
+  // ① 委託先が選ばれたら在庫元を委託先在庫に切り替えて明細をリセット
+  var srcSel = document.getElementById('invStockSrc');
   if (val) {
-    inp.value = val + ' 御中';
+    if (srcSel) srcSel.value = 'consign';
+  } else {
+    if (srcSel) srcSel.value = 'te';
   }
-  // 自由入力欄はそのまま編集可能にするにゃ
+  invLines = [];
+  renderInvLines();
 }
 
 // ══════════════════════════════════════════════
@@ -3601,42 +3608,65 @@ function renderInvLines() {
   var el = document.getElementById('invLines');
   if (!el) return;
   var src = document.getElementById('invStockSrc') ? document.getElementById('invStockSrc').value : 'te';
-  var prods = items.filter(function(i) { return i.type === 'product'; });
+  var fromConsign = src === 'consign';
+
+  // ① 請求先セレクトで選ばれた委託先を取得
+  var selectedDest = (document.getElementById('invToSel') || {}).value || '';
+
+  // 商品リストを在庫元に応じて絞り込むにゃ
+  var prods;
+  if (fromConsign && selectedDest) {
+    // 選ばれた委託先に在庫がある商品だけ
+    prods = items.filter(function(i) {
+      return i.type === 'product' && i.locations && (i.locations[selectedDest] || 0) > 0;
+    });
+  } else if (fromConsign) {
+    // 委託先モードだが委託先未選択 → 委託在庫ありの全商品
+    prods = items.filter(function(i) {
+      return i.type === 'product' && i.locations
+        && Object.entries(i.locations).some(function(e) { return e[0] !== '手元' && e[1] > 0; });
+    });
+  } else {
+    // 手元在庫モード：全完成品
+    prods = items.filter(function(i) { return i.type === 'product'; });
+  }
 
   if (!invLines.length) {
-    el.innerHTML = '<p class="ts tm">「追加」ボタンから商品を追加してください</p>';
+    var emptyMsg = fromConsign && selectedDest && !prods.length
+      ? selectedDest + ' に委託中の商品がありません'
+      : '「追加」ボタンから商品を追加してください';
+    el.innerHTML = '<p class="ts tm">' + emptyMsg + '</p>';
     calcInvTotal();
     return;
   }
 
-  // 委託先リスト（在庫あり）
-  var consignDests = [];
-  items.filter(function(i) { return i.type === 'product' && i.locations; }).forEach(function(i) {
-    Object.entries(i.locations).forEach(function(e) {
-      if (e[0] !== '手元' && e[1] > 0 && !consignDests.includes(e[0])) consignDests.push(e[0]);
-    });
-  });
-
   el.innerHTML = invLines.map(function(line, idx) {
-    // 手元在庫の商品セレクト
+    // 商品セレクト（在庫元に応じてフィルタ済み）
     var selOpts = prods.map(function(i) {
+      var stock = fromConsign && selectedDest
+        ? (i.locations && i.locations[selectedDest] || 0)
+        : (i.locations && i.locations['手元'] !== undefined ? i.locations['手元'] : (i.stock || 0));
       return '<option value="' + i.id + '"' + (i.id === line.itemId ? ' selected' : '') + '>'
-        + i.name + (i.color ? ' (' + i.color + ')' : '') + '</option>';
+        + i.name + (i.color ? ' (' + i.color + ')' : '')
+        + ' [在庫:' + stock + (i.unit || '個') + ']'
+        + '</option>';
     }).join('');
+    if (!selOpts) selOpts = '<option value="">商品がありません</option>';
 
-    var destSel = '';
-    if (line.fromConsign) {
-      // 委託先選択
-      var dOpts = consignDests.map(function(d) {
-        return '<option value="' + d + '"' + (d === line.consignDest ? ' selected' : '') + '>' + d + '</option>';
-      }).join('');
-      destSel = '<select style="width:auto;min-width:100px;font-size:12px;padding:4px 24px 4px 8px" onchange="invLines[' + idx + '].consignDest=this.value;renderInvLines()">'
-        + (consignDests.length ? dOpts : '<option value="">委託先なし</option>') + '</select>';
+    // 委託先表示（選択中の委託先を表示、未選択時はセレクト）
+    var destBadge = '';
+    if (fromConsign) {
+      if (selectedDest) {
+        destBadge = '<span style="font-size:11px;padding:3px 8px;border-radius:20px;background:var(--ob);color:var(--ok);font-weight:700;white-space:nowrap">🏪 ' + selectedDest + '</span>';
+      }
+      // lineのconsignDestを常に選択中の委託先に同期
+      line.consignDest = selectedDest;
     }
+    line.fromConsign = fromConsign;
 
     return '<div style="display:flex;gap:8px;align-items:center;padding:9px 0;border-bottom:1px solid var(--bd);flex-wrap:wrap">'
       + '<select style="flex:2;min-width:130px" onchange="invLines[' + idx + '].itemId=this.value;var fi=items.find(function(i){return i.id===event.target.value;});invLines[' + idx + '].price=fi?fi.sp||0:0;renderInvLines()">' + selOpts + '</select>'
-      + (line.fromConsign ? destSel : '')
+      + destBadge
       + '<div style="display:flex;align-items:center;gap:4px"><label class="ts tm">数量</label><input type="number" style="width:58px" value="' + line.qty + '" min="1" onchange="invLines[' + idx + '].qty=parseInt(this.value)||1;renderInvLines()"></div>'
       + '<div style="display:flex;align-items:center;gap:4px"><label class="ts tm">単価</label><input type="number" style="width:76px" value="' + line.price + '" min="0" onchange="invLines[' + idx + '].price=parseFloat(this.value)||0;renderInvLines()"><span class="ts tm">円</span></div>'
       + '<span class="mn ts" style="min-width:66px;text-align:right">' + yen(line.qty * line.price) + '</span>'
@@ -3648,24 +3678,30 @@ function renderInvLines() {
 }
 
 function addInvLine() {
-  var prods = items.filter(function(i) { return i.type === 'product'; });
-  if (!prods.length) { alert('完成品が登録されていません'); return; }
   var src = document.getElementById('invStockSrc') ? document.getElementById('invStockSrc').value : 'te';
   var fromConsign = src === 'consign';
+  // ① 選択中の委託先を取得
+  var selectedDest = (document.getElementById('invToSel') || {}).value || '';
 
-  // 委託先在庫がある最初の商品を選ぶ
-  var firstItem = prods[0];
-  var consignDest = '';
-  if (fromConsign) {
-    var withConsign = prods.find(function(i) {
-      return i.locations && Object.entries(i.locations).some(function(e) { return e[0] !== '手元' && e[1] > 0; });
+  var prods;
+  if (fromConsign && selectedDest) {
+    prods = items.filter(function(i) {
+      return i.type === 'product' && i.locations && (i.locations[selectedDest] || 0) > 0;
     });
-    if (withConsign) {
-      firstItem = withConsign;
-      consignDest = Object.entries(withConsign.locations).find(function(e) { return e[0] !== '手元' && e[1] > 0; })[0];
-    }
+    if (!prods.length) { alert(selectedDest + ' に委託中の商品がありません'); return; }
+  } else if (fromConsign) {
+    prods = items.filter(function(i) {
+      return i.type === 'product' && i.locations
+        && Object.entries(i.locations).some(function(e) { return e[0] !== '手元' && e[1] > 0; });
+    });
+    if (!prods.length) { alert('委託中の商品がありません'); return; }
+  } else {
+    prods = items.filter(function(i) { return i.type === 'product'; });
+    if (!prods.length) { alert('完成品が登録されていません'); return; }
   }
 
+  var firstItem = prods[0];
+  var consignDest = selectedDest || '';
   invLines.push({ itemId: firstItem.id, qty: 1, price: firstItem.sp || 0, fromConsign: fromConsign, consignDest: consignDest });
   renderInvLines();
 }
@@ -3796,12 +3832,13 @@ function printInvoice() {
     if (hasConsign) msg += '委託先在庫の商品が含まれています。\n販売記録に追加し、在庫を反映しますか？\n（委託先在庫から数量を減算します）';
     else msg += '販売記録に追加し、手元在庫を反映しますか？';
     if (confirm(msg)) {
-      applyInvoiceToSales(date);
+      var invSalesTo = document.getElementById('invTo') ? document.getElementById('invTo').value.trim() : '';
+      applyInvoiceToSales(date, invSalesTo);
     }
   }, 500);
 }
 
-async function applyInvoiceToSales(date) {
+async function applyInvoiceToSales(date, invSalesTo) {
   var updated = 0;
   for (var line of invLines) {
     var item = items.find(function(i) { return i.id === line.itemId; });
@@ -3818,6 +3855,11 @@ async function applyInvoiceToSales(date) {
       item.stock = item.locations['手元'];
     }
 
+    // ② 販売場所：委託先在庫なら委託先名、手元なら自由入力の請求先名 or「請求書」
+    var salesPlatform = line.fromConsign && line.consignDest
+      ? line.consignDest
+      : (invSalesTo || '請求書');
+
     // 販売記録を追加
     var saleRec = {
       id: 'inv_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
@@ -3825,7 +3867,7 @@ async function applyInvoiceToSales(date) {
       item_name: item.name,
       qty: line.qty,
       price: line.price,
-      platform: '請求書',
+      platform: salesPlatform,
       date: date || tod(),
       note: '請求書より自動登録',
       created_at: new Date().toISOString()
