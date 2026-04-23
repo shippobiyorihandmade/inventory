@@ -259,7 +259,7 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
 .btn-logout:hover{background:rgba(255,255,255,.2);}
 
 @media print {
-  #delivery-print-area { display: block !important; }
+  #delivery-print-area, #invoice-print-area { display: block !important; }
   #pg-delivery { display: none !important; }
   body { background: #fff !important; }
   header, .nav-tabs, .bottom-nav, .ov, #dpp, .no-print { display: none !important; }
@@ -454,7 +454,7 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
   <button class="tab" onclick="showPage('history')">📋 履歴</button>
   <button class="tab" onclick="showPage('contact')">💬 問い合わせ</button>
   <button class="tab" onclick="showPage('account')">⚙️ アカウント設定</button>
-  <button class="tab" onclick="showPage('delivery')">📦 納品書</button>
+  <button class="tab" onclick="showPage('delivery')">📄 書類作成</button>
 </nav>
 
 <!-- ボトムナビ（スマホ専用） -->
@@ -521,8 +521,8 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
         <span>アカウント</span>
       </button>
       <button class="bn-sheet-item" onclick="bnNav('delivery');closeBnMore()">
-        <span style="font-size:28px">📦</span>
-        <span>納品書</span>
+        <span style="font-size:28px">📄</span>
+        <span>書類作成</span>
       </button>
     </div>
   </div>
@@ -1021,82 +1021,178 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
 
 <!-- DELIVERY NOTE PAGE -->
 <div class="pg" id="pg-delivery">
-  <div class="card">
-    <div class="ch"><span class="ct">📦 納品書を作成</span></div>
-    <div class="cb">
-      <div class="fr c2">
-        <div>
-          <label>納品先 *
-            <button type="button" onclick="openDlvDestMgr()" style="margin-left:8px;font-size:10px;padding:2px 8px;border-radius:20px;border:1px solid var(--bd);background:var(--sf2);cursor:pointer;font-family:inherit;color:var(--tx2)">⚙️ 管理</button>
-          </label>
-          <select id="dlvDest"></select>
-        </div>
-        <div>
-          <label>納品日 *</label>
-          <div class="df"><button type="button" class="dd" id="dlvDate_btn" onclick="dpOpen('dlvDate')"><span id="dlvDate_lbl" class="ph">日付を選択</span><span>📅</span></button></div>
-          <input type="hidden" id="dlvDate">
-        </div>
-      </div>
-      <div class="fr">
-        <div><label>備考</label><input type="text" id="dlvNote" placeholder="例：春夏新作など"></div>
-      </div>
-    </div>
+
+  <!-- 書類種別タブ -->
+  <div style="display:flex;gap:0;margin-bottom:14px;background:var(--sf);border:1px solid var(--bd);border-radius:var(--r);overflow:hidden;">
+    <button id="docTabDlv" onclick="switchDocTab('delivery')"
+      style="flex:1;padding:11px 8px;border:none;background:var(--ac);color:#fff;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;">
+      📦 納品書
+    </button>
+    <button id="docTabInv" onclick="switchDocTab('invoice')"
+      style="flex:1;padding:11px 8px;border:none;background:var(--sf2);color:var(--tx2);font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;border-left:1px solid var(--bd);">
+      🧾 請求書
+    </button>
   </div>
 
-  <div class="card">
-    <div class="ch">
-      <span class="ct">📋 納品明細</span>
-      <button class="btn bg bsm" onclick="addDlvLine()">＋ 商品を追加</button>
-    </div>
-    <div class="cb" id="dlvLines">
-      <p class="ts tm">「商品を追加」ボタンから追加してください</p>
-    </div>
-    <div class="cb" style="border-top:1px solid var(--bd);padding-top:12px">
-      <div style="display:flex;justify-content:flex-end;align-items:center;gap:12px">
-        <span class="ts tm">合計金額</span>
-        <span class="mn fw7" style="font-size:20px;color:var(--ac)" id="dlvTotal">¥0</span>
-      </div>
-    </div>
-  </div>
-
-  <div style="display:flex;gap:10px;margin-bottom:14px">
-    <button class="btn bp" style="flex:1" onclick="printDelivery()">🖨️ PDF出力</button>
-    <button class="btn bs" style="flex:1" onclick="clearDelivery()">🗑 リセット</button>
-  </div>
-
-  <!-- 委託先在庫一覧 -->
-  <div class="card">
-    <div class="ch"><span class="ct">🏪 委託先在庫一覧</span></div>
-    <div class="cb" id="dlvStockList">
-      <p class="ts tm">委託中の商品がありません</p>
-    </div>
-  </div>
-
-  <!-- 返品フォーム -->
-  <div class="card">
-    <div class="ch"><span class="ct">↩️ 返品（委託先→手元）</span></div>
-    <div class="cb">
-      <div class="fr c2">
-        <div>
-          <label>返品元（委託先）</label>
-          <select id="retSrc" onchange="renderRetLines(this.value)"></select>
+  <!-- ===== 納品書セクション ===== -->
+  <div id="docSec-delivery">
+    <div class="card">
+      <div class="ch"><span class="ct">📦 納品書を作成</span></div>
+      <div class="cb">
+        <div class="fr c2">
+          <div>
+            <label>納品先 *
+              <button type="button" onclick="openDlvDestMgr()" style="margin-left:8px;font-size:10px;padding:2px 8px;border-radius:20px;border:1px solid var(--bd);background:var(--sf2);cursor:pointer;font-family:inherit;color:var(--tx2)">⚙️ 管理</button>
+            </label>
+            <select id="dlvDest"></select>
+          </div>
+          <div>
+            <label>納品日 *</label>
+            <div class="df"><button type="button" class="dd" id="dlvDate_btn" onclick="dpOpen('dlvDate')"><span id="dlvDate_lbl" class="ph">日付を選択</span><span>📅</span></button></div>
+            <input type="hidden" id="dlvDate">
+          </div>
         </div>
-        <div>
-          <label>返品日</label>
-          <div class="df"><button type="button" class="dd" id="retDate_btn" onclick="dpOpen('retDate')"><span id="retDate_lbl" class="ph">日付を選択</span><span>📅</span></button></div>
-          <input type="hidden" id="retDate">
+        <div class="fr">
+          <div><label>備考</label><input type="text" id="dlvNote" placeholder="例：春夏新作など"></div>
         </div>
       </div>
-      <div class="cb" id="retLines" style="padding:0;margin-top:8px">
-        <p class="ts tm">返品元を選択してください</p>
-      </div>
-      <button class="btn bp m8" onclick="execReturn()">↩️ 返品を実行</button>
     </div>
-  </div>
+
+    <div class="card">
+      <div class="ch">
+        <span class="ct">📋 納品明細</span>
+        <button class="btn bg bsm" onclick="addDlvLine()">＋ 商品を追加</button>
+      </div>
+      <div class="cb" id="dlvLines">
+        <p class="ts tm">「商品を追加」ボタンから追加してください</p>
+      </div>
+      <div class="cb" style="border-top:1px solid var(--bd);padding-top:12px">
+        <div style="display:flex;justify-content:flex-end;align-items:center;gap:12px">
+          <span class="ts tm">合計金額</span>
+          <span class="mn fw7" style="font-size:20px;color:var(--ac)" id="dlvTotal">¥0</span>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:10px;margin-bottom:14px">
+      <button class="btn bp" style="flex:1" onclick="printDelivery()">🖨️ PDF出力</button>
+      <button class="btn bs" style="flex:1" onclick="clearDelivery()">🗑 リセット</button>
+    </div>
+
+    <!-- 委託先在庫一覧 -->
+    <div class="card">
+      <div class="ch"><span class="ct">🏪 委託先在庫一覧</span></div>
+      <div class="cb" id="dlvStockList">
+        <p class="ts tm">委託中の商品がありません</p>
+      </div>
+    </div>
+
+    <!-- 返品フォーム -->
+    <div class="card">
+      <div class="ch"><span class="ct">↩️ 返品（委託先→手元）</span></div>
+      <div class="cb">
+        <div class="fr c2">
+          <div>
+            <label>返品元（委託先）</label>
+            <select id="retSrc" onchange="renderRetLines(this.value)"></select>
+          </div>
+          <div>
+            <label>返品日</label>
+            <div class="df"><button type="button" class="dd" id="retDate_btn" onclick="dpOpen('retDate')"><span id="retDate_lbl" class="ph">日付を選択</span><span>📅</span></button></div>
+            <input type="hidden" id="retDate">
+          </div>
+        </div>
+        <div class="cb" id="retLines" style="padding:0;margin-top:8px">
+          <p class="ts tm">返品元を選択してください</p>
+        </div>
+        <button class="btn bp m8" onclick="execReturn()">↩️ 返品を実行</button>
+      </div>
+    </div>
+  </div><!-- /docSec-delivery -->
+
+  <!-- ===== 請求書セクション ===== -->
+  <div id="docSec-invoice" style="display:none">
+    <div class="card">
+      <div class="ch"><span class="ct">🧾 請求書を作成</span></div>
+      <div class="cb">
+        <div class="fr c2">
+          <div>
+            <label>請求先（自由入力）*</label>
+            <input type="text" id="invTo" placeholder="例：〇〇ギャラリー 御中">
+          </div>
+          <div>
+            <label>請求日 *</label>
+            <div class="df"><button type="button" class="dd" id="invDate_btn" onclick="dpOpen('invDate')"><span id="invDate_lbl" class="ph">日付を選択</span><span>📅</span></button></div>
+            <input type="hidden" id="invDate">
+          </div>
+        </div>
+        <div class="fr c2">
+          <div>
+            <label>支払期限</label>
+            <div class="df"><button type="button" class="dd" id="invDue_btn" onclick="dpOpen('invDue')"><span id="invDue_lbl" class="ph">日付を選択（任意）</span><span>📅</span></button></div>
+            <input type="hidden" id="invDue">
+          </div>
+          <div>
+            <label>請求番号（任意）</label>
+            <input type="text" id="invNo" placeholder="例：INV-2026-001">
+          </div>
+        </div>
+        <div class="fr">
+          <div><label>備考・振込先メモ</label><textarea id="invNote" placeholder="振込先や特記事項など" style="min-height:64px"></textarea></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ch">
+        <span class="ct">📋 請求明細</span>
+        <div style="display:flex;gap:6px;align-items:center">
+          <span style="font-size:11px;color:var(--tx2)">在庫元:</span>
+          <select id="invStockSrc" onchange="renderInvLines()" style="width:auto;font-size:12px;padding:4px 24px 4px 8px">
+            <option value="te">手元在庫</option>
+            <option value="consign">委託先在庫</option>
+          </select>
+          <button class="btn bg bsm" onclick="addInvLine()">＋ 追加</button>
+        </div>
+      </div>
+      <div class="cb" id="invLines">
+        <p class="ts tm">「追加」ボタンから商品を追加してください</p>
+      </div>
+      <div class="cb" style="border-top:1px solid var(--bd);padding-top:12px">
+        <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end">
+          <div style="display:flex;gap:12px;align-items:center">
+            <span class="ts tm">小計</span>
+            <span class="mn" style="font-size:15px" id="invSubtotal">¥0</span>
+          </div>
+          <div style="display:flex;gap:12px;align-items:center">
+            <label style="display:flex;align-items:center;gap:6px;margin:0;font-size:12px;font-weight:400;color:var(--tx2);cursor:pointer">
+              <input type="checkbox" id="invTaxCheck" onchange="calcInvTotal()" style="width:auto;padding:0"> 消費税（10%）を加算
+            </label>
+          </div>
+          <div style="display:flex;gap:12px;align-items:center" id="invTaxRow" style="display:none">
+            <span class="ts tm">消費税</span>
+            <span class="mn" style="font-size:15px" id="invTax">¥0</span>
+          </div>
+          <div style="display:flex;gap:12px;align-items:center;padding-top:6px;border-top:1px solid var(--bd)">
+            <span class="ts tm fw7">合計金額</span>
+            <span class="mn fw7" style="font-size:22px;color:var(--ac)" id="invTotal">¥0</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:10px;margin-bottom:14px">
+      <button class="btn bp" style="flex:1" onclick="printInvoice()">🖨️ PDF出力</button>
+      <button class="btn bs" style="flex:1" onclick="clearInvoice()">🗑 リセット</button>
+    </div>
+  </div><!-- /docSec-invoice -->
+
 </div>
 
 <!-- 納品書印刷エリア -->
 <div id="delivery-print-area" style="display:none"></div>
+<!-- 請求書印刷エリア -->
+<div id="invoice-print-area" style="display:none"></div>
 
 <!-- ACCOUNT SETTINGS -->
 <div class="pg" id="pg-account">
@@ -1179,6 +1275,26 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
       </div>
       <div class="fr">
         <div><label>メールアドレス（連絡先）</label><input type="email" id="prfEmail" placeholder="例：info@example.com"></div>
+      </div>
+      <div style="margin:14px 0 10px;padding-top:10px;border-top:1px solid var(--bd)">
+        <div style="font-size:12px;font-weight:700;color:var(--tx2);margin-bottom:8px">💳 振込先情報（請求書PDFに自動反映されます）</div>
+        <div class="fr c2">
+          <div><label>銀行名</label><input type="text" id="prfBankName" placeholder="例：○○銀行"></div>
+          <div><label>支店名</label><input type="text" id="prfBankBranch" placeholder="例：○○支店"></div>
+        </div>
+        <div class="fr c2">
+          <div><label>預金種別</label>
+            <select id="prfBankType">
+              <option value="">選択してください</option>
+              <option value="futsu">普通預金</option>
+              <option value="tooza">当座預金</option>
+            </select>
+          </div>
+          <div><label>口座番号</label><input type="text" id="prfBankNumber" placeholder="例：1234567"></div>
+        </div>
+        <div class="fr">
+          <div><label>口座名義（カタカナ）</label><input type="text" id="prfBankHolder" placeholder="例：ヤマダ ハナコ"></div>
+        </div>
       </div>
       <button class="btn bp" onclick="saveProfile()" style="margin-top:4px">💾 事業者情報を保存</button>
       <div id="prfMsg" style="margin-top:8px;font-size:12px;display:none"></div>
@@ -3273,9 +3389,11 @@ function rDeliveryPg() {
   }
   if (!document.getElementById('dlvDate').value) dpSet('dlvDate', tod());
   if (!document.getElementById('retDate').value) dpSet('retDate', tod());
+  if (!document.getElementById('invDate').value) dpSet('invDate', tod());
   renderDlvLines();
   renderDlvStockList();
   renderRetSrc();
+  renderInvLines();
 }
 
 // 委託先在庫一覧を描画するにゃ
@@ -3426,6 +3544,273 @@ function clearDelivery() {
   renderDlvLines();
 }
 
+// ══════════════════════════════════════════════
+// 書類作成タブ切り替え
+// ══════════════════════════════════════════════
+function switchDocTab(tab) {
+  var tabs = ['delivery', 'invoice'];
+  tabs.forEach(function(t) {
+    var sec = document.getElementById('docSec-' + t);
+    var btn = document.getElementById('docTab' + (t === 'delivery' ? 'Dlv' : 'Inv'));
+    if (!sec || !btn) return;
+    var isActive = t === tab;
+    sec.style.display = isActive ? '' : 'none';
+    btn.style.background = isActive ? 'var(--ac)' : 'var(--sf2)';
+    btn.style.color = isActive ? '#fff' : 'var(--tx2)';
+  });
+}
+
+// ══════════════════════════════════════════════
+// 請求書
+// ══════════════════════════════════════════════
+var invLines = []; // { itemId, qty, price, fromConsign, consignDest }
+
+function renderInvLines() {
+  var el = document.getElementById('invLines');
+  if (!el) return;
+  var src = document.getElementById('invStockSrc') ? document.getElementById('invStockSrc').value : 'te';
+  var prods = items.filter(function(i) { return i.type === 'product'; });
+
+  if (!invLines.length) {
+    el.innerHTML = '<p class="ts tm">「追加」ボタンから商品を追加してください</p>';
+    calcInvTotal();
+    return;
+  }
+
+  // 委託先リスト（在庫あり）
+  var consignDests = [];
+  items.filter(function(i) { return i.type === 'product' && i.locations; }).forEach(function(i) {
+    Object.entries(i.locations).forEach(function(e) {
+      if (e[0] !== '手元' && e[1] > 0 && !consignDests.includes(e[0])) consignDests.push(e[0]);
+    });
+  });
+
+  el.innerHTML = invLines.map(function(line, idx) {
+    // 手元在庫の商品セレクト
+    var selOpts = prods.map(function(i) {
+      return '<option value="' + i.id + '"' + (i.id === line.itemId ? ' selected' : '') + '>'
+        + i.name + (i.color ? ' (' + i.color + ')' : '') + '</option>';
+    }).join('');
+
+    var destSel = '';
+    if (line.fromConsign) {
+      // 委託先選択
+      var dOpts = consignDests.map(function(d) {
+        return '<option value="' + d + '"' + (d === line.consignDest ? ' selected' : '') + '>' + d + '</option>';
+      }).join('');
+      destSel = '<select style="width:auto;min-width:100px;font-size:12px;padding:4px 24px 4px 8px" onchange="invLines[' + idx + '].consignDest=this.value;renderInvLines()">'
+        + (consignDests.length ? dOpts : '<option value="">委託先なし</option>') + '</select>';
+    }
+
+    return '<div style="display:flex;gap:8px;align-items:center;padding:9px 0;border-bottom:1px solid var(--bd);flex-wrap:wrap">'
+      + '<select style="flex:2;min-width:130px" onchange="invLines[' + idx + '].itemId=this.value;var fi=items.find(function(i){return i.id===event.target.value;});invLines[' + idx + '].price=fi?fi.sp||0:0;renderInvLines()">' + selOpts + '</select>'
+      + (line.fromConsign ? destSel : '')
+      + '<div style="display:flex;align-items:center;gap:4px"><label class="ts tm">数量</label><input type="number" style="width:58px" value="' + line.qty + '" min="1" onchange="invLines[' + idx + '].qty=parseInt(this.value)||1;renderInvLines()"></div>'
+      + '<div style="display:flex;align-items:center;gap:4px"><label class="ts tm">単価</label><input type="number" style="width:76px" value="' + line.price + '" min="0" onchange="invLines[' + idx + '].price=parseFloat(this.value)||0;renderInvLines()"><span class="ts tm">円</span></div>'
+      + '<span class="mn ts" style="min-width:66px;text-align:right">' + yen(line.qty * line.price) + '</span>'
+      + '<button class="bi bdl" onclick="invLines.splice(' + idx + ',1);renderInvLines()">✕</button>'
+      + '</div>';
+  }).join('');
+
+  calcInvTotal();
+}
+
+function addInvLine() {
+  var prods = items.filter(function(i) { return i.type === 'product'; });
+  if (!prods.length) { alert('完成品が登録されていません'); return; }
+  var src = document.getElementById('invStockSrc') ? document.getElementById('invStockSrc').value : 'te';
+  var fromConsign = src === 'consign';
+
+  // 委託先在庫がある最初の商品を選ぶ
+  var firstItem = prods[0];
+  var consignDest = '';
+  if (fromConsign) {
+    var withConsign = prods.find(function(i) {
+      return i.locations && Object.entries(i.locations).some(function(e) { return e[0] !== '手元' && e[1] > 0; });
+    });
+    if (withConsign) {
+      firstItem = withConsign;
+      consignDest = Object.entries(withConsign.locations).find(function(e) { return e[0] !== '手元' && e[1] > 0; })[0];
+    }
+  }
+
+  invLines.push({ itemId: firstItem.id, qty: 1, price: firstItem.sp || 0, fromConsign: fromConsign, consignDest: consignDest });
+  renderInvLines();
+}
+
+function calcInvTotal() {
+  var subtotal = invLines.reduce(function(a, l) { return a + l.qty * l.price; }, 0);
+  var taxCheck = document.getElementById('invTaxCheck');
+  var taxAmt = taxCheck && taxCheck.checked ? Math.round(subtotal * 0.1) : 0;
+  var total = subtotal + taxAmt;
+
+  var subEl = document.getElementById('invSubtotal');
+  var taxEl = document.getElementById('invTax');
+  var totEl = document.getElementById('invTotal');
+  var taxRow = document.getElementById('invTaxRow');
+
+  if (subEl) subEl.textContent = yen(subtotal);
+  if (taxEl) taxEl.textContent = yen(taxAmt);
+  if (totEl) totEl.textContent = yen(total);
+  if (taxRow) taxRow.style.display = (taxCheck && taxCheck.checked) ? 'flex' : 'none';
+}
+
+function clearInvoice() {
+  if (!confirm('請求書の内容をリセットしますか？')) return;
+  invLines = [];
+  document.getElementById('invTo').value = '';
+  document.getElementById('invNo').value = '';
+  document.getElementById('invNote').value = '';
+  document.getElementById('invDue').value = '';
+  document.getElementById('invDue_lbl').textContent = '日付を選択（任意）';
+  document.getElementById('invDue_btn').classList.remove('filled');
+  if (document.getElementById('invTaxCheck')) document.getElementById('invTaxCheck').checked = false;
+  renderInvLines();
+}
+
+function printInvoice() {
+  var to = document.getElementById('invTo').value.trim();
+  var date = document.getElementById('invDate').value;
+  var due = document.getElementById('invDue').value;
+  var invNo = document.getElementById('invNo').value.trim();
+  var note = document.getElementById('invNote').value.trim();
+  var taxCheck = document.getElementById('invTaxCheck');
+  var withTax = taxCheck && taxCheck.checked;
+
+  if (!to) { alert('請求先を入力してください'); return; }
+  if (!date) { alert('請求日を選択してください'); return; }
+  if (!invLines.length) { alert('商品を追加してください'); return; }
+
+  var subtotal = invLines.reduce(function(a, l) { return a + l.qty * l.price; }, 0);
+  var taxAmt = withTax ? Math.round(subtotal * 0.1) : 0;
+  var total = subtotal + taxAmt;
+
+  var now2 = new Date();
+  var outDate = now2.getFullYear() + '年' + (now2.getMonth() + 1) + '月' + now2.getDate() + '日';
+  var dateFmt = date.replace(/-/g, '/');
+  var dueFmt = due ? due.replace(/-/g, '/') : '';
+
+  var rows = invLines.map(function(line, idx) {
+    var item = items.find(function(i) { return i.id === line.itemId; }) || {};
+    var amt = line.qty * line.price;
+    var origin = line.fromConsign && line.consignDest ? '<br><small style="color:#888;font-size:10px">委託先: ' + line.consignDest + '</small>' : '';
+    return '<tr>'
+      + '<td>' + (idx + 1) + '</td>'
+      + '<td>' + (item.code || '—') + '</td>'
+      + '<td><b>' + (item.name || '') + '</b>' + (item.color ? ' <span style="color:#888;font-size:11px">(' + item.color + ')</span>' : '') + origin + '</td>'
+      + '<td class="num">' + line.qty + '</td>'
+      + '<td class="num">¥' + (line.price || 0).toLocaleString() + '</td>'
+      + '<td class="num">¥' + Math.round(amt).toLocaleString() + '</td>'
+      + '</tr>';
+  }).join('');
+
+  var taxRow2 = withTax ? '<tr style="background:#faf8f5"><td colspan="5" style="text-align:right;font-size:12px;color:#888">消費税（10%）</td><td class="num" style="font-size:12px">¥' + taxAmt.toLocaleString() + '</td></tr>' : '';
+
+  var bankInfo = '';
+  if (userProfile) {
+    var parts = [];
+    if (userProfile.bank_name) parts.push('銀行名: ' + userProfile.bank_name);
+    if (userProfile.bank_branch) parts.push('支店名: ' + userProfile.bank_branch);
+    if (userProfile.bank_type) parts.push((userProfile.bank_type === 'futsu' ? '普通' : '当座') + '預金');
+    if (userProfile.bank_number) parts.push('口座番号: ' + userProfile.bank_number);
+    if (userProfile.bank_holder) parts.push('口座名義: ' + userProfile.bank_holder);
+    if (parts.length) bankInfo = '<div style="margin-top:18px;padding:12px 14px;border:1px solid #ddd;border-radius:6px;font-size:11px;line-height:2;background:#faf8f5"><b style="font-size:12px">【振込先】</b><br>' + parts.join('<br>') + '</div>';
+  }
+
+  var html = ''
+    + '<div class="pr-header">'
+    + '<div>'
+    + '<div class="pr-title">請 求 書</div>'
+    + (invNo ? '<div class="pr-sub">請求番号: ' + invNo + '</div>' : '')
+    + '</div>'
+    + '<div class="pr-date" style="text-align:right">'
+    + '発行日: ' + outDate
+    + (userProfile && (userProfile.shop_name || userProfile.owner_name) ? '<br><br><b>' + (userProfile.shop_name || '') + (userProfile.owner_name ? ' ' + userProfile.owner_name : '') + '</b>' : '')
+    + (userProfile && userProfile.zip ? '<br>〒' + userProfile.zip : '')
+    + (userProfile && userProfile.address ? '<br>' + userProfile.address : '')
+    + (userProfile && userProfile.phone ? '<br>TEL: ' + userProfile.phone : '')
+    + (userProfile && userProfile.email ? '<br>' + userProfile.email : '')
+    + '</div>'
+    + '</div>'
+    + '<div style="margin-bottom:18px">'
+    + '<div style="font-size:16px;font-weight:700;margin-bottom:4px">' + to + ' 御中</div>'
+    + '<div style="font-size:12px;color:#555">請求日: ' + dateFmt + (dueFmt ? '　支払期限: ' + dueFmt : '') + '</div>'
+    + '</div>'
+    + '<div class="pr-section">'
+    + '<table class="pr-table">'
+    + '<thead><tr><th style="width:28px">No.</th><th style="width:72px">管理番号</th><th>商品名</th><th style="width:44px">数量</th><th style="width:80px">単価</th><th style="width:80px">金額</th></tr></thead>'
+    + '<tbody>' + rows + taxRow2 + '</tbody>'
+    + '</table>'
+    + '</div>'
+    + '<div style="display:flex;justify-content:space-between;align-items:flex-end;margin-top:10px">'
+    + '<div>'
+    + (userProfile && userProfile.stamp_url ? '<img src="' + userProfile.stamp_url + '" style="width:70px;height:70px;object-fit:contain" onerror="this.style.display=\'none\'">' : '')
+    + '</div>'
+    + '<div class="pr-summary">ご請求金額: <b>¥' + Math.round(total).toLocaleString() + '</b>' + (withTax ? '<br><span style="font-size:11px;color:#888">（消費税込み）</span>' : '') + '</div>'
+    + '</div>'
+    + (note ? '<div style="margin-top:18px;padding:10px 12px;border:1px solid #ddd;border-radius:6px;font-size:11px;color:#555;line-height:1.8;white-space:pre-wrap"><b>備考</b><br>' + note + '</div>' : '')
+    + bankInfo;
+
+  document.getElementById('invoice-print-area').innerHTML = html;
+  // 納品書エリアをクリアして干渉を防ぐ
+  document.getElementById('delivery-print-area').innerHTML = '';
+  window.print();
+
+  // 印刷後に在庫・販売記録への反映を確認
+  setTimeout(function() {
+    var hasConsign = invLines.some(function(l) { return l.fromConsign && l.consignDest; });
+    var msg = '請求書を出力しました。\n\n';
+    if (hasConsign) msg += '委託先在庫の商品が含まれています。\n販売記録に追加し、在庫を反映しますか？\n（委託先在庫から数量を減算します）';
+    else msg += '販売記録に追加し、手元在庫を反映しますか？';
+    if (confirm(msg)) {
+      applyInvoiceToSales(date);
+    }
+  }, 500);
+}
+
+async function applyInvoiceToSales(date) {
+  var updated = 0;
+  for (var line of invLines) {
+    var item = items.find(function(i) { return i.id === line.itemId; });
+    if (!item) continue;
+
+    // 在庫を減らす
+    if (line.fromConsign && line.consignDest) {
+      if (!item.locations) item.locations = {};
+      item.locations[line.consignDest] = Math.max(0, (item.locations[line.consignDest] || 0) - line.qty);
+    } else {
+      if (!item.locations) item.locations = {};
+      var hand = item.locations['手元'] !== undefined ? item.locations['手元'] : (item.stock || 0);
+      item.locations['手元'] = Math.max(0, hand - line.qty);
+      item.stock = item.locations['手元'];
+    }
+
+    // 販売記録を追加
+    var saleRec = {
+      id: 'inv_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+      item_id: item.id,
+      item_name: item.name,
+      qty: line.qty,
+      price: line.price,
+      platform: '請求書',
+      date: date || tod(),
+      note: '請求書より自動登録',
+      created_at: new Date().toISOString()
+    };
+    try {
+      await sb.from('sales').insert([saleRec]);
+    } catch(e) {}
+
+    addH(item.name, -line.qty, '請求書販売×' + line.qty + ' ' + (date || tod()), item.stock);
+    await svItem(item);
+    updated++;
+  }
+  alert(updated + '件の在庫・販売記録を更新しました！');
+  rDeliveryPg();
+}
+
+
+
 function printDelivery() {
   var dest = document.getElementById('dlvDest').value;
   var date = document.getElementById('dlvDate').value;
@@ -3542,6 +3927,12 @@ function rProfileForm() {
   document.getElementById('prfAddr').value  = userProfile.address    || '';
   document.getElementById('prfPhone').value = userProfile.phone      || '';
   document.getElementById('prfEmail').value = userProfile.email      || '';
+  // 振込先
+  if (document.getElementById('prfBankName'))   document.getElementById('prfBankName').value   = userProfile.bank_name   || '';
+  if (document.getElementById('prfBankBranch')) document.getElementById('prfBankBranch').value = userProfile.bank_branch || '';
+  if (document.getElementById('prfBankType'))   document.getElementById('prfBankType').value   = userProfile.bank_type   || '';
+  if (document.getElementById('prfBankNumber')) document.getElementById('prfBankNumber').value = userProfile.bank_number || '';
+  if (document.getElementById('prfBankHolder')) document.getElementById('prfBankHolder').value = userProfile.bank_holder || '';
   // 印鑑プレビュー
   if (userProfile.stamp_url) {
     document.getElementById('stampPreview').innerHTML = '<img src="' + userProfile.stamp_url + '" style="width:76px;height:76px;object-fit:contain;border-radius:6px">';
@@ -3552,15 +3943,20 @@ function rProfileForm() {
 async function saveProfile() {
   if (!currentUser) return;
   var obj = {
-    user_id:    currentUser.id,
-    shop_name:  document.getElementById('prfShop').value.trim(),
-    owner_name: document.getElementById('prfName').value.trim(),
-    zip:        document.getElementById('prfZip').value.trim(),
-    address:    document.getElementById('prfAddr').value.trim(),
-    phone:      document.getElementById('prfPhone').value.trim(),
-    email:      document.getElementById('prfEmail').value.trim(),
-    stamp_url:  userProfile ? (userProfile.stamp_url || null) : null,
-    updated_at: new Date().toISOString()
+    user_id:     currentUser.id,
+    shop_name:   document.getElementById('prfShop').value.trim(),
+    owner_name:  document.getElementById('prfName').value.trim(),
+    zip:         document.getElementById('prfZip').value.trim(),
+    address:     document.getElementById('prfAddr').value.trim(),
+    phone:       document.getElementById('prfPhone').value.trim(),
+    email:       document.getElementById('prfEmail').value.trim(),
+    bank_name:   (document.getElementById('prfBankName')   || {}).value ? document.getElementById('prfBankName').value.trim()   : (userProfile ? userProfile.bank_name   || null : null),
+    bank_branch: (document.getElementById('prfBankBranch') || {}).value ? document.getElementById('prfBankBranch').value.trim() : (userProfile ? userProfile.bank_branch || null : null),
+    bank_type:   (document.getElementById('prfBankType')   || {}).value ? document.getElementById('prfBankType').value          : (userProfile ? userProfile.bank_type   || null : null),
+    bank_number: (document.getElementById('prfBankNumber') || {}).value ? document.getElementById('prfBankNumber').value.trim() : (userProfile ? userProfile.bank_number || null : null),
+    bank_holder: (document.getElementById('prfBankHolder') || {}).value ? document.getElementById('prfBankHolder').value.trim() : (userProfile ? userProfile.bank_holder || null : null),
+    stamp_url:   userProfile ? (userProfile.stamp_url || null) : null,
+    updated_at:  new Date().toISOString()
   };
   try {
     var isNew = !userProfile || !userProfile.id;
