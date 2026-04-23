@@ -1203,9 +1203,17 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
     </div>
     <div class="mb">
       <p class="ts tm" style="margin-bottom:12px">委託先・マルシェなど追加のプラットフォームを登録できます。<br>販売記録・納品書の選択肢に反映されます。</p>
-      <div style="display:flex;gap:7px;margin-bottom:14px">
-        <input type="text" id="dlvDestNewName" placeholder="例：〇〇マルシェ、△△委託" style="flex:1;margin:0" onkeydown="if(event.key==='Enter')addCustomPlatformFromMgr()">
-        <button class="btn bg bsm" onclick="addCustomPlatformFromMgr()">＋ 追加</button>
+      <div style="margin-bottom:8px">
+        <input type="text" id="dlvDestNewName" placeholder="例：〇〇マルシェ、saari cafe" style="width:100%;margin:0 0 8px 0" onkeydown="if(event.key==='Enter')addCustomPlatformFromMgr()">
+        <div style="display:flex;gap:12px;margin-bottom:8px;font-size:13px">
+          <label style="display:flex;align-items:center;gap:5px;cursor:pointer;margin:0;font-weight:400">
+            <input type="radio" name="dlvDestType" value="physical" checked style="width:auto;padding:0"> 🏪 委託・実店舗
+          </label>
+          <label style="display:flex;align-items:center;gap:5px;cursor:pointer;margin:0;font-weight:400">
+            <input type="radio" name="dlvDestType" value="online" style="width:auto;padding:0"> 🌐 ネット販売
+          </label>
+        </div>
+        <button class="btn bg bsm" onclick="addCustomPlatformFromMgr()" style="width:100%">＋ 追加</button>
       </div>
       <div id="dlvDestMgrList"></div>
     </div>
@@ -2543,6 +2551,20 @@ function getAllPlatforms() {
   return all;
 }
 
+// 🌐ネット販売のみ（在庫変動リマインド対象）
+function getOnlinePlatforms() {
+  var all = DEFAULT_PLATFORMS.slice(); // BASE・minne・Creemaは常にonline
+  customPlatforms.filter(function(p) { return p.type === 'online'; }).forEach(function(p) {
+    if (!all.includes(p.name)) all.push(p.name);
+  });
+  return all;
+}
+
+// 🏪委託・実店舗のみ（在庫を独立して持つ場所）
+function getPhysicalPlatforms() {
+  return customPlatforms.filter(function(p) { return p.type === 'physical'; }).map(function(p) { return p.name; });
+}
+
 function buildLocSelect(selectedVal) {
   var sel = document.getElementById('saleLoc');
   if (!sel) return;
@@ -2581,10 +2603,12 @@ async function addCustomPlatformFromMgr() {
   var name = document.getElementById('dlvDestNewName').value.trim();
   if (!name) return;
   if (getAllPlatforms().includes(name)) { alert('同じ名前がすでにあります'); return; }
-  var obj = { id: crypto.randomUUID ? crypto.randomUUID() : uid(), user_id: currentUser.id, name: name };
+  var typeEl = document.querySelector('input[name="dlvDestType"]:checked');
+  var type = typeEl ? typeEl.value : 'physical';
+  var obj = { id: crypto.randomUUID ? crypto.randomUUID() : uid(), user_id: currentUser.id, name: name, type: type };
   customPlatforms.push(obj);
   try {
-    await fetch(SB_URL + '/rest/v1/platforms', { method: 'POST', headers: sbHeaders(), body: JSON.stringify({ id: obj.id, user_id: obj.user_id, name: obj.name }) });
+    await fetch(SB_URL + '/rest/v1/platforms', { method: 'POST', headers: sbHeaders(), body: JSON.stringify({ id: obj.id, user_id: obj.user_id, name: obj.name, type: obj.type }) });
   } catch(e) { console.error(e); }
   document.getElementById('dlvDestNewName').value = '';
   openDlvDestMgr();
@@ -2696,10 +2720,14 @@ async function recSale() {
   document.getElementById('saleQty').value = 1; document.getElementById('salePrice').value = ''; document.getElementById('saleMemo').value = ''; buildLocSelect('🏠 手元（直接販売）');
   rSales();
   // マルチプラットフォーム在庫変動通知にゃ
-  if (item.platforms && item.platforms.length > 0) {
-    var otherPlatforms = item.platforms.filter(function(p) { return p !== loc; });
-    if (otherPlatforms.length > 0) {
-      alert('📢 「' + item.name + '」の在庫が変わりました！\n在庫: ' + prevStock + ' → ' + item.stock + (item.unit || '個') + '\n\n以下のプラットフォームの在庫も更新してください：\n・' + otherPlatforms.join('\n・'));
+  // 🌐ネット販売のプラットフォームで出品中の商品が手元から売れた場合のみリマインド
+  var onlines = getOnlinePlatforms();
+  var physicals = getPhysicalPlatforms();
+  var isPhysicalSale = physicals.includes(loc); // 委託・実店舗での販売
+  if (!isPhysicalSale && item.platforms && item.platforms.length > 0) {
+    var onlinePlatforms = item.platforms.filter(function(p) { return onlines.includes(p) && p !== loc; });
+    if (onlinePlatforms.length > 0) {
+      alert('📢 「' + item.name + '」の在庫が変わりました！\n在庫: ' + prevStock + ' → ' + item.stock + (item.unit || '個') + '\n\n以下のプラットフォームの在庫も更新してください：\n・' + onlinePlatforms.join('\n・'));
       return;
     }
   }
