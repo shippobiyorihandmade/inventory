@@ -1890,13 +1890,21 @@ function closeBnMore() { document.getElementById('bnMoreOv').classList.remove('o
 // COST
 // ══════════════════════════════════════════════
 function calcCost(item) {
-  if (!item.recipe || !item.recipe.length) return item.cost || 0;
-  var t = 0;
-  item.recipe.forEach(function(r) {
-    var m = items.find(function(x) { return x.id === r.mid; });
-    if (m) t += (m.mc || 0) * r.qty;
-  });
-  return Math.round(t);
+  var recipeCost = 0;
+  if (item.recipe && item.recipe.length) {
+    item.recipe.forEach(function(r) {
+      var m = items.find(function(x) { return x.id === r.mid; });
+      if (m) recipeCost += (m.mc || 0) * r.qty;
+    });
+  } else {
+    recipeCost = item.cost || 0;
+  }
+  // addon_idsがある場合は加算にゃ
+  var addonCost = 0;
+  if (item.addon_ids && item.addon_ids.length && costAddons.length) {
+    addonCost = calcAddonCost(1, item.addon_ids);
+  }
+  return Math.round(recipeCost) + addonCost;
 }
 
 // ══════════════════════════════════════════════
