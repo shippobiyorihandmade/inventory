@@ -1142,8 +1142,13 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
             <input type="hidden" id="invDue">
           </div>
           <div>
-            <label>請求番号（任意）</label>
-            <input type="text" id="invNo" placeholder="例：INV-2026-001">
+            <label>請求番号
+              <button type="button" onclick="openInvNoSettings()" style="margin-left:6px;font-size:10px;padding:2px 8px;border-radius:20px;border:1px solid var(--bd);background:var(--sf2);cursor:pointer;font-family:inherit;color:var(--tx2)">⚙️ 採番設定</button>
+            </label>
+            <div style="display:flex;gap:6px;align-items:center">
+              <input type="text" id="invNo" placeholder="採番設定すると自動入力" style="flex:1">
+              <button type="button" onclick="genInvNo()" class="btn bs bsm" style="white-space:nowrap;flex-shrink:0">🔄 発番</button>
+            </div>
           </div>
         </div>
         <div class="fr">
@@ -1364,6 +1369,67 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
     </div>
     <div class="mft">
       <button class="btn bs" onclick="closeMod('dlvDestMgrOv')">閉じる</button>
+    </div>
+  </div>
+</div>
+
+<!-- 請求番号採番設定モーダル -->
+<div class="ov" id="invNoSettingsOv">
+  <div class="md" style="max-width:420px">
+    <div class="mh">
+      <span class="mt2">⚙️ 請求番号の採番設定</span>
+      <button class="bi" onclick="closeMod('invNoSettingsOv')">✕</button>
+    </div>
+    <div class="mb">
+      <p class="ts tm" style="margin-bottom:14px;line-height:1.7">請求番号のフォーマットを設定できます。年ごとに連番がリセットされます。</p>
+
+      <div style="margin-bottom:12px">
+        <label>プレフィックス（番号の前につく文字）</label>
+        <input type="text" id="invNoPfx" placeholder="例：INV- / 請求- / SEI-" maxlength="20">
+        <div style="font-size:11px;color:var(--tx2);margin-top:3px">空欄でも OK</div>
+      </div>
+
+      <div style="margin-bottom:12px">
+        <label>年を含める</label>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:4px">
+          <label style="display:flex;align-items:center;gap:5px;cursor:pointer;margin:0;font-weight:400;font-size:13px">
+            <input type="radio" name="invNoYear" value="full" style="width:auto;padding:0" id="invNoYearFull"> 西暦4桁（2026）
+          </label>
+          <label style="display:flex;align-items:center;gap:5px;cursor:pointer;margin:0;font-weight:400;font-size:13px">
+            <input type="radio" name="invNoYear" value="short" style="width:auto;padding:0" id="invNoYearShort"> 西暦2桁（26）
+          </label>
+          <label style="display:flex;align-items:center;gap:5px;cursor:pointer;margin:0;font-weight:400;font-size:13px">
+            <input type="radio" name="invNoYear" value="none" style="width:auto;padding:0" id="invNoYearNone"> 含めない
+          </label>
+        </div>
+      </div>
+
+      <div style="margin-bottom:12px">
+        <label>区切り文字（年と連番の間）</label>
+        <select id="invNoSep">
+          <option value="-">ハイフン（-）</option>
+          <option value="_">アンダースコア（_）</option>
+          <option value="">なし</option>
+        </select>
+      </div>
+
+      <div style="margin-bottom:16px">
+        <label>連番の桁数</label>
+        <select id="invNoDigits">
+          <option value="3">3桁（001）</option>
+          <option value="4">4桁（0001）</option>
+          <option value="2">2桁（01）</option>
+        </select>
+      </div>
+
+      <div style="background:var(--sf2);border-radius:8px;padding:12px 14px;margin-bottom:4px">
+        <div style="font-size:11px;color:var(--tx2);margin-bottom:4px">プレビュー</div>
+        <div style="font-family:'DM Mono',monospace;font-size:16px;font-weight:700;color:var(--ac)" id="invNoPreview">INV-2026-001</div>
+      </div>
+    </div>
+    <div class="mft">
+      <button class="btn bs" onclick="closeMod('invNoSettingsOv')">キャンセル</button>
+      <button class="btn bp" onclick="saveInvNoSettings()">💾 保存</button>
     </div>
   </div>
 </div>
@@ -1835,6 +1901,7 @@ async function loadAll() {
     customPlatforms = await sbGetDirect('platforms');
     costAddons = await sbGetDirect('cost_addons');
     await loadProfile();
+    loadInvNoConfig();
     setSyncing('ok');
     // 現在開いてるページを再描画するにゃ（ダッシュボードに強制移動しない）
     var pageMap = { dash: rDash, products: rProds, materials: rMats, make: rMakePg, purchase: rPurPg, adjust: rAdj, sales: rSales, history: rHist, contact: rContact, account: rAccountPg, delivery: rDeliveryPg };
@@ -3555,6 +3622,150 @@ function clearDelivery() {
 }
 
 // 請求先セレクトを委託先リストで構築するにゃ
+// ══════════════════════════════════════════════
+// 請求番号採番
+// ══════════════════════════════════════════════
+
+// デフォルト設定
+var invNoConfig = {
+  prefix: 'INV-',
+  yearFmt: 'full',   // full / short / none
+  sep: '-',
+  digits: 3
+};
+
+function loadInvNoConfig() {
+  // profilesから読み込むにゃ（userProfile経由）
+  if (!userProfile) return;
+  if (userProfile.inv_no_prefix  !== undefined) invNoConfig.prefix  = userProfile.inv_no_prefix  || '';
+  if (userProfile.inv_no_yearfmt !== undefined) invNoConfig.yearFmt = userProfile.inv_no_yearfmt || 'full';
+  if (userProfile.inv_no_sep     !== undefined) invNoConfig.sep     = userProfile.inv_no_sep     || '-';
+  if (userProfile.inv_no_digits  !== undefined) invNoConfig.digits  = userProfile.inv_no_digits  || 3;
+}
+
+function buildInvNoStr(seq) {
+  var y = new Date().getFullYear();
+  var yearPart = invNoConfig.yearFmt === 'full' ? String(y)
+               : invNoConfig.yearFmt === 'short' ? String(y).slice(-2)
+               : '';
+  var seqStr = String(seq).padStart(Number(invNoConfig.digits) || 3, '0');
+  var parts = [];
+  parts.push(invNoConfig.prefix || '');
+  if (yearPart) parts.push(yearPart + invNoConfig.sep);
+  else parts.push('');
+  parts.push(seqStr);
+  // prefix + yearSep + seq をつなぐ
+  return (invNoConfig.prefix || '') + (yearPart ? yearPart + invNoConfig.sep : '') + seqStr;
+}
+
+function updateInvNoPreview() {
+  var pfx     = (document.getElementById('invNoPfx')    || {}).value || '';
+  var yearFmt = document.querySelector('input[name="invNoYear"]:checked');
+  yearFmt = yearFmt ? yearFmt.value : 'full';
+  var sep     = (document.getElementById('invNoSep')    || {}).value || '-';
+  var digits  = (document.getElementById('invNoDigits') || {}).value || '3';
+  var y = new Date().getFullYear();
+  var yearPart = yearFmt === 'full' ? String(y) : yearFmt === 'short' ? String(y).slice(-2) : '';
+  var seqStr = '1'.padStart(Number(digits), '0');
+  var preview = pfx + (yearPart ? yearPart + sep : '') + seqStr;
+  var el = document.getElementById('invNoPreview');
+  if (el) el.textContent = preview || '（番号なし）';
+}
+
+function openInvNoSettings() {
+  loadInvNoConfig();
+  // フォームに現在の設定をセット
+  var pfxEl = document.getElementById('invNoPfx');
+  if (pfxEl) pfxEl.value = invNoConfig.prefix || '';
+  var sepEl = document.getElementById('invNoSep');
+  if (sepEl) sepEl.value = invNoConfig.sep || '-';
+  var digEl = document.getElementById('invNoDigits');
+  if (digEl) digEl.value = String(invNoConfig.digits || 3);
+  var yrEl = document.getElementById('invNoYear' + (
+    invNoConfig.yearFmt === 'short' ? 'Short' : invNoConfig.yearFmt === 'none' ? 'None' : 'Full'
+  ));
+  if (yrEl) yrEl.checked = true;
+
+  // プレビューをリアルタイム更新
+  setTimeout(function() {
+    ['invNoPfx','invNoSep','invNoDigits'].forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el) el.oninput = updateInvNoPreview;
+    });
+    document.querySelectorAll('input[name="invNoYear"]').forEach(function(r) {
+      r.onchange = updateInvNoPreview;
+    });
+    updateInvNoPreview();
+  }, 50);
+
+  openMod('invNoSettingsOv');
+}
+
+async function saveInvNoSettings() {
+  var pfx     = (document.getElementById('invNoPfx')    || {}).value || '';
+  var yearFmt = document.querySelector('input[name="invNoYear"]:checked');
+  yearFmt = yearFmt ? yearFmt.value : 'full';
+  var sep     = (document.getElementById('invNoSep')    || {}).value || '-';
+  var digits  = Number((document.getElementById('invNoDigits') || {}).value || 3);
+
+  invNoConfig = { prefix: pfx, yearFmt: yearFmt, sep: sep, digits: digits };
+
+  // profilesに保存
+  if (currentUser) {
+    try {
+      var patch = {
+        inv_no_prefix:  pfx,
+        inv_no_yearfmt: yearFmt,
+        inv_no_sep:     sep,
+        inv_no_digits:  digits,
+        updated_at:     new Date().toISOString()
+      };
+      await fetch(SB_URL + '/rest/v1/profiles?user_id=eq.' + currentUser.id, {
+        method: 'PATCH',
+        headers: Object.assign({}, sbHeaders(), { 'Prefer': 'return=representation' }),
+        body: JSON.stringify(patch)
+      });
+      if (userProfile) Object.assign(userProfile, patch);
+    } catch(e) { console.error('invNoSettings save error:', e); }
+  }
+
+  closeMod('invNoSettingsOv');
+  // 発番してフォームに反映
+  await genInvNo();
+}
+
+async function genInvNo() {
+  loadInvNoConfig();
+  var year = new Date().getFullYear();
+
+  // profilesから今年の最終番号を取得
+  var lastKey = 'inv_last_no_' + year;
+  var lastNo = 0;
+  if (userProfile && userProfile[lastKey] !== undefined) {
+    lastNo = Number(userProfile[lastKey]) || 0;
+  }
+  var nextNo = lastNo + 1;
+  var noStr = buildInvNoStr(nextNo);
+
+  // フォームに反映
+  var el = document.getElementById('invNo');
+  if (el) el.value = noStr;
+
+  // profilesに最終番号を保存
+  if (currentUser) {
+    try {
+      var patch = { updated_at: new Date().toISOString() };
+      patch[lastKey] = nextNo;
+      await fetch(SB_URL + '/rest/v1/profiles?user_id=eq.' + currentUser.id, {
+        method: 'PATCH',
+        headers: Object.assign({}, sbHeaders(), { 'Prefer': 'return=representation' }),
+        body: JSON.stringify(patch)
+      });
+      if (userProfile) userProfile[lastKey] = nextNo;
+    } catch(e) { console.error('genInvNo save error:', e); }
+  }
+}
+
 function renderInvToSel() {
   var sel = document.getElementById('invToSel');
   if (!sel) return;
