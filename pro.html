@@ -2003,7 +2003,7 @@ async function getSignedUrl(bucket, path) {
     var data = await res.json();
     // signedURLが相対パスの場合はSB_URLを付加、フルURLならそのまま使うにゃ
     var signedUrl = data.signedURL
-      ? (data.signedURL.startsWith('http') ? data.signedURL : SB_URL + data.signedURL)
+      ? (data.signedURL.startsWith('http') ? data.signedURL : SB_URL + '/storage/v1' + data.signedURL)
       : '';
     if (!signedUrl) throw new Error('no signedURL in response');
     console.log('getSignedUrl:', bucket, cleanPath, '->', signedUrl);
