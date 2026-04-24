@@ -2006,6 +2006,7 @@ async function getSignedUrl(bucket, path) {
       ? (data.signedURL.startsWith('http') ? data.signedURL : SB_URL + data.signedURL)
       : '';
     if (!signedUrl) throw new Error('no signedURL in response');
+    console.log('getSignedUrl:', bucket, cleanPath, '->', signedUrl);
     _signedUrlCache[cacheKey] = { url: signedUrl, exp: now + 3600 * 1000 };
     return signedUrl;
   } catch(e) {
@@ -2030,7 +2031,8 @@ async function loadSignedImages(root) {
     var bucket = wrap.getAttribute('data-bucket') || 'item-photos';
     var path   = wrap.getAttribute('data-path');
     if (!path) return;
-    wrap.removeAttribute('data-path'); // 二重処理防止
+    if (wrap.getAttribute('data-loaded')) return; // 二重処理防止
+    wrap.setAttribute('data-loaded', '1');
     var url = await getSignedUrl(bucket, path);
     if (url) {
       wrap.innerHTML = '<img src="' + url + '" style="width:100%;height:100%;object-fit:cover" onerror="this.parentElement.innerHTML=\'\'">';
@@ -2418,7 +2420,7 @@ function rProds() {
     var thumb = i.photo ? '<div class="simg-wrap" data-bucket="item-photos" data-path="' + i.photo + '" style="width:60px;height:60px;border-radius:7px;border:1px solid var(--bd);background:var(--sf2);overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center"><span style="font-size:22px">🎨</span></div>' : '<div style="width:60px;height:60px;background:var(--sf2);border-radius:7px;border:1px solid var(--bd);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:22px">🎨</div>';
     return '<div class="ic" style="cursor:pointer" onclick="showDetail(\'' + i.id + '\')"><div class="icb"><div class="ict">' + thumb + '<div class="ici"><div class="icn">' + i.name + (i.cat ? '<span class="ts tm" style="font-weight:400;margin-left:7px">' + i.cat + '</span>' : '') + '</div><div class="icm"><span class="mn fw7" style="font-size:16px;color:' + sc + '">' + i.stock + '<small class="tm" style="font-size:11px;font-weight:400"> ' + (i.unit || '個') + '</small></span>' + (i.sp ? '<span class="ts">売価: <b>' + yen(i.sp) + '</b></span>' : '') + (cost ? '<span class="ts tm">原価: ' + yen(cost) + '</span>' : '') + (margin !== null ? '<span class="mgb ' + (margin >= 40 ? 'mgg' : 'mgr') + '">粗利 ' + margin + '%</span>' : '') + st + '</div>' + rh + (i.memo ? '<div class="ts tm m8">' + i.memo + '</div>' : '') + stRow + '</div><div class="ica"><button class="bi" onclick="event.stopPropagation();editItem(\'' + i.id + '\')">✏️</button><button class="bi bdl" onclick="event.stopPropagation();delItem(\'' + i.id + '\')">🗑</button></div></div></div></div>';
   }).join('');
-  setTimeout(function(){ loadSignedImages(document.getElementById('prodList')); }, 0);
+  setTimeout(function(){ loadSignedImages(document.getElementById('prodList')); }, 100);
 }
 
 // ══════════════════════════════════════════════
@@ -2445,7 +2447,7 @@ function rMats() {
     var mthumb = i.photo ? '<div class="simg-wrap" data-bucket="item-photos" data-path="' + i.photo + '" style="width:60px;height:60px;border-radius:7px;border:1px solid var(--bd);background:var(--sf2);overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center"><span style="font-size:22px">🧶</span></div>' : '<div style="width:60px;height:60px;background:var(--sf2);border-radius:7px;border:1px solid var(--bd);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:22px">🧶</div>';
     return '<div class="ic" style="cursor:pointer" onclick="showDetail(\'' + i.id + '\')"><div class="icb"><div class="ict">' + mthumb + '<div class="ici"><div class="icn">' + i.name + (i.cat ? '<span class="ts tm" style="font-weight:400;margin-left:7px">' + i.cat + '</span>' : '') + '</div><div class="icm"><span class="mn fw7" style="font-size:16px;color:' + sc + '">' + i.stock + '<small class="tm" style="font-size:11px;font-weight:400"> ' + (i.unit || '個') + '</small></span><span class="ts tm">最低: ' + (i.min || 0) + (i.unit || '個') + '</span>' + (i.mc ? '<span class="ts tm">単価: ' + yen(i.mc) + '/' + (i.unit || '個') + '</span>' : '') + (i.color ? '<span class="ts tm">🎨 ' + i.color + '</span>' : '') + (i.brand ? '<span class="ts tm">🏷 ' + i.brand + '</span>' : '') + (i.sup ? '<span class="ts tm">仕入先: ' + i.sup + '</span>' : '') + st + '</div>' + (i.memo ? '<div class="ts tm m8">' + i.memo + '</div>' : '') + stRow + '</div><div class="ica"><button class="bi" onclick="event.stopPropagation();editItem(\'' + i.id + '\')">✏️</button><button class="bi bdl" onclick="event.stopPropagation();delItem(\'' + i.id + '\')">🗑</button></div></div></div></div>';
   }).join('');
-  setTimeout(function(){ loadSignedImages(document.getElementById('matList')); }, 0);
+  setTimeout(function(){ loadSignedImages(document.getElementById('matList')); }, 100);
 }
 
 // ══════════════════════════════════════════════
