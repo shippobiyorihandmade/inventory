@@ -4468,6 +4468,8 @@ async function applyInvoiceToSales(date, invSalesTo) {
     if (line.fromConsign && line.consignDest) {
       if (!item.locations) item.locations = {};
       item.locations[line.consignDest] = Math.max(0, (item.locations[line.consignDest] || 0) - line.qty);
+      // 総在庫数も減らすにゃ
+      item.stock = Math.max(0, (item.stock || 0) - line.qty);
     } else {
       if (!item.locations) item.locations = {};
       var hand = item.locations['手元'] !== undefined ? item.locations['手元'] : (item.stock || 0);
