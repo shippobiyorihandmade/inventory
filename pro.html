@@ -1432,6 +1432,38 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
       </div>
     </div>
   </div>
+
+  <!-- データエクスポート -->
+  <div class="card">
+    <div class="ch"><span class="ct">📥 データをエクスポート</span></div>
+    <div class="cb">
+      <p class="ts tm" style="margin-bottom:14px;line-height:1.7">商品データ・販売履歴をCSVファイルでダウンロードできます。バックアップ用にご利用ください。</p>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:var(--sf2);border-radius:10px;border:1px solid var(--bd)">
+          <div>
+            <div style="font-size:13px;font-weight:700">🎨 完成品データ</div>
+            <div class="ts tm">名前・在庫数・売価・原価・カテゴリなど</div>
+          </div>
+          <button class="btn bp bsm" onclick="exportCSV('products')">📥 ダウンロード</button>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:var(--sf2);border-radius:10px;border:1px solid var(--bd)">
+          <div>
+            <div style="font-size:13px;font-weight:700">🧶 材料データ</div>
+            <div class="ts tm">名前・在庫数・単価・カテゴリなど</div>
+          </div>
+          <button class="btn bp bsm" onclick="exportCSV('materials')">📥 ダウンロード</button>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:var(--sf2);border-radius:10px;border:1px solid var(--bd)">
+          <div>
+            <div style="font-size:13px;font-weight:700">💴 販売履歴</div>
+            <div class="ts tm">日付・商品名・数量・売価・利益・販売場所など</div>
+          </div>
+          <button class="btn bp bsm" onclick="exportCSV('sales')">📥 ダウンロード</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <!-- 納品先管理モーダル -->
@@ -4830,6 +4862,98 @@ async function deleteStamp() {
   document.getElementById('stampPreview').innerHTML = '<span style="font-size:11px;color:var(--tx2)">未設定</span>';
   document.getElementById('stampDelBtn').style.display = 'none';
   document.getElementById('stampStatus').textContent = '削除しました';
+}
+
+// ══════════════════════════════════════════════
+// CSV エクスポート
+// ══════════════════════════════════════════════
+function exportCSV(type) {
+  var rows = [];
+  var filename = '';
+  var today = new Date();
+  var dateStr = today.getFullYear() + String(today.getMonth()+1).padStart(2,'0') + String(today.getDate()).padStart(2,'0');
+
+  if (type === 'products') {
+    filename = 'しっぽ日和_完成品_' + dateStr + '.csv';
+    rows.push(['管理番号','商品名','カテゴリ','色','在庫数','単位','売価','原価','粗利率','メモ']);
+    items.filter(function(i){ return i.type === 'product'; }).forEach(function(i) {
+      var cost = calcCost(i);
+      var margin = (i.sp && cost) ? Math.round(((i.sp - cost) / i.sp) * 100) : '';
+      rows.push([
+        i.code || '',
+        i.name || '',
+        i.cat  || '',
+        i.color || '',
+        i.stock !== undefined ? i.stock : '',
+        i.unit || '個',
+        i.sp   || '',
+        cost   || '',
+        margin !== '' ? margin + '%' : '',
+        i.memo || ''
+      ]);
+    });
+
+  } else if (type === 'materials') {
+    filename = 'しっぽ日和_材料_' + dateStr + '.csv';
+    rows.push(['管理番号','材料名','カテゴリ','色','ブランド','仕入先','在庫数','単位','仕入単価','メモ']);
+    items.filter(function(i){ return i.type === 'material'; }).forEach(function(i) {
+      rows.push([
+        i.code  || '',
+        i.name  || '',
+        i.cat   || '',
+        i.color || '',
+        i.brand || '',
+        i.sup   || '',
+        i.stock !== undefined ? i.stock : '',
+        i.unit  || '個',
+        i.mc    || '',
+        i.memo  || ''
+      ]);
+    });
+
+  } else if (type === 'sales') {
+    filename = 'しっぽ日和_販売履歴_' + dateStr + '.csv';
+    rows.push(['日付','商品名','数量','売価','合計','原価','利益','利益率','販売場所','メモ']);
+    var sorted = [...sales].sort(function(a,b){ return (b.date||'').localeCompare(a.date||''); });
+    sorted.forEach(function(s) {
+      var rate = s.total > 0 ? Math.round((s.profit / s.total) * 100) : '';
+      rows.push([
+        s.date      || '',
+        s.itemName  || '',
+        s.qty       || '',
+        s.price     || '',
+        s.total     || '',
+        s.total && s.profit !== undefined ? (s.total - s.profit) : '',
+        s.profit    !== undefined ? s.profit : '',
+        rate !== '' ? rate + '%' : '',
+        s.loc       || '',
+        s.memo      || ''
+      ]);
+    });
+  }
+
+  // CSV文字列を生成（BOM付きUTF-8でExcel対応）
+  var csvContent = '﻿' + rows.map(function(row) {
+    return row.map(function(cell) {
+      var str = String(cell === null || cell === undefined ? '' : cell);
+      // カンマ・改行・ダブルクォートを含む場合はダブルクォートで囲む
+      if (str.includes(',') || str.includes('\n') || str.includes('"')) {
+        str = '"' + str.replace(/"/g, '""') + '"';
+      }
+      return str;
+    }).join(',');
+  }).join('\n');
+
+  // ダウンロード
+  var blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  var url  = URL.createObjectURL(blob);
+  var a    = document.createElement('a');
+  a.href     = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
 }
 
 function rAccountPg() {
