@@ -1276,16 +1276,7 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
             </div>
             <span class="mn" style="font-size:14px;color:#c04a4a" id="invConsignFeeDisp">▲¥0</span>
           </div>
-          <!-- 消費税 -->
-          <div style="display:flex;gap:12px;align-items:center">
-            <label style="display:flex;align-items:center;gap:6px;margin:0;font-size:12px;font-weight:400;color:var(--tx2);cursor:pointer">
-              <input type="checkbox" id="invTaxCheck" onchange="calcInvTotal()" style="width:auto;padding:0"> 消費税（10%）を加算
-            </label>
-          </div>
-          <div style="display:flex;gap:12px;align-items:center" id="invTaxRow" style="display:none">
-            <span class="ts tm">消費税</span>
-            <span class="mn" style="font-size:15px" id="invTax">¥0</span>
-          </div>
+
           <div style="display:flex;gap:12px;align-items:center;padding-top:6px;border-top:1px solid var(--bd)">
             <span class="ts tm fw7">ご請求金額</span>
             <span class="mn fw7" style="font-size:22px;color:var(--ac)" id="invTotal">¥0</span>
@@ -4332,25 +4323,18 @@ function calcInvTotal() {
   // 差し引き後小計
   var afterDiscount = subtotal - feeAmt - consignFee;
 
-  // 消費税（差し引き後に加算）
-  var taxCheck = document.getElementById('invTaxCheck');
-  var taxAmt = taxCheck && taxCheck.checked ? Math.round(afterDiscount * 0.1) : 0;
-  var total = afterDiscount + taxAmt;
+  var total = afterDiscount;
 
   // 表示更新
   var subEl = document.getElementById('invSubtotal');
-  var taxEl = document.getElementById('invTax');
   var totEl = document.getElementById('invTotal');
-  var taxRow = document.getElementById('invTaxRow');
   var feeAmtEl     = document.getElementById('invFeeAmt');
   var consignFeeEl = document.getElementById('invConsignFeeDisp');
 
   if (subEl) subEl.textContent = yen(subtotal);
   if (feeAmtEl) feeAmtEl.textContent = feeAmt > 0 ? '▲' + yen(feeAmt) : '▲¥0';
   if (consignFeeEl) consignFeeEl.textContent = consignFee > 0 ? '▲' + yen(consignFee) : '▲¥0';
-  if (taxEl) taxEl.textContent = yen(taxAmt);
   if (totEl) totEl.textContent = yen(total);
-  if (taxRow) taxRow.style.display = (taxCheck && taxCheck.checked) ? 'flex' : 'none';
 }
 
 function clearInvoice() {
@@ -4363,7 +4347,6 @@ function clearInvoice() {
   document.getElementById('invDue').value = '';
   document.getElementById('invDue_lbl').textContent = '日付を選択（任意）';
   document.getElementById('invDue_btn').classList.remove('filled');
-  if (document.getElementById('invTaxCheck')) document.getElementById('invTaxCheck').checked = false;
   if (document.getElementById('invFeeRate')) document.getElementById('invFeeRate').value = '0';
   if (document.getElementById('invConsignFee')) document.getElementById('invConsignFee').value = '0';
   renderInvLines();
@@ -4375,9 +4358,6 @@ function printInvoice() {
   var due = document.getElementById('invDue').value;
   var invNo = document.getElementById('invNo').value.trim();
   var note = document.getElementById('invNote').value.trim();
-  var taxCheck = document.getElementById('invTaxCheck');
-  var withTax = taxCheck && taxCheck.checked;
-
   if (!to) { alert('請求先を入力してください'); return; }
   if (!date) { alert('請求日を選択してください'); return; }
   if (!invLines.length) { alert('商品を追加してください'); return; }
@@ -4386,9 +4366,7 @@ function printInvoice() {
   var feeRate     = parseFloat((document.getElementById('invFeeRate') || {}).value) || 0;
   var feeAmt      = Math.round(subtotal * feeRate / 100);
   var consignFee  = parseFloat((document.getElementById('invConsignFee') || {}).value) || 0;
-  var afterDiscount = subtotal - feeAmt - consignFee;
-  var taxAmt = withTax ? Math.round(afterDiscount * 0.1) : 0;
-  var total = afterDiscount + taxAmt;
+  var total = subtotal - feeAmt - consignFee;
 
   var now2 = new Date();
   var outDate = now2.getFullYear() + '年' + (now2.getMonth() + 1) + '月' + now2.getDate() + '日';
@@ -4415,7 +4393,7 @@ function printInvoice() {
   var consignRow = consignFee > 0
     ? '<tr style="background:#fff5f5"><td colspan="5" style="text-align:right;font-size:12px;color:#c04a4a">▲ 委託料</td><td class="num" style="font-size:12px;color:#c04a4a">▲¥' + Math.round(consignFee).toLocaleString() + '</td></tr>'
     : '';
-  var taxRow2 = withTax ? '<tr style="background:#faf8f5"><td colspan="5" style="text-align:right;font-size:12px;color:#888">消費税（10%）</td><td class="num" style="font-size:12px">¥' + taxAmt.toLocaleString() + '</td></tr>' : '';
+  var taxRow2 = '';
 
   var bankInfo = '';
   if (userProfile) {
@@ -4457,7 +4435,7 @@ function printInvoice() {
     + '<div>'
     + (userProfile && userProfile.stamp_url ? '<img src="' + userProfile.stamp_url + '" style="width:70px;height:70px;object-fit:contain" onerror="this.style.display=\'none\'">' : '')
     + '</div>'
-    + '<div class="pr-summary">ご請求金額: <b>¥' + Math.round(total).toLocaleString() + '</b>' + (withTax ? '<br><span style="font-size:11px;color:#888">（消費税込み）</span>' : '') + '</div>'
+    + '<div class="pr-summary">ご請求金額: <b>¥' + Math.round(total).toLocaleString() + '</b></div>'
     + '</div>'
     + (note ? '<div style="margin-top:18px;padding:10px 12px;border:1px solid #ddd;border-radius:6px;font-size:11px;color:#555;line-height:1.8;white-space:pre-wrap"><b>備考</b><br>' + note + '</div>' : '')
     + bankInfo;
