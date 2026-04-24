@@ -3012,6 +3012,7 @@ async function recPurchase() {
   if (code) item.code = code;
   if (memo && !item.memo) item.memo = memo;
   if (purUrl && !item.url) item.url = purUrl;
+  if (sup) item.sup = sup; // 購入先を常に最新で反映するにゃ
   // 写真があればアップロードしてアイテムに反映
   if (purPhotoFile && !item.photo) {
     try {
@@ -4875,27 +4876,33 @@ function exportCSV(type) {
 
   if (type === 'products') {
     filename = 'しっぽ日和_完成品_' + dateStr + '.csv';
-    rows.push(['管理番号','商品名','カテゴリ','色','在庫数','単位','売価','原価','粗利率','メモ']);
+    rows.push(['管理番号','商品名','カテゴリ','色','在庫数（総数）','単位','委託先在庫','売価','原価','粗利率','メモ']);
     items.filter(function(i){ return i.type === 'product'; }).forEach(function(i) {
       var cost = calcCost(i);
       var margin = (i.sp && cost) ? Math.round(((i.sp - cost) / i.sp) * 100) : '';
+      // 委託先在庫も出力するにゃ
+      var locStr = '';
+      if (i.locations) {
+        locStr = Object.entries(i.locations).filter(function(e){ return e[1] > 0; }).map(function(e){ return e[0] + ':' + e[1]; }).join(' / ');
+      }
       rows.push([
-        i.code || '',
-        i.name || '',
-        i.cat  || '',
+        i.code  || '',
+        i.name  || '',
+        i.cat   || '',
         i.color || '',
         i.stock !== undefined ? i.stock : '',
-        i.unit || '個',
-        i.sp   || '',
-        cost   || '',
+        i.unit  || '個',
+        locStr,
+        i.sp    || '',
+        cost    || '',
         margin !== '' ? margin + '%' : '',
-        i.memo || ''
+        i.memo  || ''
       ]);
     });
 
   } else if (type === 'materials') {
     filename = 'しっぽ日和_材料_' + dateStr + '.csv';
-    rows.push(['管理番号','材料名','カテゴリ','色','ブランド','仕入先','在庫数','単位','仕入単価','メモ']);
+    rows.push(['管理番号','材料名','カテゴリ','色','ブランド','仕入先','購入URL','在庫数','単位','仕入単価','最低在庫','メモ']);
     items.filter(function(i){ return i.type === 'material'; }).forEach(function(i) {
       rows.push([
         i.code  || '',
@@ -4904,9 +4911,11 @@ function exportCSV(type) {
         i.color || '',
         i.brand || '',
         i.sup   || '',
+        i.url   || '',
         i.stock !== undefined ? i.stock : '',
         i.unit  || '個',
         i.mc    || '',
+        i.min   || '',
         i.memo  || ''
       ]);
     });
