@@ -1969,6 +1969,68 @@ function clearMkPhoto() {
   document.getElementById('mkPhotoInput').value = '';
 }
 
+// ══════════════════════════════════════════════
+// 署名付きURL（Storage非公開対応）
+// ══════════════════════════════════════════════
+var _signedUrlCache = {}; // { 'bucket:path': { url, exp } }
+
+async function getSignedUrl(bucket, path) {
+  if (!path) return '';
+  // フルURLが渡された場合はpathだけ抽出するにゃ
+  var cleanPath = path
+    .replace(/.*\/storage\/v1\/object\/public\// + bucket + '\/', '')
+    .replace(/.*\/storage\/v1\/object\/sign\// + bucket + '\/', '')
+    .split('?')[0];
+
+  var cacheKey = bucket + ':' + cleanPath;
+  var now = Date.now();
+  // キャッシュが50分以上残ってたら再利用
+  if (_signedUrlCache[cacheKey] && _signedUrlCache[cacheKey].exp > now + 10 * 60 * 1000) {
+    return _signedUrlCache[cacheKey].url;
+  }
+
+  try {
+    var res = await fetch(SB_URL + '/storage/v1/object/sign/' + bucket + '/' + cleanPath, {
+      method: 'POST',
+      headers: Object.assign({}, sbHeaders(), { 'Content-Type': 'application/json' }),
+      body: JSON.stringify({ expiresIn: 3600 }) // 1時間
+    });
+    if (!res.ok) throw new Error('sign failed');
+    var data = await res.json();
+    var signedUrl = SB_URL + data.signedURL;
+    _signedUrlCache[cacheKey] = { url: signedUrl, exp: now + 3600 * 1000 };
+    return signedUrl;
+  } catch(e) {
+    console.error('getSignedUrl error:', e);
+    return '';
+  }
+}
+
+// 画像要素に署名付きURLをセットするにゃ
+async function setSignedImg(el, bucket, path, style) {
+  if (!el || !path) return;
+  var url = await getSignedUrl(bucket, path);
+  if (url) {
+    el.innerHTML = '<img src="' + url + '" style="' + (style || 'width:100%;height:100%;object-fit:cover') + '" onerror="this.style.display=\'none\'">';
+  }
+}
+
+// DOM内のsimg-wrapに署名付きURLをセットするにゃ
+async function loadSignedImages(root) {
+  var wraps = (root || document).querySelectorAll('.simg-wrap[data-path]');
+  var tasks = Array.from(wraps).map(async function(wrap) {
+    var bucket = wrap.getAttribute('data-bucket') || 'item-photos';
+    var path   = wrap.getAttribute('data-path');
+    if (!path) return;
+    wrap.removeAttribute('data-path'); // 二重処理防止
+    var url = await getSignedUrl(bucket, path);
+    if (url) {
+      wrap.innerHTML = '<img src="' + url + '" style="width:100%;height:100%;object-fit:cover" onerror="this.parentElement.innerHTML=\'\'">';
+    }
+  });
+  await Promise.all(tasks);
+}
+
 async function uploadPhoto(file, itemId) {
   var mimeToExt = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp', 'image/gif': 'gif' };
   var ext = mimeToExt[file.type] || 'jpg';
@@ -1980,7 +2042,7 @@ async function uploadPhoto(file, itemId) {
     body: file
   });
   if (!res.ok) throw new Error('Storage upload failed: ' + (await res.text()));
-  return SB_URL + '/storage/v1/object/public/item-photos/' + path;
+  return path; // パスのみ保存（署名付きURL対応）
 }
 
 async function loadAll() {
@@ -2237,7 +2299,7 @@ function rDash() {
       ? (i.sp ? '<span class="ts tm">売価 ' + yen(i.sp) + '</span>' : '') + (cost ? '<span class="ts tm">原価 ' + yen(cost) + '</span>' : '')
       : (i.mc ? '<span class="ts tm">単価 ' + yen(i.mc) + '/' + (i.unit||'個') + '</span>' : '');
     return '<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid var(--bd);cursor:pointer" onclick="showDetail(\'' + i.id + '\')">'
-      + (i.photo ? '<img src="' + i.photo + '" style="width:38px;height:38px;border-radius:7px;object-fit:cover;flex-shrink:0">' : '<div style="width:38px;height:38px;background:var(--sf2);border-radius:7px;border:1px solid var(--bd);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">' + (type==='product'?'🎨':'🧶') + '</div>')
+      + (i.photo ? '<div class="simg-wrap" data-bucket="item-photos" data-path="' + i.photo + '" style="width:38px;height:38px;border-radius:7px;border:1px solid var(--bd);background:var(--sf2);overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center"><span style="font-size:16px">' + (type==='product'?'🎨':'🧶') + '</span></div>' : '<div style="width:38px;height:38px;background:var(--sf2);border-radius:7px;border:1px solid var(--bd);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">' + (type==='product'?'🎨':'🧶') + '</div>')
       + '<div style="flex:1;min-width:0">'
       + '<div style="font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + i.name + '</div>'
       + '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:2px">' + sub + '</div>'
@@ -2312,11 +2374,12 @@ function showDetail(id) {
   var tableHtml = '<table style="width:100%;border-collapse:collapse">' + rows.map(function(r) {
     return '<tr><td style="padding:7px 0;border-bottom:1px solid var(--bd);font-size:12px;color:var(--tx2);font-weight:700;width:38%;vertical-align:top">' + r[0] + '</td><td style="padding:7px 0 7px 10px;border-bottom:1px solid var(--bd);font-size:13px;vertical-align:top">' + r[1] + '</td></tr>';
   }).join('') + '</table>';
-  var photoHtml = i.photo ? '<div style="margin-bottom:12px;text-align:center"><img src="' + i.photo + '" style="max-width:100%;max-height:200px;border-radius:10px;object-fit:cover;border:1px solid var(--bd)"></div>' : '';
+  var photoHtml = i.photo ? '<div style="margin-bottom:12px;text-align:center"><div class="simg-wrap" data-bucket="item-photos" data-path="' + i.photo + '" style="display:inline-block;max-width:100%;border-radius:10px;border:1px solid var(--bd);overflow:hidden;min-width:80px;min-height:80px;background:var(--sf2)"><img style="max-width:100%;max-height:200px;object-fit:cover" src="" alt=""></div></div>' : '';
   document.getElementById('detTitle').innerHTML = (i.type === 'product' ? '🎨' : '🧶') + ' ' + i.name;
   document.getElementById('detBody').innerHTML = photoHtml + tableHtml;
   document.getElementById('detEditBtn').onclick = function() { closeMod('detailOv'); editItem(id); };
   openMod('detailOv');
+  setTimeout(function(){ loadSignedImages(document.getElementById('detBody')); }, 0);
 }
 
 // ══════════════════════════════════════════════
@@ -2344,9 +2407,10 @@ function rProds() {
       var diffHtml = diff === null ? '' : diff > 0 ? '<span style="color:var(--ac3);font-weight:700">+' + diff + '</span>' : diff < 0 ? '<span style="color:var(--wn);font-weight:700">' + diff + '</span>' : '<span style="color:var(--tx2)">±0</span>';
       stRow = '<div style="margin-top:9px;padding:9px 11px;background:' + (diff !== null && diff !== 0 ? '#fff9e6' : 'var(--sf2)') + ';border-radius:8px;border:1px solid ' + (diff !== null && diff !== 0 ? '#f0d060' : 'var(--bd)') + ';display:flex;align-items:center;gap:10px;flex-wrap:wrap"><span class="ts fw7" style="color:var(--ac3)">✅ 棚卸</span><span class="ts tm">システム: <b class="mn">' + i.stock + '</b>' + (i.unit || '個') + '</span><div style="display:flex;align-items:center;gap:6px"><span class="ts tm">実数:</span><input type="number" value="' + (actual !== undefined ? actual : '') + '" min="0" step="0.01" placeholder="入力..." data-stid="' + i.id + '" style="width:80px;padding:5px 8px;font-size:13px" onclick="event.stopPropagation()" onchange="setSTc(\'' + i.id + '\',this.value)"><span class="ts tm">' + (i.unit || '個') + '</span></div>' + (diff !== null ? '<span class="ts stDiff" data-stid="' + i.id + '">差分: ' + diffHtml + '</span>' : '<span class="ts stDiff" data-stid="' + i.id + '"></span>') + '</div>';
     }
-    var thumb = i.photo ? '<img src="' + i.photo + '" style="width:60px;height:60px;object-fit:cover;border-radius:7px;border:1px solid var(--bd)">' : '<div style="width:60px;height:60px;background:var(--sf2);border-radius:7px;border:1px solid var(--bd);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:22px">🎨</div>';
+    var thumb = i.photo ? '<div class="simg-wrap" data-bucket="item-photos" data-path="' + i.photo + '" style="width:60px;height:60px;border-radius:7px;border:1px solid var(--bd);background:var(--sf2);overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center"><span style="font-size:22px">🎨</span></div>' : '<div style="width:60px;height:60px;background:var(--sf2);border-radius:7px;border:1px solid var(--bd);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:22px">🎨</div>';
     return '<div class="ic" style="cursor:pointer" onclick="showDetail(\'' + i.id + '\')"><div class="icb"><div class="ict">' + thumb + '<div class="ici"><div class="icn">' + i.name + (i.cat ? '<span class="ts tm" style="font-weight:400;margin-left:7px">' + i.cat + '</span>' : '') + '</div><div class="icm"><span class="mn fw7" style="font-size:16px;color:' + sc + '">' + i.stock + '<small class="tm" style="font-size:11px;font-weight:400"> ' + (i.unit || '個') + '</small></span>' + (i.sp ? '<span class="ts">売価: <b>' + yen(i.sp) + '</b></span>' : '') + (cost ? '<span class="ts tm">原価: ' + yen(cost) + '</span>' : '') + (margin !== null ? '<span class="mgb ' + (margin >= 40 ? 'mgg' : 'mgr') + '">粗利 ' + margin + '%</span>' : '') + st + '</div>' + rh + (i.memo ? '<div class="ts tm m8">' + i.memo + '</div>' : '') + stRow + '</div><div class="ica"><button class="bi" onclick="event.stopPropagation();editItem(\'' + i.id + '\')">✏️</button><button class="bi bdl" onclick="event.stopPropagation();delItem(\'' + i.id + '\')">🗑</button></div></div></div></div>';
   }).join('');
+  setTimeout(function(){ loadSignedImages(document.getElementById('prodList')); }, 0);
 }
 
 // ══════════════════════════════════════════════
@@ -2370,9 +2434,10 @@ function rMats() {
       var diffHtml = diff === null ? '' : diff > 0 ? '<span style="color:var(--ac3);font-weight:700">+' + diff + '</span>' : diff < 0 ? '<span style="color:var(--wn);font-weight:700">' + diff + '</span>' : '<span style="color:var(--tx2)">±0</span>';
       stRow = '<div style="margin-top:9px;padding:9px 11px;background:' + (diff !== null && diff !== 0 ? '#fff9e6' : 'var(--sf2)') + ';border-radius:8px;border:1px solid ' + (diff !== null && diff !== 0 ? '#f0d060' : 'var(--bd)') + ';display:flex;align-items:center;gap:10px;flex-wrap:wrap"><span class="ts fw7" style="color:var(--ac3)">✅ 棚卸</span><span class="ts tm">システム: <b class="mn">' + i.stock + '</b>' + (i.unit || '個') + '</span><div style="display:flex;align-items:center;gap:6px"><span class="ts tm">実数:</span><input type="number" value="' + (actual !== undefined ? actual : '') + '" min="0" step="0.01" placeholder="入力..." data-stid="' + i.id + '" style="width:80px;padding:5px 8px;font-size:13px" onclick="event.stopPropagation()" onchange="setSTc(\'' + i.id + '\',this.value)"><span class="ts tm">' + (i.unit || '個') + '</span></div>' + (diff !== null ? '<span class="ts stDiff" data-stid="' + i.id + '">差分: ' + diffHtml + '</span>' : '<span class="ts stDiff" data-stid="' + i.id + '"></span>') + '</div>';
     }
-    var mthumb = i.photo ? '<img src="' + i.photo + '" style="width:60px;height:60px;object-fit:cover;border-radius:7px;border:1px solid var(--bd)">' : '<div style="width:60px;height:60px;background:var(--sf2);border-radius:7px;border:1px solid var(--bd);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:22px">🧶</div>';
+    var mthumb = i.photo ? '<div class="simg-wrap" data-bucket="item-photos" data-path="' + i.photo + '" style="width:60px;height:60px;border-radius:7px;border:1px solid var(--bd);background:var(--sf2);overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center"><span style="font-size:22px">🧶</span></div>' : '<div style="width:60px;height:60px;background:var(--sf2);border-radius:7px;border:1px solid var(--bd);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:22px">🧶</div>';
     return '<div class="ic" style="cursor:pointer" onclick="showDetail(\'' + i.id + '\')"><div class="icb"><div class="ict">' + mthumb + '<div class="ici"><div class="icn">' + i.name + (i.cat ? '<span class="ts tm" style="font-weight:400;margin-left:7px">' + i.cat + '</span>' : '') + '</div><div class="icm"><span class="mn fw7" style="font-size:16px;color:' + sc + '">' + i.stock + '<small class="tm" style="font-size:11px;font-weight:400"> ' + (i.unit || '個') + '</small></span><span class="ts tm">最低: ' + (i.min || 0) + (i.unit || '個') + '</span>' + (i.mc ? '<span class="ts tm">単価: ' + yen(i.mc) + '/' + (i.unit || '個') + '</span>' : '') + (i.color ? '<span class="ts tm">🎨 ' + i.color + '</span>' : '') + (i.brand ? '<span class="ts tm">🏷 ' + i.brand + '</span>' : '') + (i.sup ? '<span class="ts tm">仕入先: ' + i.sup + '</span>' : '') + st + '</div>' + (i.memo ? '<div class="ts tm m8">' + i.memo + '</div>' : '') + stRow + '</div><div class="ica"><button class="bi" onclick="event.stopPropagation();editItem(\'' + i.id + '\')">✏️</button><button class="bi bdl" onclick="event.stopPropagation();delItem(\'' + i.id + '\')">🗑</button></div></div></div></div>';
   }).join('');
+  setTimeout(function(){ loadSignedImages(document.getElementById('matList')); }, 0);
 }
 
 // ══════════════════════════════════════════════
@@ -4352,7 +4417,7 @@ function clearInvoice() {
   renderInvLines();
 }
 
-function printInvoice() {
+async function printInvoice() {
   var to = document.getElementById('invTo').value.trim();
   var date = document.getElementById('invDate').value;
   var due = document.getElementById('invDue').value;
@@ -4440,6 +4505,11 @@ function printInvoice() {
     + (note ? '<div style="margin-top:18px;padding:10px 12px;border:1px solid #ddd;border-radius:6px;font-size:11px;color:#555;line-height:1.8;white-space:pre-wrap"><b>備考</b><br>' + note + '</div>' : '')
     + bankInfo;
 
+  // stamp_urlを署名付きURLに変換してからHTML生成
+  if (userProfile && userProfile.stamp_url) {
+    var signedStampUrl = await getSignedUrl('stamps', userProfile.stamp_url);
+    html = html.replace(new RegExp('src="[^"]*stamp[^"]*"'), 'src="' + signedStampUrl + '"');
+  }
   document.getElementById('invoice-print-area').innerHTML = html;
   // 納品書エリアをクリアして干渉を防ぐ
   document.getElementById('delivery-print-area').innerHTML = '';
@@ -4511,7 +4581,7 @@ async function applyInvoiceToSales(date, invSalesTo) {
 
 
 
-function printDelivery() {
+async function printDelivery() {
   var dest = document.getElementById('dlvDest').value;
   var date = document.getElementById('dlvDate').value;
   var note = document.getElementById('dlvNote').value;
@@ -4567,6 +4637,11 @@ function printDelivery() {
     + '<div class="pr-summary">合計金額: <b>¥' + Math.round(total).toLocaleString() + '</b></div>'
     + '</div>';
 
+  // stamp_urlを署名付きURLに変換
+  if (userProfile && userProfile.stamp_url) {
+    var signedStampUrl2 = await getSignedUrl('stamps', userProfile.stamp_url);
+    html = html.replace(new RegExp('src="[^"]*stamp[^"]*"'), 'src="' + signedStampUrl2 + '"');
+  }
   document.getElementById('delivery-print-area').innerHTML = html;
   window.print();
 
@@ -4635,7 +4710,9 @@ function rProfileForm() {
   if (document.getElementById('prfBankHolder')) document.getElementById('prfBankHolder').value = userProfile.bank_holder || '';
   // 印鑑プレビュー
   if (userProfile.stamp_url) {
-    document.getElementById('stampPreview').innerHTML = '<img src="' + userProfile.stamp_url + '" style="width:76px;height:76px;object-fit:contain;border-radius:6px">';
+    getSignedUrl('stamps', userProfile.stamp_url).then(function(url) {
+      if (url) document.getElementById('stampPreview').innerHTML = '<img src="' + url + '" style="width:76px;height:76px;object-fit:contain;border-radius:6px">';
+    });
     document.getElementById('stampDelBtn').style.display = 'block';
   }
 }
@@ -4708,7 +4785,7 @@ async function uploadStamp() {
       body: stampFileObj
     });
     if (!res.ok) throw new Error(await res.text());
-    var stampUrl = SB_URL + '/storage/v1/object/public/stamps/' + path;
+    var stampUrl = path; // パスのみ保存（署名付きURL対応）
     // stamp_urlだけprofilesに保存（他のフィールドを上書きしないにゃ）
     if (!userProfile) userProfile = { user_id: currentUser.id };
     userProfile.stamp_url = stampUrl;
