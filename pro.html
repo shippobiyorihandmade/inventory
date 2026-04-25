@@ -1464,6 +1464,39 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
     </div>
   </div>
 
+  <!-- データ移行 -->
+  <div class="card">
+    <div class="ch"><span class="ct">🔄 データ移行</span></div>
+    <div class="cb">
+      <p class="ts tm" style="margin-bottom:14px;line-height:1.7">
+        無料版とのデータ移行ができます。<br>
+        移行コードを発行して、移行先の画面で入力してください。
+      </p>
+
+      <!-- 移行コード発行（Pro版→無料版） -->
+      <div style="margin-bottom:20px;padding:14px;background:var(--sf2);border-radius:8px">
+        <div style="font-size:13px;font-weight:700;margin-bottom:8px">📤 無料版へデータを移行する</div>
+        <p class="ts" style="margin-bottom:10px;font-size:12px">移行コードをメールで受け取り、無料版の画面で入力してください。コードの有効期限は2時間です。</p>
+        <button class="btn bp" onclick="issueMigrationCode()">🔑 移行コードを発行する</button>
+        <div id="migrationCodeMsg" style="margin-top:8px;font-size:12px;display:none"></div>
+      </div>
+
+      <!-- 無料版から受け取る（無料版→Pro版） -->
+      <div style="padding:14px;background:var(--sf2);border-radius:8px">
+        <div style="font-size:13px;font-weight:700;margin-bottom:8px">📥 無料版からデータを移行する</div>
+        <p class="ts" style="margin-bottom:10px;font-size:12px">
+          ⚠️ 現在のデータはCSVでバックアップしてから移行することをおすすめします。<br>
+          移行できないデータ（保管場所）は無料版で再設定が必要です。
+        </p>
+        <div style="display:flex;gap:8px;margin-bottom:8px">
+          <input type="text" id="migrationCodeInput" placeholder="移行コードを入力（例：AB3X9K2P）" style="flex:1;margin:0;text-transform:uppercase">
+        </div>
+        <button class="btn bg" onclick="executeMigration('free_to_pro')">🔄 データ移行を実行する</button>
+        <div id="migrationExecMsg" style="margin-top:8px;font-size:12px;display:none"></div>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <!-- 納品先管理モーダル -->
@@ -5023,6 +5056,88 @@ async function changePassword() {
 }
 
 init();
+
+// ── データ移行 ──
+async function issueMigrationCode() {
+  if (!currentUser) return;
+  var btn = event.target;
+  btn.disabled = true;
+  btn.textContent = '発行中...';
+  var msgEl = document.getElementById('migrationCodeMsg');
+  msgEl.style.display = 'none';
+
+  try {
+    var res = await fetch(SB_URL + '/functions/v1/issue-migration-code', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + SB_KEY
+      },
+      body: JSON.stringify({
+        user_id: currentUser.id,
+        email: currentUser.email
+      })
+    });
+    var data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'エラーが発生しました');
+    msgEl.textContent = '✅ 移行コードを ' + currentUser.email + ' に送信しました。メールをご確認ください。';
+    msgEl.style.color = 'var(--ok)';
+    msgEl.style.display = 'block';
+  } catch (e) {
+    msgEl.textContent = '❌ ' + e.message;
+    msgEl.style.color = '#c04a4a';
+    msgEl.style.display = 'block';
+  }
+
+  btn.disabled = false;
+  btn.textContent = '🔑 移行コードを発行する';
+}
+
+async function executeMigration(direction) {
+  var code = document.getElementById('migrationCodeInput').value.trim().toUpperCase();
+  if (!code) {
+    var msgEl = document.getElementById('migrationExecMsg');
+    msgEl.textContent = '❌ 移行コードを入力してください';
+    msgEl.style.color = '#c04a4a';
+    msgEl.style.display = 'block';
+    return;
+  }
+
+  if (!confirm('⚠️ データ移行を実行しますか？\n\n現在のデータはCSVでバックアップしてから実行することをおすすめします。\n\n実行してもよろしいですか？')) return;
+
+  var btn = event.target;
+  btn.disabled = true;
+  btn.textContent = '移行中...';
+  var msgEl = document.getElementById('migrationExecMsg');
+  msgEl.style.display = 'none';
+
+  try {
+    var res = await fetch(SB_URL + '/functions/v1/execute-migration', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + SB_KEY
+      },
+      body: JSON.stringify({ code: code, direction: direction })
+    });
+    var data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'エラーが発生しました');
+
+    var resultText = Object.entries(data.results).map(function(e) { return e[0] + ': ' + e[1]; }).join('\n');
+    msgEl.textContent = '✅ データ移行が完了しました！\n' + resultText;
+    msgEl.style.color = 'var(--ok)';
+    msgEl.style.display = 'block';
+    msgEl.style.whiteSpace = 'pre-line';
+    document.getElementById('migrationCodeInput').value = '';
+  } catch (e) {
+    msgEl.textContent = '❌ ' + e.message;
+    msgEl.style.color = '#c04a4a';
+    msgEl.style.display = 'block';
+  }
+
+  btn.disabled = false;
+  btn.textContent = '🔄 データ移行を実行する';
+}
 </script>
 </body>
 </html>
