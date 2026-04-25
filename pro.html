@@ -3746,7 +3746,7 @@ async function clrHist() {
   hist = [];
   setSyncing('syncing');
   try {
-    var res = await fetch(SB_URL + '/rest/v1/history', { method: 'DELETE', headers: Object.assign({}, sbHeaders(), { 'Prefer': '' }) });
+    var res = await fetch(SB_URL + '/rest/v1/history?user_id=eq.' + currentUser.id, { method: 'DELETE', headers: Object.assign({}, sbHeaders(), { 'Prefer': '' }) });
     setSyncing('ok');
   } catch(e) { setSyncing('error'); }
   rHist();
