@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <link rel="icon" href="favicon.png">
-<title>管理者画面 — ハンドメイド在庫管理</title>
+<title>Pro版管理者画面 — ハンドメイド在庫管理</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <style>
 :root{--bg:#faf8f5;--sf:#fff;--sf2:#f3efe9;--bd:#e5ddd0;--tx:#2c2416;--tx2:#7a6e60;--ac:#c0622a;--ac2:#e8a87c;--ac3:#4a7c6f;--wn:#d4622a;--wb:#fff3ed;--ok:#4a7c6f;--ob:#edf5f3;--r:12px;--sh:0 2px 12px rgba(44,36,22,.08);--shl:0 8px 32px rgba(44,36,22,.12);}
@@ -14,7 +14,7 @@ body{font-family:'Hiragino Sans','Zen Kaku Gothic New',sans-serif;background:var
 header{background:linear-gradient(135deg,#1a1208 0%,#2c2416 60%,#3d3020 100%);color:#faf8f5;padding:0 16px;display:flex;align-items:center;justify-content:space-between;height:52px;position:sticky;top:0;z-index:100;box-shadow:0 2px 16px rgba(0,0,0,.3);}
 .ht{font-size:14px;font-weight:700;display:flex;align-items:center;gap:6px;white-space:nowrap;}
 .ht span{color:#e8a87c;}
-.badge-admin{background:rgba(232,168,124,.25);border:1px solid rgba(232,168,124,.4);border-radius:20px;padding:2px 8px;font-size:10px;font-weight:700;color:#e8a87c;letter-spacing:.04em;}
+.badge-admin{background:rgba(74,124,111,.4);border:1px solid rgba(74,124,111,.6);border-radius:20px;padding:2px 8px;font-size:10px;font-weight:700;color:#a8e8d8;letter-spacing:.04em;}
 .main{padding:16px;max-width:800px;margin:0 auto;}
 .card{background:var(--sf);border-radius:var(--r);border:1px solid var(--bd);box-shadow:var(--sh);margin-bottom:16px;overflow:hidden;}
 .ch{padding:13px 16px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;background:var(--sf2);}
@@ -35,10 +35,10 @@ textarea{resize:vertical;min-height:80px;}
 .tag{display:inline-block;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;}
 .tag-ok{background:var(--ob);color:var(--ok);}
 .tag-wn{background:var(--wb);color:var(--wn);}
-.tag-admin{background:#f0e8ff;color:#6a3db5;}
+.tag-pro{background:rgba(74,124,111,.15);color:#3a6b5e;}
 .user-row{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--bd);}
 .user-row:last-child{border-bottom:none;}
-.user-avatar{width:36px;height:36px;border-radius:50%;background:var(--ac2);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;flex-shrink:0;overflow:hidden;}
+.user-avatar{width:36px;height:36px;border-radius:50%;background:var(--ac3);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;flex-shrink:0;overflow:hidden;}
 .user-avatar img{width:100%;height:100%;object-fit:cover;}
 .user-info{flex:1;min-width:0;}
 .user-email{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
@@ -50,7 +50,7 @@ textarea{resize:vertical;min-height:80px;}
 .ann-meta{font-size:11px;color:var(--tx2);margin-top:4px;}
 .empty{text-align:center;padding:24px;color:var(--tx2);font-size:13px;}
 .stat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:4px;}
-@media(min-width:480px){.stat-grid{grid-template-columns:repeat(4,1fr);}}
+@media(min-width:480px){.stat-grid{grid-template-columns:repeat(3,1fr);}}
 .stat-card{background:var(--sf2);border-radius:10px;padding:12px;text-align:center;}
 .stat-num{font-size:22px;font-weight:700;font-family:monospace;display:block;}
 .stat-lbl{font-size:11px;color:var(--tx2);margin-top:2px;}
@@ -65,11 +65,10 @@ textarea{resize:vertical;min-height:80px;}
 .btn-google:hover{background:var(--sf2);}
 .btn-google img{width:20px;height:20px;}
 .user-menu{display:flex;align-items:center;gap:8px;}
-.ua{width:28px;height:28px;border-radius:50%;background:var(--ac2);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;overflow:hidden;flex-shrink:0;}
+.ua{width:28px;height:28px;border-radius:50%;background:var(--ac3);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;overflow:hidden;flex-shrink:0;}
 .ua img{width:100%;height:100%;object-fit:cover;}
 .btn-lo{font-size:11px;padding:4px 10px;border-radius:6px;border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.1);color:#faf8f5;cursor:pointer;font-family:inherit;}
 .btn-lo:hover{background:rgba(255,255,255,.2);}
-.inv-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:20px;font-size:11px;font-weight:700;background:#fff3ed;color:#c0622a;}
 </style>
 </head>
 <body>
@@ -99,8 +98,8 @@ textarea{resize:vertical;min-height:80px;}
 </div>
 
 <header>
-  <div class="ht">🛠️ <span>管理者</span>画面 <span class="badge-admin">FREE</span></div>
-  <a href="pro-admin.html" style="background:rgba(232,168,124,.25);border:1px solid rgba(232,168,124,.4);border-radius:20px;padding:4px 12px;font-size:12px;font-weight:700;color:#e8a87c;text-decoration:none;white-space:nowrap">Pro版管理 →</a>
+  <div class="ht">🛠️ <span>管理者</span>画面 <span class="badge-admin">PRO</span></div>
+  <a href="admin.html" style="background:rgba(232,168,124,.25);border:1px solid rgba(232,168,124,.4);border-radius:20px;padding:4px 12px;font-size:12px;font-weight:700;color:#e8a87c;text-decoration:none;white-space:nowrap">← 無料版管理</a>
   <div class="user-menu" id="userMenu" style="display:none">
     <div class="ua" id="userAvatar">？</div>
     <button class="btn-lo" onclick="doLogout()">ログアウト</button>
@@ -111,47 +110,24 @@ textarea{resize:vertical;min-height:80px;}
 
   <!-- 利用状況 -->
   <div class="card">
-    <div class="ch"><span class="ct">📊 利用状況</span><button class="btn bs bsm" onclick="loadStats()">🔄 更新</button></div>
+    <div class="ch"><span class="ct">📊 Pro版 利用状況</span><button class="btn bs bsm" onclick="loadStats()">🔄 更新</button></div>
     <div class="cb">
       <div class="stat-grid" id="statsGrid">
         <div class="stat-card"><span class="stat-num" id="statUsers">—</span><span class="stat-lbl">登録ユーザー数</span></div>
-        <div class="stat-card"><span class="stat-num" id="statInvited">—</span><span class="stat-lbl">招待済み</span></div>
         <div class="stat-card"><span class="stat-num" id="statAnn">—</span><span class="stat-lbl">お知らせ数</span></div>
-        <div class="stat-card"><span class="stat-num" id="statAdmin">—</span><span class="stat-lbl">管理者数</span></div>
+        <div class="stat-card"><span class="stat-num" id="statContacts">—</span><span class="stat-lbl">問い合わせ数</span></div>
       </div>
     </div>
   </div>
 
-  <!-- ユーザー招待 -->
-  <div class="card">
-    <div class="ch"><span class="ct">✉️ ユーザー招待</span></div>
-    <div class="cb">
-      <p style="font-size:13px;color:var(--tx2);margin-bottom:12px">招待したいメールアドレスを登録するにゃ。登録されたメールアドレスだけが新規登録できるにゃ🐾</p>
-      <div class="fr c2" style="margin-bottom:8px">
-        <div><label>メールアドレス</label><input type="email" id="inviteEmail" placeholder="example@gmail.com"></div>
-        <div style="display:flex;align-items:flex-end"><button class="btn bg" style="width:100%" onclick="inviteUser()">＋ 招待する</button></div>
-      </div>
-      <div id="inviteResult" style="font-size:12px;margin-bottom:14px"></div>
-      <div class="ch" style="background:none;border:none;padding:0 0 8px;border-bottom:1px solid var(--bd);margin-bottom:8px">
-        <span style="font-size:12px;font-weight:700;color:var(--tx2)">招待済みリスト</span>
-        <button class="btn bs bsm" onclick="loadInvited()">🔄 更新</button>
-      </div>
-      <div style="margin-bottom:8px">
-        <input type="text" id="inviteSearch" placeholder="🔍 メアドで検索..." oninput="renderInvited()" style="font-size:12px;padding:6px 10px">
-      </div>
-      <div id="invitedList"><div class="empty">読み込み中...</div></div>
-      <div id="invitedPager" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:8px 0;font-size:12px"></div>
-    </div>
-  </div>
-
-  <!-- 登録済みユーザー -->
+  <!-- Pro版ユーザー一覧 -->
   <div class="card">
     <div class="ch">
-      <span class="ct">👥 登録済みユーザー</span>
+      <span class="ct">💳 Pro版ユーザー一覧</span>
       <button class="btn bs bsm" onclick="loadUsers()">🔄 更新</button>
     </div>
     <div class="cb" style="padding:0 16px">
-      <div style="margin-bottom:8px">
+      <div style="margin-bottom:8px;padding-top:12px">
         <input type="text" id="userSearch" placeholder="🔍 メアドで検索..." oninput="renderUsers()" style="font-size:12px;padding:6px 10px">
       </div>
       <div id="userList"><div class="empty">読み込み中...</div></div>
@@ -161,10 +137,10 @@ textarea{resize:vertical;min-height:80px;}
 
   <!-- お知らせ配信 -->
   <div class="card">
-    <div class="ch"><span class="ct">📢 お知らせ配信</span></div>
+    <div class="ch"><span class="ct">📢 お知らせ配信（Pro版）</span></div>
     <div class="cb">
       <div class="fr" style="margin-bottom:8px">
-        <div><label>タイトル</label><input type="text" id="annTitle" placeholder="例：メンテナンスのお知らせ"></div>
+        <div><label>タイトル</label><input type="text" id="annTitle" placeholder="例：新機能追加のお知らせ"></div>
       </div>
       <div class="fr" style="margin-bottom:8px">
         <div><label>本文</label><textarea id="annBody" placeholder="お知らせの内容を入力してください"></textarea></div>
@@ -184,7 +160,7 @@ textarea{resize:vertical;min-height:80px;}
   <!-- 問い合わせ一覧 -->
   <div class="card">
     <div class="ch">
-      <span class="ct">💬 問い合わせ一覧</span>
+      <span class="ct">💬 Pro版 問い合わせ一覧</span>
       <button class="btn bs bsm" onclick="loadContacts()">🔄 更新</button>
     </div>
     <div class="cb" style="padding:0 16px">
@@ -192,15 +168,18 @@ textarea{resize:vertical;min-height:80px;}
     </div>
   </div>
 
-
 </div>
 
 <script>
-var SB_URL = 'https://cexwvkezbgadqhffzzbp.supabase.co';
-var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNleHd2a2V6YmdhZHFoZmZ6emJwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ1OTM0MTMsImV4cCI6MjA5MDE2OTQxM30.4Q8XAveV22dQTJJcSGZJBfobsDOuEblxusiR1UjQCKE'; // ← inventory_supabase.htmlと同じAnon Keyを入れてにゃ
+var SB_URL = 'https://zllquptbaekezaxvysfb.supabase.co';
+var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpsbHF1cHRiYWVrZXpheHZ5c2ZiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY4MDcyMjMsImV4cCI6MjA5MjM4MzIyM30.zfiTyR_O07rOoQDnsF_hjX1adsUL5nWdZ9GSZX8cMaM';
+var FREE_SB_URL = 'https://cexwvkezbgadqhffzzbp.supabase.co';
+var FREE_SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNleHd2a2V6YmdhZHFoZmZ6emJwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ1OTM0MTMsImV4cCI6MjA5MDE2OTQxM30.4Q8XAveV22dQTJJcSGZJBfobsDOuEblxusiR1UjQCKE';
 var sbClient = null;
 var currentUser = null;
 var accessToken = null;
+var usersAll = [], usersPage = 1;
+var PAGE_SIZE = 10;
 
 // ── 初期化 ──
 window.addEventListener('load', function() {
@@ -221,10 +200,10 @@ window.addEventListener('load', function() {
   });
 });
 
-// ── 管理者チェック ──
+// ── 管理者チェック（無料版のadmin_usersで確認） ──
 async function checkAdmin() {
-  var res = await fetch(SB_URL + '/rest/v1/admin_users?user_id=eq.' + currentUser.id + '&select=user_id', {
-    headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + accessToken }
+  var res = await fetch(FREE_SB_URL + '/rest/v1/admin_users?user_id=eq.' + currentUser.id + '&select=user_id', {
+    headers: { 'apikey': FREE_SB_KEY, 'Authorization': 'Bearer ' + accessToken }
   });
   var data = await res.json();
   if (!data || data.length === 0) {
@@ -232,7 +211,6 @@ async function checkAdmin() {
     document.getElementById('forbiddenScreen').classList.add('open');
     return;
   }
-  // 管理者確認OK
   document.getElementById('loginScreen').classList.remove('open');
   document.getElementById('forbiddenScreen').classList.remove('open');
   document.getElementById('mainContent').style.display = 'block';
@@ -258,7 +236,7 @@ function showLogin() {
 async function loginGoogle() {
   var res = await sbClient.auth.signInWithOAuth({
     provider: 'google',
-    options: { redirectTo: 'https://shippo-tools.com/admin.html' }
+    options: { redirectTo: 'https://shippo-tools.com/pro-admin.html' }
   });
   if (res.error) {
     var el = document.getElementById('loginErr');
@@ -278,87 +256,26 @@ function sbH() {
   return { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + accessToken, 'Content-Type': 'application/json', 'Prefer': 'return=representation' };
 }
 
-function loadAll() { loadStats(); loadInvited(); loadUsers(); loadAnnouncements(); loadContacts(); }
+function loadAll() { loadStats(); loadUsers(); loadAnnouncements(); loadContacts(); }
 
 // ── 統計 ──
 async function loadStats() {
   try {
-    var [inv, ann, adm] = await Promise.all([
-      fetch(SB_URL + '/rest/v1/invited_users?select=id', { headers: sbH() }).then(r => r.json()),
+    var [profiles, ann, contacts] = await Promise.all([
+      fetch(SB_URL + '/rest/v1/profiles?select=id', { headers: sbH() }).then(r => r.json()),
       fetch(SB_URL + '/rest/v1/announcements?select=id', { headers: sbH() }).then(r => r.json()),
-      fetch(SB_URL + '/rest/v1/admin_users?select=id', { headers: sbH() }).then(r => r.json()),
+      fetch(SB_URL + '/rest/v1/contacts?select=id', { headers: sbH() }).then(r => r.json()),
     ]);
-    // ユーザー数はauth.usersから直接は取れないのでinvitedで代用
-    document.getElementById('statUsers').textContent = inv.length;
-    document.getElementById('statInvited').textContent = inv.length;
+    document.getElementById('statUsers').textContent = profiles.length;
     document.getElementById('statAnn').textContent = ann.length;
-    document.getElementById('statAdmin').textContent = adm.length;
+    document.getElementById('statContacts').textContent = contacts.length;
   } catch(e) { console.error(e); }
 }
 
-// ── 招待 ──
-async function inviteUser() {
-  var email = document.getElementById('inviteEmail').value.trim();
-  var res = document.getElementById('inviteResult');
-  if (!email) { res.innerHTML = '<span style="color:var(--wn)">メールアドレスを入力してください</span>'; return; }
-  try {
-    var r = await fetch(SB_URL + '/rest/v1/invited_users', {
-      method: 'POST',
-      headers: sbH(),
-      body: JSON.stringify({ email: email, invited_by: currentUser.id })
-    });
-    if (!r.ok) {
-      var err = await r.json();
-      if (err.code === '23505') { res.innerHTML = '<span style="color:var(--wn)">このメールアドレスはすでに招待済みにゃ</span>'; return; }
-      throw new Error(JSON.stringify(err));
-    }
-    res.innerHTML = '<span style="color:var(--ok)">✅ ' + email + ' を招待リストに追加したにゃ🐾</span>';
-    document.getElementById('inviteEmail').value = '';
-    loadInvited(); loadStats();
-  } catch(e) { res.innerHTML = '<span style="color:var(--wn)">エラー: ' + e.message + '</span>'; }
-}
-
-var invitedAll = [], invitedPage = 1;
-var usersAll = [], usersPage = 1;
-var PAGE_SIZE = 10;
-
-async function loadInvited() {
-  try {
-    var r = await fetch(SB_URL + '/rest/v1/invited_users?select=*&order=created_at.desc', { headers: sbH() });
-    invitedAll = await r.json();
-    invitedPage = 1;
-    renderInvited();
-  } catch(e) { console.error(e); }
-}
-
-function renderInvited() {
-  var q = (document.getElementById('inviteSearch').value || '').toLowerCase();
-  var filtered = invitedAll.filter(function(u) { return !q || u.email.toLowerCase().includes(q); });
-  var total = filtered.length;
-  var totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
-  if (invitedPage > totalPages) invitedPage = totalPages;
-  var start = (invitedPage - 1) * PAGE_SIZE;
-  var page = filtered.slice(start, start + PAGE_SIZE);
-  var el = document.getElementById('invitedList');
-  if (!total) { el.innerHTML = '<div class="empty">該当ユーザーがいないにゃ</div>'; document.getElementById('invitedPager').innerHTML = ''; return; }
-  el.innerHTML = page.map(function(u) {
-    var d = new Date(u.created_at);
-    var ds = d.getFullYear() + '/' + String(d.getMonth()+1).padStart(2,'0') + '/' + String(d.getDate()).padStart(2,'0');
-    return '<div class="user-row"><div style="flex:1;min-width:0"><div class="user-email">' + u.email + '</div><div class="user-meta">招待日: ' + ds + '</div></div><button class="btn br bsm" onclick="removeInvite(\'' + u.id + '\',\'' + u.email + '\')">削除</button></div>';
-  }).join('');
-  renderPager('invitedPager', invitedPage, totalPages, total, function(p) { invitedPage = p; renderInvited(); });
-}
-
-async function removeInvite(id, email) {
-  if (!confirm(email + ' を招待リストから削除しますか？')) return;
-  await fetch(SB_URL + '/rest/v1/invited_users?id=eq.' + id, { method: 'DELETE', headers: sbH() });
-  loadInvited(); loadStats();
-}
-
-// ── ユーザー一覧（invited_usersから代用） ──
+// ── Pro版ユーザー一覧 ──
 async function loadUsers() {
   try {
-    var r = await fetch(SB_URL + '/rest/v1/invited_users?select=*&order=created_at.asc', { headers: sbH() });
+    var r = await fetch(SB_URL + '/rest/v1/profiles?select=*&order=updated_at.desc', { headers: sbH() });
     usersAll = await r.json();
     usersPage = 1;
     renderUsers();
@@ -367,7 +284,9 @@ async function loadUsers() {
 
 function renderUsers() {
   var q = (document.getElementById('userSearch').value || '').toLowerCase();
-  var filtered = usersAll.filter(function(u) { return !q || u.email.toLowerCase().includes(q); });
+  var filtered = usersAll.filter(function(u) {
+    return !q || (u.email && u.email.toLowerCase().includes(q)) || (u.shop_name && u.shop_name.toLowerCase().includes(q));
+  });
   var total = filtered.length;
   var totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
   if (usersPage > totalPages) usersPage = totalPages;
@@ -376,10 +295,17 @@ function renderUsers() {
   var el = document.getElementById('userList');
   if (!total) { el.innerHTML = '<div class="empty" style="padding:20px">該当ユーザーがいないにゃ</div>'; document.getElementById('userPager').innerHTML = ''; return; }
   el.innerHTML = page.map(function(u) {
-    var initial = u.email.charAt(0).toUpperCase();
-    var d = new Date(u.created_at);
+    var initial = (u.shop_name || u.email || '?').charAt(0).toUpperCase();
+    var d = new Date(u.updated_at);
     var ds = d.getFullYear() + '/' + String(d.getMonth()+1).padStart(2,'0') + '/' + String(d.getDate()).padStart(2,'0');
-    return '<div class="user-row"><div class="user-avatar">' + initial + '</div><div class="user-info"><div class="user-email">' + u.email + '</div><div class="user-meta">招待日: ' + ds + '</div></div></div>';
+    return '<div class="user-row">'
+      + '<div class="user-avatar">' + initial + '</div>'
+      + '<div class="user-info">'
+      + '<div class="user-email">' + (u.shop_name || '（店舗名未設定）') + '</div>'
+      + '<div class="user-meta">' + (u.email || '—') + '　最終更新: ' + ds + '</div>'
+      + '</div>'
+      + '<span class="tag tag-pro">Pro</span>'
+      + '</div>';
   }).join('');
   renderPager('userPager', usersPage, totalPages, total, function(p) { usersPage = p; renderUsers(); });
 }
@@ -455,9 +381,9 @@ async function loadContacts() {
         + '<option value="read"' + (c.status==='read'?' selected':'') + '>確認済み</option>'
         + '<option value="replied"' + (c.status==='replied'?' selected':'') + '>返信済み</option>'
         + '</select>'
-        + '<button class="btn br bsm" onclick="deleteContact(\'' + c.id + '\')">' + '削除</button>'
+        + '<button class="btn br bsm" onclick="deleteContact(\'' + c.id + '\')">削除</button>'
         + '</div>'
-        + '<div style="font-size:12px;color:#7a6e60">' + c.category + ' · ' + (c.email || '不明') + ' · ' + ds + '</div>'
+        + '<div style="font-size:12px;color:#7a6e60">' + (c.category || '—') + ' · ' + (c.email || '不明') + ' · ' + ds + '</div>'
         + '<div style="font-size:13px;color:#2c2416;line-height:1.6;background:#f3efe9;padding:8px 12px;border-radius:8px;width:100%">' + c.body.replace(/\n/g,'<br>') + '</div>'
         + '</div>';
     }).join('');
@@ -467,7 +393,7 @@ async function loadContacts() {
 async function deleteContact(id) {
   if (!confirm('この問い合わせを削除しますか？')) return;
   await fetch(SB_URL + '/rest/v1/contacts?id=eq.' + id, { method: 'DELETE', headers: sbH() });
-  loadContacts();
+  loadContacts(); loadStats();
 }
 
 async function updateContactStatus(id, status) {
