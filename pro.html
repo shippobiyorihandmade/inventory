@@ -5188,6 +5188,7 @@ function closeEstMenu() {
 
 // 見積書用レシピ行
 var estMatRec = []; // { mid, qty }
+var estAddonIds = []; // 見積書専用 追加原価ON/OFF
 
 function addEstLineMaterial() {
   var mats = items.filter(function(i) { return i.type === 'material'; });
@@ -5211,11 +5212,15 @@ function addEstLineMaterial() {
     + '</div>'
     + '<div id="estMatRecEdit" style="margin-bottom:8px"><p class="ts tm">「材料追加」から材料を追加してください</p></div>'
     + '<div id="estMatCostDisp" class="ts" style="margin-bottom:10px;color:var(--ac);font-weight:700"></div>'
+    + '<div id="estAddonArea" style="margin-bottom:14px"></div>'
     + '<div style="display:flex;gap:8px">'
     + '<button class="btn bp" style="flex:1" onclick="confirmEstLineMaterial()">追加</button>'
     + '<button class="btn bs" style="flex:1" onclick="document.getElementById(\'estMatModal\').remove()">キャンセル</button>'
     + '</div></div>';
   document.body.appendChild(el);
+  // 見積書専用addonをデフォルトすべてOFFで初期化
+  estAddonIds = [];
+  renderEstAddonArea();
 }
 
 function addEstMatRecLine() {
@@ -5249,6 +5254,55 @@ function renderEstMatRec() {
   calcEstMatCost();
 }
 
+function renderEstAddonArea() {
+  var el = document.getElementById('estAddonArea');
+  if (!el) return;
+  var actives = costAddons.filter(function(a) { return a.is_active !== undefined; });
+  if (!actives.length) { el.innerHTML = ''; return; }
+  el.innerHTML = '<div style="font-size:13px;font-weight:700;margin-bottom:8px">⚙️ 追加原価（見積書用ON/OFF）</div>'
+    + actives.map(function(a) {
+      var isOn = estAddonIds.includes(a.id);
+      var badge = isOn
+        ? '<span style="font-size:10px;background:var(--ac);color:#fff;padding:2px 8px;border-radius:10px;cursor:pointer;font-weight:700" onclick="toggleEstAddon(\'' + a.id + '\')">ON</span>'
+        : '<span style="font-size:10px;background:var(--sf2);color:var(--tx2);padding:2px 8px;border-radius:10px;border:1px solid var(--bd);cursor:pointer;font-weight:700" onclick="toggleEstAddon(\'' + a.id + '\')">OFF</span>';
+      return '<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--bd)">'
+        + '<span style="flex:1;font-size:12px">' + a.name + ' <span class="ts tm">¥' + Math.round(a.unit_cost * a.qty) + '/点</span></span>'
+        + badge + '</div>';
+    }).join('');
+}
+
+function toggleEstAddon(id) {
+  var idx = estAddonIds.indexOf(id);
+  if (idx >= 0) estAddonIds.splice(idx, 1);
+  else estAddonIds.push(id);
+  renderEstAddonArea();
+  calcEstMatCost();
+}
+
+function renderEstAddonArea() {
+  var el = document.getElementById('estAddonArea');
+  if (!el) return;
+  if (!costAddons.length) { el.innerHTML = ''; return; }
+  el.innerHTML = '<div style="font-size:13px;font-weight:700;margin-bottom:8px">⚙️ 追加原価（見積書用ON/OFF）</div>'
+    + costAddons.map(function(a) {
+      var isOn = estAddonIds.includes(a.id);
+      var badge = isOn
+        ? '<span style="font-size:10px;background:var(--ac);color:#fff;padding:2px 8px;border-radius:10px;cursor:pointer;font-weight:700" onclick="toggleEstAddon(\'' + a.id + '\')">ON</span>'
+        : '<span style="font-size:10px;background:var(--sf2);color:var(--tx2);padding:2px 8px;border-radius:10px;border:1px solid var(--bd);cursor:pointer;font-weight:700" onclick="toggleEstAddon(\'' + a.id + '\')">OFF</span>';
+      return '<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--bd)">'
+        + '<span style="flex:1;font-size:12px">' + a.name + ' <span class="ts tm">¥' + Math.round(a.unit_cost * a.qty) + '/点</span></span>'
+        + badge + '</div>';
+    }).join('');
+}
+
+function toggleEstAddon(id) {
+  var idx = estAddonIds.indexOf(id);
+  if (idx >= 0) estAddonIds.splice(idx, 1);
+  else estAddonIds.push(id);
+  renderEstAddonArea();
+  calcEstMatCost();
+}
+
 function calcEstMatCost() {
   var tot = 0, ok = estMatRec.length > 0;
   estMatRec.forEach(function(r) {
@@ -5256,8 +5310,8 @@ function calcEstMatCost() {
     if (m && m.mc) tot += m.mc * r.qty;
     else if (r.mid) ok = false;
   });
-  // 原価追加項目（is_activeのもの）も加算
-  var addonCost = costAddons.filter(function(a) { return a.is_active; })
+  // 見積書専用ON/OFFの追加原価を加算
+  var addonCost = costAddons.filter(function(a) { return estAddonIds.includes(a.id); })
     .reduce(function(sum, a) { return sum + Math.round(a.unit_cost * a.qty); }, 0);
   var totalCost = Math.round(tot) + addonCost;
   var disp = document.getElementById('estMatCostDisp');
@@ -5280,7 +5334,7 @@ function confirmEstLineMaterial() {
     var m = items.find(function(x) { return x.id === r.mid; });
     if (m && m.mc) tot += m.mc * r.qty;
   });
-  var addonCost = costAddons.filter(function(a) { return a.is_active; })
+  var addonCost = costAddons.filter(function(a) { return estAddonIds.includes(a.id); })
     .reduce(function(sum, a) { return sum + Math.round(a.unit_cost * a.qty); }, 0);
   var cost = Math.round(tot) + addonCost;
 
