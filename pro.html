@@ -5187,11 +5187,11 @@ function closeEstMenu() {
 }
 
 function addEstLineMaterial() {
-  var mats = items.filter(function(i) { return i.data && i.data.type === 'material'; });
+  var mats = items.filter(function(i) { return i.type === 'material'; });
   if (!mats.length) { alert('材料データがありません'); return; }
 
   var opts = mats.map(function(m) {
-    return '<option value="' + m.id + '">' + (m.data.name || '') + (m.data.unit ? '（' + m.data.unit + '）' : '') + ' 単価:¥' + (m.data.price || 0) + '</option>';
+    return '<option value="' + m.id + '">' + (m.name || '') + (m.unit ? '（' + m.unit + '）' : '') + ' 仕入単価:¥' + (m.mc || 0) + '</option>';
   }).join('');
 
   var el = document.createElement('div');
@@ -5223,7 +5223,7 @@ function calcEstMatCost() {
   if (!sel) return;
   var mat = items.find(function(i) { return i.id === sel.value; });
   var qtyUsed = parseFloat(document.getElementById('estMatQtyUsed').value) || 0;
-  var unitPrice = mat && mat.data && mat.data.price ? parseFloat(mat.data.price) : 0;
+  var unitPrice = mat && mat.mc ? parseFloat(mat.mc) : 0;
   var cost = Math.round(unitPrice * qtyUsed);
   var disp = document.getElementById('estMatCostDisp');
   if (disp) disp.textContent = '原価（参考）: ¥' + cost.toLocaleString();
@@ -5233,7 +5233,7 @@ function confirmEstLineMaterial() {
   var sel = document.getElementById('estMatSel');
   var mat = items.find(function(i) { return i.id === sel.value; });
   var qtyUsed = parseFloat(document.getElementById('estMatQtyUsed').value) || 0;
-  var unitPrice = mat && mat.data && mat.data.price ? parseFloat(mat.data.price) : 0;
+  var unitPrice = mat && mat.mc ? parseFloat(mat.mc) : 0;
   var cost = Math.round(unitPrice * qtyUsed);
   var name = document.getElementById('estMatProdName').value.trim();
   var price = parseInt(document.getElementById('estMatPrice').value, 10);
