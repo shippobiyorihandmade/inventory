@@ -4434,6 +4434,15 @@ function renderInvLines() {
   }
 
   el.innerHTML = invLines.map(function(line, idx) {
+    if (line.type === 'option') {
+      return '<div style="display:flex;gap:8px;align-items:center;padding:9px 0;border-bottom:1px solid var(--bd);flex-wrap:wrap">'
+        + '<span style="flex:2;font-size:13px;font-weight:700">⚙️ ' + line.optName + '</span>'
+        + '<div style="display:flex;align-items:center;gap:4px"><label class="ts tm">数量</label><input type="number" style="width:58px" value="' + line.qty + '" min="1" onchange="invLines[' + idx + '].qty=parseInt(this.value)||1;renderInvLines()"></div>'
+        + '<div style="display:flex;align-items:center;gap:4px"><label class="ts tm">単価</label><input type="number" style="width:76px" value="' + line.price + '" min="0" onchange="invLines[' + idx + '].price=parseFloat(this.value)||0;renderInvLines()"><span class="ts tm">円</span></div>'
+        + '<span class="mn ts" style="min-width:66px;text-align:right">' + yen(line.qty * line.price) + '</span>'
+        + '<button class="bi bdl" onclick="invLines.splice(' + idx + ',1);renderInvLines()">✕</button>'
+        + '</div>';
+    }
     // 商品セレクト（在庫元に応じてフィルタ済み）
     var selOpts = prods.map(function(i) {
       var stock = fromConsign && selectedDest
