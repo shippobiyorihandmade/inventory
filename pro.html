@@ -4545,7 +4545,7 @@ function addInvLine() {
 
   var firstItem = prods[0];
   var consignDest = selectedDest || '';
-  invLines.push({ itemId: firstItem.id, qty: 1, price: firstItem.sp || 0, fromConsign: fromConsign, consignDest: consignDest });
+  invLines.push({ type: 'product', itemId: firstItem.id, qty: 1, price: firstItem.sp || 0, fromConsign: fromConsign, consignDest: consignDest });
   renderInvLines();
 }
 
