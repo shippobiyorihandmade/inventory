@@ -259,7 +259,7 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
 .btn-logout:hover{background:rgba(255,255,255,.2);}
 
 @media print {
-  #delivery-print-area, #invoice-print-area { display: block !important; }
+  #delivery-print-area, #invoice-print-area, #estimate-print-area { display: block !important; }
   #pg-delivery { display: none !important; }
   body { background: #fff !important; }
   header, .nav-tabs, .bottom-nav, .ov, #dpp, .no-print { display: none !important; }
@@ -303,9 +303,6 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
 .bn-sheet-item{display:flex;flex-direction:column;align-items:center;gap:5px;padding:14px 8px;border:1.5px solid var(--bd);border-radius:12px;background:var(--sf2);font-family:inherit;font-size:12px;font-weight:700;color:var(--tx);cursor:pointer;transition:all .15s;-webkit-tap-highlight-color:transparent;}
 .bn-sheet-item:hover,.bn-sheet-item:active{background:var(--bd);transform:scale(.97);}
 
-/* 広告スペース */
-.ad-banner{width:100%;min-height:60px;background:var(--sf2);border:1px dashed var(--bd);border-radius:var(--r);display:flex;align-items:center;justify-content:center;margin-bottom:14px;overflow:hidden;font-size:11px;color:var(--tx2);}
-.ad-banner ins{display:block;width:100%;}
 @keyframes spin{to{transform:rotate(360deg)}}
 .uploading::after{content:'';display:inline-block;width:12px;height:12px;border:2px solid var(--bd);border-top-color:var(--ac);border-radius:50%;animation:spin .7s linear infinite;margin-left:6px;vertical-align:middle;}
 /* お知らせポップアップ */
@@ -323,7 +320,6 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
 .ann-item-date{font-size:11px;color:var(--tx2);margin-top:6px;}
 .ann-footer{padding:12px 16px;border-top:1px solid var(--bd);display:flex;justify-content:flex-end;}
 </style>
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4175640401904356" crossorigin="anonymous"></script>
 </head>
 <body>
 
@@ -545,19 +541,7 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
 <!-- DASHBOARD -->
 <div class="pg on" id="pg-dash">
   <div class="sg" id="sgrid"></div>
-  <!-- 広告スペース（AdSense用） -->
-  <div class="ad-banner" id="adBanner1">
-    <!-- Google AdSense ここに貼り付け
-    <ins class="adsbygoogle"
-      style="display:block"
-      data-ad-client="ca-pub-4175640401904356"
-      data-ad-slot="XXXXXXXXXX"
-      data-ad-format="auto"
-      data-full-width-responsive="true"></ins>
-    <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
-    -->
-    広告スペース
-  </div>
+
   <div id="alrt"></div>
   <div class="card">
     <div class="ch">
@@ -1020,19 +1004,6 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
     <div class="tw"><table><thead><tr><th>日付</th><th>商品</th><th>数</th><th>売上</th><th>利益</th><th>率</th><th>販売場所</th><th>メモ</th><th></th></tr></thead><tbody id="saleTbody"></tbody></table></div>
     <div class="dash-mobile-list" id="saleMobileList" style="padding:0 4px"></div>
   </div>
-  <!-- 広告スペース（AdSense用） -->
-  <div class="ad-banner" id="adBanner2">
-    <!-- Google AdSense ここに貼り付け
-    <ins class="adsbygoogle"
-      style="display:block"
-      data-ad-client="ca-pub-4175640401904356"
-      data-ad-slot="XXXXXXXXXX"
-      data-ad-format="auto"
-      data-full-width-responsive="true"></ins>
-    <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
-    -->
-    広告スペース
-  </div>
 </div>
 
 <!-- HISTORY -->
@@ -1109,6 +1080,10 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
     <button id="docTabInv" onclick="switchDocTab('invoice')"
       style="flex:1;padding:11px 8px;border:none;background:var(--sf2);color:var(--tx2);font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;border-left:1px solid var(--bd);">
       🧾 請求書
+    </button>
+    <button id="docTabEst" onclick="switchDocTab('estimate')"
+      style="flex:1;padding:11px 8px;border:none;background:var(--sf2);color:var(--tx2);font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;border-left:1px solid var(--bd);">
+      📝 見積書
     </button>
   </div>
 
@@ -1291,12 +1266,83 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
     </div>
   </div><!-- /docSec-invoice -->
 
+  <!-- ===== 見積書セクション ===== -->
+  <div id="docSec-estimate" style="display:none">
+
+    <!-- 基本情報 -->
+    <div class="card">
+      <div class="ch"><span class="ct">📝 見積書を作成</span></div>
+      <div class="cb">
+        <div class="fr c2">
+          <div>
+            <label>見積先 *</label>
+            <input type="text" id="estTo" placeholder="例：山田 花子 様">
+          </div>
+          <div>
+            <label>見積日 *</label>
+            <div class="df"><button type="button" class="dd" id="estDate_btn" onclick="dpOpen('estDate')"><span id="estDate_lbl" class="ph">日付を選択</span><span>📅</span></button></div>
+            <input type="hidden" id="estDate">
+          </div>
+        </div>
+        <div class="fr c2">
+          <div>
+            <label>有効期限</label>
+            <input type="text" id="estExpiry" placeholder="例：2026年6月30日">
+          </div>
+        </div>
+        <div class="fr">
+          <div><label>備考・特記事項</label><textarea id="estNote" placeholder="特記事項など" style="min-height:64px"></textarea></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 明細 -->
+    <div class="card">
+      <div class="ch">
+        <span class="ct">📋 見積明細</span>
+        <div style="display:flex;gap:6px;align-items:center">
+          <button class="btn bg bsm" onclick="showEstAddMenu()">＋ 追加</button>
+        </div>
+      </div>
+      <div class="cb" id="estLines">
+        <p class="ts tm">「追加」ボタンから明細を追加してください</p>
+      </div>
+      <div class="cb" style="border-top:1px solid var(--bd);padding-top:12px">
+        <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end">
+          <div style="display:flex;gap:12px;align-items:center;padding-top:6px;border-top:1px solid var(--bd)">
+            <span class="ts tm fw7">合計金額（税込）</span>
+            <span class="mn fw7" style="font-size:22px;color:var(--ac)" id="estTotal">¥0</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:10px;margin-bottom:14px">
+      <button class="btn bp" style="flex:1" onclick="printEstimate()">🖨️ PDF出力</button>
+      <button class="btn bs" style="flex:1" onclick="clearEstimate()">🗑 リセット</button>
+    </div>
+
+    <!-- カスタムオプション管理 -->
+    <div class="card">
+      <div class="ch">
+        <span class="ct">⚙️ カスタムオプション管理</span>
+        <button class="btn bg bsm" onclick="showAddCustomOption()">＋ 追加</button>
+      </div>
+      <div class="cb" id="customOptionList">
+        <p class="ts tm">登録されているカスタムオプションはありません</p>
+      </div>
+    </div>
+
+  </div><!-- /docSec-estimate -->
+
 </div>
 
 <!-- 納品書印刷エリア -->
 <div id="delivery-print-area" style="display:none"></div>
 <!-- 請求書印刷エリア -->
 <div id="invoice-print-area" style="display:none"></div>
+<!-- 見積書印刷エリア -->
+<div id="estimate-print-area" style="display:none"></div>
 
 <!-- ACCOUNT SETTINGS -->
 <div class="pg" id="pg-account">
@@ -3967,6 +4013,7 @@ function rDeliveryPg() {
   if (!document.getElementById('dlvDate').value) dpSet('dlvDate', tod());
   if (!document.getElementById('retDate').value) dpSet('retDate', tod());
   if (!document.getElementById('invDate').value) dpSet('invDate', tod());
+  renderCustomOptionList();
   renderDlvLines();
   renderDlvStockList();
   renderRetSrc();
@@ -4332,10 +4379,11 @@ function onInvToSelChange(val) {
 // 書類作成タブ切り替え
 // ══════════════════════════════════════════════
 function switchDocTab(tab) {
-  var tabs = ['delivery', 'invoice'];
+  var tabs = ['delivery', 'invoice', 'estimate'];
   tabs.forEach(function(t) {
     var sec = document.getElementById('docSec-' + t);
-    var btn = document.getElementById('docTab' + (t === 'delivery' ? 'Dlv' : 'Inv'));
+    var btnId = t === 'delivery' ? 'docTabDlv' : t === 'invoice' ? 'docTabInv' : 'docTabEst';
+    var btn = document.getElementById(btnId);
     if (!sec || !btn) return;
     var isActive = t === tab;
     sec.style.display = isActive ? '' : 'none';
@@ -5053,6 +5101,319 @@ async function changePassword() {
   acMsg('acPassMsg', 'パスワードを変更しました', true);
   document.getElementById('acNewPass').value = '';
   document.getElementById('acNewPass2').value = '';
+}
+
+
+// ══════════════════════════════════════════════
+// 見積書
+// ══════════════════════════════════════════════
+
+// カスタムオプション（localStorageで管理）
+var customOptions = JSON.parse(localStorage.getItem('customOptions') || '[]');
+
+function saveCustomOptions() {
+  localStorage.setItem('customOptions', JSON.stringify(customOptions));
+}
+
+function renderCustomOptionList() {
+  var el = document.getElementById('customOptionList');
+  if (!el) return;
+  if (!customOptions.length) {
+    el.innerHTML = '<p class="ts tm">登録されているカスタムオプションはありません</p>';
+    return;
+  }
+  el.innerHTML = customOptions.map(function(opt, i) {
+    return '<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--bd)">'
+      + '<div><div style="font-size:13px;font-weight:700">' + opt.name + '</div>'
+      + '<div class="ts tm">¥' + opt.price.toLocaleString() + '（税込）</div></div>'
+      + '<div style="display:flex;gap:6px">'
+      + '<button class="btn bs bsm" onclick="editCustomOption(' + i + ')">✏️</button>'
+      + '<button class="btn bs bsm" style="color:#c04a4a" onclick="deleteCustomOption(' + i + ')">🗑</button>'
+      + '</div></div>';
+  }).join('');
+}
+
+function showAddCustomOption() {
+  var name = prompt('オプション名を入力してください\n例：縫製代行、ラッピング、名入れ');
+  if (!name) return;
+  var price = parseInt(prompt('金額（税込）を入力してください'), 10);
+  if (isNaN(price) || price < 0) { alert('正しい金額を入力してください'); return; }
+  customOptions.push({ name: name.trim(), price: price });
+  saveCustomOptions();
+  renderCustomOptionList();
+}
+
+function editCustomOption(i) {
+  var opt = customOptions[i];
+  var name = prompt('オプション名', opt.name);
+  if (!name) return;
+  var price = parseInt(prompt('金額（税込）', opt.price), 10);
+  if (isNaN(price) || price < 0) { alert('正しい金額を入力してください'); return; }
+  customOptions[i] = { name: name.trim(), price: price };
+  saveCustomOptions();
+  renderCustomOptionList();
+}
+
+function deleteCustomOption(i) {
+  if (!confirm('「' + customOptions[i].name + '」を削除しますか？')) return;
+  customOptions.splice(i, 1);
+  saveCustomOptions();
+  renderCustomOptionList();
+}
+
+// 見積明細
+var estLines = []; // { type: 'material'|'free'|'option', name, price, qty, note, cost(任意) }
+
+function showEstAddMenu() {
+  var menu = '<div style="position:fixed;inset:0;z-index:8000;background:rgba(0,0,0,.4)" onclick="closeEstMenu()">'
+    + '<div style="position:fixed;bottom:0;left:0;right:0;background:var(--sf);border-radius:16px 16px 0 0;padding:20px;max-width:480px;margin:0 auto">'
+    + '<div style="font-size:14px;font-weight:700;margin-bottom:14px;color:var(--ac)">明細の種類を選択</div>'
+    + '<div style="display:flex;flex-direction:column;gap:10px">'
+    + '<button class="btn bs" style="text-align:left;padding:12px 16px" onclick="closeEstMenu();addEstLineMaterial()">🎨 手持ち材料から原価計算</button>'
+    + '<button class="btn bs" style="text-align:left;padding:12px 16px" onclick="closeEstMenu();addEstLineFree()">✏️ 自由入力（仕入れ品・オーダー品）</button>'
+    + '<button class="btn bs" style="text-align:left;padding:12px 16px" onclick="closeEstMenu();addEstLineOption()">⚙️ カスタムオプションから選択</button>'
+    + '</div>'
+    + '<button class="btn bs" style="width:100%;margin-top:12px" onclick="closeEstMenu()">キャンセル</button>'
+    + '</div></div>';
+  var el = document.createElement('div');
+  el.id = 'estAddMenu';
+  el.innerHTML = menu;
+  document.body.appendChild(el);
+}
+
+function closeEstMenu() {
+  var el = document.getElementById('estAddMenu');
+  if (el) el.remove();
+}
+
+function addEstLineMaterial() {
+  var mats = items.filter(function(i) { return i.data && i.data.type === 'material'; });
+  if (!mats.length) { alert('材料データがありません'); return; }
+
+  var opts = mats.map(function(m) {
+    return '<option value="' + m.id + '">' + (m.data.name || '') + (m.data.unit ? '（' + m.data.unit + '）' : '') + ' 単価:¥' + (m.data.price || 0) + '</option>';
+  }).join('');
+
+  var el = document.createElement('div');
+  el.id = 'estMatModal';
+  el.style.cssText = 'position:fixed;inset:0;z-index:8000;background:rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;padding:20px';
+  el.innerHTML = '<div style="background:var(--sf);border-radius:16px;padding:20px;width:100%;max-width:420px">'
+    + '<div style="font-size:14px;font-weight:700;margin-bottom:14px;color:var(--ac)">🎨 手持ち材料から原価計算</div>'
+    + '<label>材料を選択</label>'
+    + '<select id="estMatSel" style="margin-bottom:10px" onchange="calcEstMatCost()">' + opts + '</select>'
+    + '<label>使用量（単位は材料に合わせて）</label>'
+    + '<input type="number" id="estMatQtyUsed" value="1" min="0.01" step="0.01" style="margin-bottom:4px" oninput="calcEstMatCost()">'
+    + '<div id="estMatCostDisp" class="ts tm" style="margin-bottom:10px;color:var(--ac)">原価: ¥0</div>'
+    + '<label>完成品名 *</label>'
+    + '<input type="text" id="estMatProdName" placeholder="例：刺繍ポーチ" style="margin-bottom:10px">'
+    + '<label>販売単価（税込）*</label>'
+    + '<input type="number" id="estMatPrice" value="" min="0" placeholder="¥" style="margin-bottom:10px" oninput="calcEstMatCost()">'
+    + '<label>数量</label>'
+    + '<input type="number" id="estMatQty" value="1" min="1" style="margin-bottom:14px">'
+    + '<div style="display:flex;gap:8px">'
+    + '<button class="btn bp" style="flex:1" onclick="confirmEstLineMaterial()">追加</button>'
+    + '<button class="btn bs" style="flex:1" onclick="document.getElementById(\'estMatModal\').remove()">キャンセル</button>'
+    + '</div></div>';
+  document.body.appendChild(el);
+  calcEstMatCost();
+}
+
+function calcEstMatCost() {
+  var sel = document.getElementById('estMatSel');
+  if (!sel) return;
+  var mat = items.find(function(i) { return i.id === sel.value; });
+  var qtyUsed = parseFloat(document.getElementById('estMatQtyUsed').value) || 0;
+  var unitPrice = mat && mat.data && mat.data.price ? parseFloat(mat.data.price) : 0;
+  var cost = Math.round(unitPrice * qtyUsed);
+  var disp = document.getElementById('estMatCostDisp');
+  if (disp) disp.textContent = '原価（参考）: ¥' + cost.toLocaleString();
+}
+
+function confirmEstLineMaterial() {
+  var sel = document.getElementById('estMatSel');
+  var mat = items.find(function(i) { return i.id === sel.value; });
+  var qtyUsed = parseFloat(document.getElementById('estMatQtyUsed').value) || 0;
+  var unitPrice = mat && mat.data && mat.data.price ? parseFloat(mat.data.price) : 0;
+  var cost = Math.round(unitPrice * qtyUsed);
+  var name = document.getElementById('estMatProdName').value.trim();
+  var price = parseInt(document.getElementById('estMatPrice').value, 10);
+  var qty = parseInt(document.getElementById('estMatQty').value, 10) || 1;
+  if (!name) { alert('完成品名を入力してください'); return; }
+  if (isNaN(price) || price < 0) { alert('販売単価を入力してください'); return; }
+  estLines.push({ type: 'material', name: name, price: price, qty: qty, cost: cost });
+  document.getElementById('estMatModal').remove();
+  renderEstLines();
+}
+
+function addEstLineFree() {
+  var el = document.createElement('div');
+  el.id = 'estFreeModal';
+  el.style.cssText = 'position:fixed;inset:0;z-index:8000;background:rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;padding:20px';
+  el.innerHTML = '<div style="background:var(--sf);border-radius:16px;padding:20px;width:100%;max-width:420px">'
+    + '<div style="font-size:14px;font-weight:700;margin-bottom:14px;color:var(--ac)">✏️ 自由入力</div>'
+    + '<label>品名 *</label>'
+    + '<input type="text" id="estFreeName" placeholder="例：オーダー刺繍生地" style="margin-bottom:10px">'
+    + '<label>単価（税込）*</label>'
+    + '<input type="number" id="estFreePrice" value="" min="0" placeholder="¥" style="margin-bottom:10px">'
+    + '<label>数量</label>'
+    + '<input type="number" id="estFreeQty" value="1" min="1" style="margin-bottom:14px">'
+    + '<div style="display:flex;gap:8px">'
+    + '<button class="btn bp" style="flex:1" onclick="confirmEstLineFree()">追加</button>'
+    + '<button class="btn bs" style="flex:1" onclick="document.getElementById(\'estFreeModal\').remove()">キャンセル</button>'
+    + '</div></div>';
+  document.body.appendChild(el);
+}
+
+function confirmEstLineFree() {
+  var name = document.getElementById('estFreeName').value.trim();
+  var price = parseInt(document.getElementById('estFreePrice').value, 10);
+  var qty = parseInt(document.getElementById('estFreeQty').value, 10) || 1;
+  if (!name) { alert('品名を入力してください'); return; }
+  if (isNaN(price) || price < 0) { alert('単価を入力してください'); return; }
+  estLines.push({ type: 'free', name: name, price: price, qty: qty });
+  document.getElementById('estFreeModal').remove();
+  renderEstLines();
+}
+
+function addEstLineOption() {
+  if (!customOptions.length) { alert('カスタムオプションが登録されていません。\n先にカスタムオプションを登録してください。'); return; }
+  var opts = customOptions.map(function(opt, i) {
+    return '<option value="' + i + '">' + opt.name + '  ¥' + opt.price.toLocaleString() + '</option>';
+  }).join('');
+  var el = document.createElement('div');
+  el.id = 'estOptModal';
+  el.style.cssText = 'position:fixed;inset:0;z-index:8000;background:rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;padding:20px';
+  el.innerHTML = '<div style="background:var(--sf);border-radius:16px;padding:20px;width:100%;max-width:420px">'
+    + '<div style="font-size:14px;font-weight:700;margin-bottom:14px;color:var(--ac)">⚙️ カスタムオプション</div>'
+    + '<label>オプションを選択</label>'
+    + '<select id="estOptSel" style="margin-bottom:10px">' + opts + '</select>'
+    + '<label>数量</label>'
+    + '<input type="number" id="estOptQty" value="1" min="1" style="margin-bottom:14px">'
+    + '<div style="display:flex;gap:8px">'
+    + '<button class="btn bp" style="flex:1" onclick="confirmEstLineOption()">追加</button>'
+    + '<button class="btn bs" style="flex:1" onclick="document.getElementById(\'estOptModal\').remove()">キャンセル</button>'
+    + '</div></div>';
+  document.body.appendChild(el);
+}
+
+function confirmEstLineOption() {
+  var i = parseInt(document.getElementById('estOptSel').value, 10);
+  var qty = parseInt(document.getElementById('estOptQty').value, 10) || 1;
+  var opt = customOptions[i];
+  estLines.push({ type: 'option', name: opt.name, price: opt.price, qty: qty });
+  document.getElementById('estOptModal').remove();
+  renderEstLines();
+}
+
+function renderEstLines() {
+  var el = document.getElementById('estLines');
+  if (!el) return;
+  if (!estLines.length) {
+    el.innerHTML = '<p class="ts tm">「追加」ボタンから明細を追加してください</p>';
+    calcEstTotal();
+    return;
+  }
+  el.innerHTML = estLines.map(function(line, i) {
+    var typeLabel = line.type === 'material' ? '🎨' : line.type === 'option' ? '⚙️' : '✏️';
+    var costNote = line.type === 'material' ? '<span style="font-size:10px;color:var(--tx2)">　原価参考: ¥' + line.cost.toLocaleString() + '</span>' : '';
+    return '<div style="display:flex;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid var(--bd)">'
+      + '<div style="flex:1">'
+      + '<div style="font-size:13px;font-weight:700">' + typeLabel + ' ' + line.name + costNote + '</div>'
+      + '<div class="ts tm">¥' + line.price.toLocaleString() + ' × ' + line.qty + ' = ¥' + (line.price * line.qty).toLocaleString() + '</div>'
+      + '</div>'
+      + '<button class="btn bs bsm" style="color:#c04a4a;flex-shrink:0" onclick="removeEstLine(' + i + ')">🗑</button>'
+      + '</div>';
+  }).join('');
+  calcEstTotal();
+}
+
+function removeEstLine(i) {
+  estLines.splice(i, 1);
+  renderEstLines();
+}
+
+function calcEstTotal() {
+  var total = estLines.reduce(function(a, l) { return a + l.price * l.qty; }, 0);
+  var el = document.getElementById('estTotal');
+  if (el) el.textContent = '¥' + Math.round(total).toLocaleString();
+}
+
+function clearEstimate() {
+  if (estLines.length && !confirm('見積書をリセットしますか？')) return;
+  estLines = [];
+  ['estTo','estExpiry','estNote'].forEach(function(id) {
+    var el = document.getElementById(id); if (el) el.value = '';
+  });
+  var estDate = document.getElementById('estDate'); if (estDate) estDate.value = '';
+  var estDateLbl = document.getElementById('estDate_lbl'); if (estDateLbl) { estDateLbl.textContent = '日付を選択'; estDateLbl.className = 'ph'; }
+  renderEstLines();
+}
+
+async function printEstimate() {
+  var to = document.getElementById('estTo').value.trim();
+  var date = document.getElementById('estDate').value;
+  var expiry = document.getElementById('estExpiry').value.trim();
+  var note = document.getElementById('estNote').value.trim();
+  if (!to) { alert('見積先を入力してください'); return; }
+  if (!date) { alert('見積日を選択してください'); return; }
+  if (!estLines.length) { alert('明細を追加してください'); return; }
+
+  var total = estLines.reduce(function(a, l) { return a + l.price * l.qty; }, 0);
+  var dateFmt = date.replace(/-/g, '/');
+
+  var rows = estLines.map(function(line, idx) {
+    return '<tr>'
+      + '<td>' + (idx + 1) + '</td>'
+      + '<td><b>' + line.name + '</b></td>'
+      + '<td class="num">' + line.qty + '</td>'
+      + '<td class="num">¥' + line.price.toLocaleString() + '</td>'
+      + '<td class="num">¥' + (line.price * line.qty).toLocaleString() + '</td>'
+      + '</tr>';
+  }).join('');
+
+  var stampHtml = '';
+  if (userProfile && userProfile.stamp_url) {
+    var signedStampUrl = await getSignedUrl('stamps', userProfile.stamp_url);
+    stampHtml = '<img src="' + signedStampUrl + '" style="width:70px;height:70px;object-fit:contain" onerror="this.style.display=\'none\'">';
+  }
+
+  var html = '<div class="pr-header">'
+    + '<div>'
+    + '<div class="pr-title">見 積 書</div>'
+    + '</div>'
+    + '<div class="pr-date" style="text-align:right">'
+    + '発行日: ' + dateFmt
+    + (userProfile && (userProfile.shop_name || userProfile.owner_name) ? '<br><br><b>' + (userProfile.shop_name || '') + (userProfile.owner_name ? ' ' + userProfile.owner_name : '') + '</b>' : '')
+    + (userProfile && userProfile.zip ? '<br>〒' + userProfile.zip : '')
+    + (userProfile && userProfile.address ? '<br>' + userProfile.address : '')
+    + (userProfile && userProfile.phone ? '<br>TEL: ' + userProfile.phone : '')
+    + (userProfile && userProfile.email ? '<br>' + userProfile.email : '')
+    + '</div>'
+    + '</div>'
+    + '<div style="margin-bottom:18px">'
+    + '<div style="font-size:16px;font-weight:700;margin-bottom:4px">' + to + ' 様</div>'
+    + '<div style="font-size:12px;color:#555">見積日: ' + dateFmt + (expiry ? '　有効期限: ' + expiry : '') + '</div>'
+    + '</div>'
+    + '<div class="pr-section">'
+    + '<table class="pr-table">'
+    + '<thead><tr><th style="width:28px">No.</th><th>品名</th><th style="width:44px">数量</th><th style="width:80px">単価</th><th style="width:80px">金額</th></tr></thead>'
+    + '<tbody>' + rows + '</tbody>'
+    + '</table>'
+    + '</div>'
+    + '<div style="display:flex;justify-content:space-between;align-items:flex-end;margin-top:10px">'
+    + '<div>' + stampHtml + '</div>'
+    + '<div class="pr-summary">合計金額（税込）: <b>¥' + Math.round(total).toLocaleString() + '</b></div>'
+    + '</div>'
+    + (expiry ? '<div style="margin-top:10px;font-size:11px;color:#888">※ 本見積の有効期限は ' + expiry + ' です。</div>' : '')
+    + (note ? '<div style="margin-top:18px;padding:10px 12px;border:1px solid #ddd;border-radius:6px;font-size:11px;color:#555;line-height:1.8;white-space:pre-wrap"><b>備考</b><br>' + note + '</div>' : '');
+
+  document.getElementById('estimate-print-area').innerHTML = html;
+  var pg = document.getElementById('pg-delivery');
+  if (pg) pg.style.display = 'none';
+  window.print();
+  setTimeout(function() {
+    if (pg) pg.style.display = '';
+  }, 500);
 }
 
 init();
