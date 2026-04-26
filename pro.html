@@ -1219,7 +1219,7 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
             <option value="te">手元在庫</option>
             <option value="consign">委託先在庫</option>
           </select>
-          <button class="btn bg bsm" onclick="addInvLine()">＋ 追加</button>
+          <button class="btn bg bsm" onclick="showInvAddMenu()">＋ 追加</button>
         </div>
       </div>
       <div class="cb" id="invLines">
@@ -3866,7 +3866,7 @@ document.querySelectorAll('.ov').forEach(function(el) { el.addEventListener('cli
 // DATE PICKER
 // ══════════════════════════════════════════════
 var dpField = null, dpY = 0, dpM = 0;
-var DP_IDS = ['mkDate', 'purDate', 'purNDate', 'saleDate', 'dlvDate', 'retDate', 'invDate', 'invDue'];
+var DP_IDS = ['mkDate', 'purDate', 'purNDate', 'saleDate', 'dlvDate', 'retDate', 'invDate', 'invDue', 'estDate'];
 function dpOpen(fid) {
   var pop = document.getElementById('dpp');
   if (dpField === fid && pop.classList.contains('open')) { dpClose(); return; }
@@ -4395,7 +4395,7 @@ function switchDocTab(tab) {
 // ══════════════════════════════════════════════
 // 請求書
 // ══════════════════════════════════════════════
-var invLines = []; // { itemId, qty, price, fromConsign, consignDest }
+var invLines = []; // { type:'product'|'option', itemId, qty, price, fromConsign, consignDest, optName }
 
 function renderInvLines() {
   var el = document.getElementById('invLines');
@@ -4468,6 +4468,56 @@ function renderInvLines() {
   }).join('');
 
   calcInvTotal();
+}
+
+function showInvAddMenu() {
+  var el = document.createElement('div');
+  el.id = 'invAddMenu';
+  el.innerHTML = '<div style="position:fixed;inset:0;z-index:8000;background:rgba(0,0,0,.4)" onclick="closeInvAddMenu()">'
+    + '<div style="position:fixed;bottom:0;left:0;right:0;background:var(--sf);border-radius:16px 16px 0 0;padding:20px;max-width:480px;margin:0 auto">'
+    + '<div style="font-size:14px;font-weight:700;margin-bottom:14px;color:var(--ac)">明細の種類を選択</div>'
+    + '<div style="display:flex;flex-direction:column;gap:10px">'
+    + '<button class="btn bs" style="text-align:left;padding:12px 16px" onclick="closeInvAddMenu();addInvLine()">🎨 商品を追加</button>'
+    + '<button class="btn bs" style="text-align:left;padding:12px 16px" onclick="closeInvAddMenu();addInvOptionLine()">⚙️ カスタムオプションを追加</button>'
+    + '</div>'
+    + '<button class="btn bs" style="width:100%;margin-top:12px" onclick="closeInvAddMenu()">キャンセル</button>'
+    + '</div></div>';
+  document.body.appendChild(el);
+}
+
+function closeInvAddMenu() {
+  var el = document.getElementById('invAddMenu');
+  if (el) el.remove();
+}
+
+function addInvOptionLine() {
+  if (!customOptions.length) { alert('カスタムオプションが登録されていません。\n見積書タブのカスタムオプション管理から登録してください。'); return; }
+  var opts = customOptions.map(function(opt, i) {
+    return '<option value="' + i + '">' + opt.name + '  ¥' + opt.price.toLocaleString() + '</option>';
+  }).join('');
+  var el = document.createElement('div');
+  el.id = 'invOptModal';
+  el.style.cssText = 'position:fixed;inset:0;z-index:8000;background:rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;padding:20px';
+  el.innerHTML = '<div style="background:var(--sf);border-radius:16px;padding:20px;width:100%;max-width:420px">'
+    + '<div style="font-size:14px;font-weight:700;margin-bottom:14px;color:var(--ac)">⚙️ カスタムオプション</div>'
+    + '<label>オプションを選択</label>'
+    + '<select id="invOptSel" style="margin-bottom:10px">' + opts + '</select>'
+    + '<label>数量</label>'
+    + '<input type="number" id="invOptQty" value="1" min="1" style="margin-bottom:14px">'
+    + '<div style="display:flex;gap:8px">'
+    + '<button class="btn bp" style="flex:1" onclick="confirmInvOptionLine()">追加</button>'
+    + '<button class="btn bs" style="flex:1" onclick="document.getElementById(\'invOptModal\').remove()">キャンセル</button>'
+    + '</div></div>';
+  document.body.appendChild(el);
+}
+
+function confirmInvOptionLine() {
+  var i = parseInt(document.getElementById('invOptSel').value, 10);
+  var qty = parseInt(document.getElementById('invOptQty').value, 10) || 1;
+  var opt = customOptions[i];
+  invLines.push({ type: 'option', optName: opt.name, price: opt.price, qty: qty });
+  document.getElementById('invOptModal').remove();
+  renderInvLines();
 }
 
 function addInvLine() {
@@ -4563,8 +4613,18 @@ async function printInvoice() {
   var dueFmt = due ? due.replace(/-/g, '/') : '';
 
   var rows = invLines.map(function(line, idx) {
-    var item = items.find(function(i) { return i.id === line.itemId; }) || {};
     var amt = line.qty * line.price;
+    if (line.type === 'option') {
+      return '<tr>'
+        + '<td>' + (idx + 1) + '</td>'
+        + '<td>—</td>'
+        + '<td><b>⚙️ ' + line.optName + '</b></td>'
+        + '<td class="num">' + line.qty + '</td>'
+        + '<td class="num">¥' + (line.price || 0).toLocaleString() + '</td>'
+        + '<td class="num">¥' + Math.round(amt).toLocaleString() + '</td>'
+        + '</tr>';
+    }
+    var item = items.find(function(i) { return i.id === line.itemId; }) || {};
     var origin = line.fromConsign && line.consignDest ? '<br><small style="color:#888;font-size:10px">委託先: ' + line.consignDest + '</small>' : '';
     return '<tr>'
       + '<td>' + (idx + 1) + '</td>'
