@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-JSN9S6YHTC"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-JSN9S6YHTC');
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pro版 近日公開 — ハンドメイド在庫管理</title>
+<meta name="description" content="ハンドメイド在庫管理アプリPro版が近日公開予定。事前登録で最速リリースのお知らせをお届けします。">
+<link rel="icon" href="favicon.png">
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;600;700&family=Zen+Kaku+Gothic+New:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#faf8f5;--sf:#fff;--sf2:#f3efe9;--bd:#e5ddd0;
+  --tx:#2c2416;--tx2:#7a6e60;--tx3:#a89880;
+  --ac:#c0622a;--ac2:#e8a87c;--ac3:#4a7c6f;
+  --r:14px;--rL:24px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'Zen Kaku Gothic New',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;overflow-x:hidden;}
+
+/* ── 背景装飾 ── */
+.bg-deco{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;}
+.bg-deco::before{content:'';position:absolute;top:-20%;right:-10%;width:600px;height:600px;background:radial-gradient(circle,rgba(192,98,42,.08) 0%,transparent 70%);border-radius:50%;}
+.bg-deco::after{content:'';position:absolute;bottom:-10%;left:-10%;width:500px;height:500px;background:radial-gradient(circle,rgba(74,124,111,.06) 0%,transparent 70%);border-radius:50%;}
+
+/* ── ナビ ── */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(250,248,245,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--bd);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;}
+.nav-logo{font-size:15px;font-weight:700;display:flex;align-items:center;gap:7px;color:var(--tx);text-decoration:none;}
+.nav-logo span{color:var(--ac);}
+.nav-link{font-size:13px;color:var(--tx2);text-decoration:none;}
+.nav-link:hover{color:var(--ac);}
+
+/* ── メインコンテンツ ── */
+.wrap{position:relative;z-index:1;max-width:720px;margin:0 auto;padding:100px 24px 60px;}
+
+/* ── ティザーバッジ ── */
+.badge{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,rgba(192,98,42,.12),rgba(232,168,124,.1));border:1.5px solid rgba(192,98,42,.25);border-radius:30px;padding:6px 18px;font-size:12px;font-weight:700;color:var(--ac);letter-spacing:.06em;margin-bottom:28px;animation:fadeInDown .6s ease both;}
+.badge-dot{width:7px;height:7px;background:var(--ac);border-radius:50%;animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.5;transform:scale(1.3);}}
+@keyframes fadeInDown{from{opacity:0;transform:translateY(-16px);}to{opacity:1;transform:translateY(0);}}
+@keyframes fadeInUp{from{opacity:0;transform:translateY(24px);}to{opacity:1;transform:translateY(0);}}
+
+/* ── ヒーロー ── */
+.hero{animation:fadeInUp .7s .1s ease both;}
+.hero h1{font-family:'Shippori Mincho',serif;font-size:clamp(28px,6vw,52px);font-weight:600;line-height:1.3;margin-bottom:16px;}
+.hero h1 em{font-style:normal;color:var(--ac);}
+.hero p{font-size:clamp(14px,2vw,17px);color:var(--tx2);line-height:1.9;margin-bottom:40px;max-width:540px;}
+
+/* ── 機能リスト ── */
+.features{animation:fadeInUp .7s .2s ease both;margin-bottom:48px;}
+.features-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;}
+.feature-item{background:var(--sf);border:1.5px solid var(--bd);border-radius:var(--r);padding:16px 18px;display:flex;align-items:flex-start;gap:10px;}
+.feature-icon{font-size:20px;flex-shrink:0;margin-top:2px;}
+.feature-text{font-size:13px;font-weight:700;color:var(--tx);line-height:1.5;}
+.feature-sub{font-size:11px;color:var(--tx2);margin-top:3px;line-height:1.5;}
+
+/* ── 料金 ── */
+.price-box{animation:fadeInUp .7s .3s ease both;background:linear-gradient(135deg,#2c2416,#4a3828);border-radius:var(--rL);padding:28px 32px;margin-bottom:48px;display:flex;align-items:center;gap:24px;flex-wrap:wrap;}
+.price-label{font-size:12px;font-weight:700;color:rgba(255,255,255,.5);letter-spacing:.1em;margin-bottom:6px;}
+.price-amount{font-family:'Shippori Mincho',serif;font-size:clamp(28px,5vw,42px);font-weight:600;color:#fff;}
+.price-amount span{font-size:15px;color:rgba(255,255,255,.6);font-family:'Zen Kaku Gothic New',sans-serif;}
+.price-note{font-size:12px;color:rgba(255,255,255,.5);margin-top:4px;}
+.price-badge{background:rgba(232,168,124,.2);border:1px solid rgba(232,168,124,.3);border-radius:8px;padding:8px 16px;font-size:12px;color:#e8a87c;line-height:1.7;}
+
+/* ── 登録フォーム ── */
+.form-section{animation:fadeInUp .7s .4s ease both;background:var(--sf);border:1.5px solid var(--bd);border-radius:var(--rL);padding:32px 28px;margin-bottom:48px;}
+.form-section h2{font-family:'Shippori Mincho',serif;font-size:22px;font-weight:600;margin-bottom:8px;}
+.form-section p{font-size:13px;color:var(--tx2);margin-bottom:20px;line-height:1.8;}
+.form-row{display:flex;gap:10px;flex-wrap:wrap;}
+.form-row input{flex:1;min-width:200px;padding:12px 16px;border:1.5px solid var(--bd);border-radius:10px;font-family:inherit;font-size:14px;background:var(--sf);color:var(--tx);transition:border-color .2s;}
+.form-row input:focus{outline:none;border-color:var(--ac);box-shadow:0 0 0 3px rgba(192,98,42,.1);}
+.btn-register{background:linear-gradient(135deg,var(--ac),#d4733a);color:#fff;padding:12px 28px;border-radius:10px;font-size:14px;font-weight:700;border:none;cursor:pointer;font-family:inherit;transition:all .2s;white-space:nowrap;box-shadow:0 4px 16px rgba(192,98,42,.3);}
+.btn-register:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(192,98,42,.4);}
+.btn-register:disabled{opacity:.6;cursor:not-allowed;transform:none;}
+.form-result{margin-top:12px;font-size:13px;display:none;padding:10px 14px;border-radius:8px;}
+.form-result.ok{background:#edf5f3;color:#3a6b5e;display:block;}
+.form-result.err{background:#fde8e8;color:#c04a4a;display:block;}
+.count-badge{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--tx2);margin-top:12px;}
+.count-badge strong{color:var(--ac);font-size:14px;}
+
+/* ── フッター ── */
+footer{background:var(--tx);color:#faf8f5;padding:32px 24px;text-align:center;position:relative;z-index:1;}
+.footer-logo{font-size:15px;font-weight:700;margin-bottom:8px;}
+.footer-logo span{color:var(--ac2);}
+footer p{font-size:12px;opacity:.4;margin-top:12px;}
+footer a{color:rgba(250,248,245,.6);text-decoration:none;font-size:12px;}
+footer a:hover{color:var(--ac2);}
+</style>
+</head>
+<body>
+
+<div class="bg-deco"></div>
+
+<nav>
+  <a class="nav-logo" href="index.html">🧵 <span>ハンドメイド</span>在庫管理</a>
+</nav>
+
+<div class="wrap">
+
+  <!-- ティザーバッジ -->
+  <div class="badge">
+    <span class="badge-dot"></span>
+    COMING SOON — Pro版 近日公開予定
+  </div>
+
+  <!-- ヒーロー -->
+  <div class="hero">
+    <h1>もっと本格的に、<br><em>もっと自由に。</em></h1>
+    <p>ハンドメイド在庫管理アプリに、待望のPro版が登場予定です。<br>見積書・請求書の作成から、マルチプラットフォーム対応の在庫管理まで。作家活動をもっとスムーズに。</p>
+  </div>
+
+  <!-- 機能リスト -->
+  <div class="features">
+    <div class="features-grid">
+      <div class="feature-item">
+        <span class="feature-icon">📝</span>
+        <div>
+          <div class="feature-text">見積書・請求書作成</div>
+          <div class="feature-sub">材料レシピから原価計算してPDF出力</div>
+        </div>
+      </div>
+      <div class="feature-item">
+        <span class="feature-icon">🛍️</span>
+        <div>
+          <div class="feature-text">マルチプラットフォーム対応</div>
+          <div class="feature-sub">複数の販売先の在庫を一元管理</div>
+        </div>
+      </div>
+      <div class="feature-item">
+        <span class="feature-icon">📦</span>
+        <div>
+          <div class="feature-text">登録件数が大幅拡張</div>
+          <div class="feature-sub">完成品・材料をより多く登録可能</div>
+        </div>
+      </div>
+      <div class="feature-item">
+        <span class="feature-icon">💰</span>
+        <div>
+          <div class="feature-text">追加原価・オプション料金設定</div>
+          <div class="feature-sub">材料費以外のコストも正確に管理</div>
+        </div>
+      </div>
+      <div class="feature-item">
+        <span class="feature-icon">🔄</span>
+        <div>
+          <div class="feature-text">無料版からデータ移行</div>
+          <div class="feature-sub">今使ってるデータをそのまま引き継げる</div>
+        </div>
+      </div>
+      <div class="feature-item">
+        <span class="feature-icon">🐾</span>
+        <div>
+          <div class="feature-text">今後の新機能も全て使い放題</div>
+          <div class="feature-sub">追加料金なしでアップデートを楽しめる</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 料金 -->
+  <div class="price-box">
+    <div>
+      <div class="price-label">MONTHLY PRICE</div>
+      <div class="price-amount">月額500〜700円<span>（税込・予定）</span></div>
+      <div class="price-note">正式リリース時に料金を確定発表予定</div>
+    </div>
+    <div class="price-badge">
+      📬 事前登録で<br>正式リリース時に<br>最速でお知らせします
+    </div>
+  </div>
+
+  <!-- 登録フォーム -->
+  <div class="form-section">
+    <h2>🐾 事前登録する</h2>
+    <p>メールアドレスを登録しておくと、Pro版の正式リリース時にいち早くお知らせします。登録は無料・メール1通のみで完了です。</p>
+    <div class="form-row">
+      <input type="email" id="waitEmail" placeholder="example@gmail.com">
+      <button class="btn-register" onclick="registerWaitlist()">登録する →</button>
+    </div>
+    <div class="form-result" id="waitResult"></div>
+    <div class="count-badge" id="waitCount" style="display:none">
+      🎉 現在 <strong id="waitNum">0</strong> 人が事前登録中
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <div class="footer-logo">🧵 <span>ハンドメイド</span>在庫管理</div>
+  <div style="display:flex;gap:20px;justify-content:center;margin-top:12px;flex-wrap:wrap">
+    <a href="index.html">トップ</a>
+    <a href="index.html#contact">お問い合わせ</a>
+  </div>
+  <p>© 2026 しっぽ日和. All rights reserved.</p>
+</footer>
+
+<script>
+var SB_URL = 'https://zllquptbaekezaxvysfb.supabase.co';
+var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpsbHF1cHRiYWVrZXpheHZ5c2ZiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY4MDcyMjMsImV4cCI6MjA5MjM4MzIyM30.zfiTyR_O07rOoQDnsF_hjX1adsUL5nWdZ9GSZX8cMaM';
+
+async function loadCount() {
+  try {
+    var r = await fetch(SB_URL + '/rest/v1/waitlist?select=id', {
+      headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY }
+    });
+    var data = await r.json();
+    if (data && data.length > 0) {
+      document.getElementById('waitNum').textContent = data.length;
+      document.getElementById('waitCount').style.display = 'inline-flex';
+    }
+  } catch(e) {}
+}
+
+async function registerWaitlist() {
+  var email = document.getElementById('waitEmail').value.trim();
+  var result = document.getElementById('waitResult');
+  result.className = 'form-result';
+  result.style.display = 'none';
+
+  if (!email || !email.includes('@')) {
+    result.textContent = '⚠️ 正しいメールアドレスを入力してください';
+    result.classList.add('err');
+    return;
+  }
+
+  var btn = document.querySelector('.btn-register');
+  btn.disabled = true;
+  btn.textContent = '登録中...';
+
+  try {
+    var r = await fetch(SB_URL + '/rest/v1/waitlist', {
+      method: 'POST',
+      headers: {
+        'apikey': SB_KEY,
+        'Authorization': 'Bearer ' + SB_KEY,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=representation'
+      },
+      body: JSON.stringify({ email: email })
+    });
+
+    if (r.status === 409) {
+      result.textContent = '✅ このメールアドレスは既に登録済みです！リリースをお待ちください🐾';
+      result.classList.add('ok');
+    } else if (!r.ok) {
+      throw new Error('登録に失敗しました');
+    } else {
+      result.textContent = '✅ 登録完了！Pro版のリリース時にお知らせします🐾';
+      result.classList.add('ok');
+      document.getElementById('waitEmail').value = '';
+      loadCount();
+    }
+  } catch(e) {
+    result.textContent = '❌ 登録に失敗しました。しばらくしてから再度お試しください。';
+    result.classList.add('err');
+  }
+
+  btn.disabled = false;
+  btn.textContent = '登録する →';
+}
+
+loadCount();
+</script>
+</body>
+</html>

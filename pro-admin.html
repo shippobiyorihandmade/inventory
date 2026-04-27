@@ -50,7 +50,14 @@ textarea{resize:vertical;min-height:80px;}
 .ann-meta{font-size:11px;color:var(--tx2);margin-top:4px;}
 .empty{text-align:center;padding:24px;color:var(--tx2);font-size:13px;}
 .stat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:4px;}
-@media(min-width:480px){.stat-grid{grid-template-columns:repeat(3,1fr);}}
+@media(min-width:480px){.stat-grid{grid-template-columns:repeat(4,1fr);}}
+.wl-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--bd);}
+.wl-row:last-child{border-bottom:none;}
+.wl-badge{background:#edf5f3;color:#4a7c6f;border-radius:20px;padding:2px 8px;font-size:10px;font-weight:700;}
+.wl-badge-sent{background:#f0e8ff;color:#6a3db5;}
+.send-box{background:linear-gradient(135deg,#f8f4ff,#f0e8ff);border:1.5px solid rgba(106,61,181,.2);border-radius:10px;padding:14px;margin-bottom:12px;}
+.send-box-title{font-size:12px;font-weight:700;color:#6a3db5;margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+.preview-box{background:#fff;border:1px solid rgba(106,61,181,.2);border-radius:8px;padding:12px;font-size:12px;color:#2c2416;line-height:1.6;white-space:pre-wrap;max-height:200px;overflow-y:auto;}
 .stat-card{background:var(--sf2);border-radius:10px;padding:12px;text-align:center;}
 .stat-num{font-size:22px;font-weight:700;font-family:monospace;display:block;}
 .stat-lbl{font-size:11px;color:var(--tx2);margin-top:2px;}
@@ -69,6 +76,13 @@ textarea{resize:vertical;min-height:80px;}
 .ua img{width:100%;height:100%;object-fit:cover;}
 .btn-lo{font-size:11px;padding:4px 10px;border-radius:6px;border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.1);color:#faf8f5;cursor:pointer;font-family:inherit;}
 .btn-lo:hover{background:rgba(255,255,255,.2);}
+.wl-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--bd);}
+.wl-row:last-child{border-bottom:none;}
+.wl-badge{background:#edf5f3;color:#4a7c6f;border-radius:20px;padding:2px 8px;font-size:10px;font-weight:700;flex-shrink:0;}
+.wl-badge-sent{background:#f0e8ff;color:#6a3db5;}
+.send-box{background:linear-gradient(135deg,#f8f4ff,#f0e8ff);border:1.5px solid rgba(106,61,181,.2);border-radius:10px;padding:14px;margin-bottom:14px;}
+.send-box-title{font-size:12px;font-weight:700;color:#6a3db5;margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+.preview-box{background:#fff;border:1px solid rgba(106,61,181,.2);border-radius:8px;padding:12px;font-size:12px;color:#2c2416;line-height:1.7;white-space:pre-wrap;max-height:180px;overflow-y:auto;}
 </style>
 </head>
 <body>
@@ -113,7 +127,8 @@ textarea{resize:vertical;min-height:80px;}
     <div class="ch"><span class="ct">📊 Pro版 利用状況</span><button class="btn bs bsm" onclick="loadStats()">🔄 更新</button></div>
     <div class="cb">
       <div class="stat-grid" id="statsGrid">
-        <div class="stat-card"><span class="stat-num" id="statUsers">—</span><span class="stat-lbl">登録ユーザー数</span></div>
+        <div class="stat-card"><span class="stat-num" id="statUsers">—</span><span class="stat-lbl">Proユーザー数</span></div>
+        <div class="stat-card"><span class="stat-num" id="statWaitlist">—</span><span class="stat-lbl">事前登録者数</span></div>
         <div class="stat-card"><span class="stat-num" id="statAnn">—</span><span class="stat-lbl">お知らせ数</span></div>
         <div class="stat-card"><span class="stat-num" id="statContacts">—</span><span class="stat-lbl">問い合わせ数</span></div>
       </div>
@@ -165,6 +180,63 @@ textarea{resize:vertical;min-height:80px;}
     </div>
     <div class="cb" style="padding:0 16px">
       <div id="contactList"><div class="empty">読み込み中...</div></div>
+    </div>
+  </div>
+
+  <!-- 事前登録者 waitlist -->
+  <div class="card">
+    <div class="ch">
+      <span class="ct">🌟 事前登録者（waitlist）</span>
+      <button class="btn bs bsm" onclick="loadWaitlist()">🔄 更新</button>
+    </div>
+    <div class="cb">
+
+      <!-- 一斉送信フォーム -->
+      <div class="send-box">
+        <div class="send-box-title">✉️ 事前登録者への一斉メール送信</div>
+        <p style="font-size:12px;color:#7a6e60;margin-bottom:12px">coming-soon.htmlから登録した全ユーザーにメールを一斉送信するにゃ🐾<br>送信先は自動でwaitlistから取得するにゃ。</p>
+        <div style="margin-bottom:8px">
+          <label>件名</label>
+          <input type="text" id="wlSubject" placeholder="例：しっぽ日和 Pro版リリースのお知らせ">
+        </div>
+        <div style="margin-bottom:8px">
+          <label>本文（{email} でメアドが差し込まれるにゃ）</label>
+          <textarea id="wlBody" style="min-height:120px" placeholder="例：事前登録ありがとうございます！&#10;いよいよPro版がリリースされました。&#10;以下のリンクよりアップグレードできます：&#10;https://shippo-tools.com/upgrade.html"></textarea>
+        </div>
+        <div style="margin-bottom:12px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+            <label style="margin-bottom:0">送信プレビュー</label>
+            <button class="btn bs bsm" onclick="updatePreview()">🔍 更新</button>
+          </div>
+          <div class="preview-box" id="wlPreview" style="color:#7a6e60">本文を入力するとプレビューが表示されるにゃ</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <button class="btn" style="background:#6a3db5;color:#fff" onclick="sendWaitlistMail()">
+            📨 waitlist全員に送信する
+          </button>
+          <span id="wlCount" style="font-size:12px;color:#7a6e60">—人に送信予定</span>
+        </div>
+        <div id="wlSendResult" style="font-size:12px;margin-top:10px"></div>
+      </div>
+
+      <!-- 送信ログ -->
+      <div style="margin-bottom:12px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <span style="font-size:12px;font-weight:700;color:var(--tx2)">直近の送信ログ</span>
+          <button class="btn bs bsm" onclick="loadSendLogs()">🔄 更新</button>
+        </div>
+        <div id="wlLogs"><div class="empty" style="padding:12px">ログを読み込み中...</div></div>
+      </div>
+
+      <!-- 登録者リスト -->
+      <div style="border-top:1px solid var(--bd);padding-top:12px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <span style="font-size:12px;font-weight:700;color:var(--tx2)">登録者リスト</span>
+          <button class="btn bs bsm" onclick="exportWaitlistCSV()">📥 CSV出力</button>
+        </div>
+        <div id="waitlistList"><div class="empty">読み込み中...</div></div>
+      </div>
+
     </div>
   </div>
 
@@ -256,19 +328,22 @@ function sbH() {
   return { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + accessToken, 'Content-Type': 'application/json', 'Prefer': 'return=representation' };
 }
 
-function loadAll() { loadStats(); loadUsers(); loadAnnouncements(); loadContacts(); }
+function loadAll() { loadStats(); loadUsers(); loadAnnouncements(); loadContacts(); loadWaitlist(); loadSendLogs(); }
 
 // ── 統計 ──
 async function loadStats() {
   try {
-    var [profiles, ann, contacts] = await Promise.all([
+    var [profiles, ann, contacts, waitlist] = await Promise.all([
       fetch(SB_URL + '/rest/v1/profiles?select=id', { headers: sbH() }).then(r => r.json()),
       fetch(SB_URL + '/rest/v1/announcements?select=id', { headers: sbH() }).then(r => r.json()),
       fetch(SB_URL + '/rest/v1/contacts?select=id', { headers: sbH() }).then(r => r.json()),
+      fetch(SB_URL + '/rest/v1/waitlist?select=id', { headers: sbH() }).then(r => r.json()),
     ]);
     document.getElementById('statUsers').textContent = profiles.length;
     document.getElementById('statAnn').textContent = ann.length;
     document.getElementById('statContacts').textContent = contacts.length;
+    document.getElementById('statWaitlist').textContent = waitlist.length;
+    document.getElementById('wlCount').textContent = waitlist.length + '人に送信予定';
   } catch(e) { console.error(e); }
 }
 
@@ -402,6 +477,126 @@ async function updateContactStatus(id, status) {
     headers: sbH(),
     body: JSON.stringify({ status: status })
   });
+}
+
+// ── waitlist 一覧 ──
+var waitlistAll = [];
+async function loadWaitlist() {
+  try {
+    var r = await fetch(SB_URL + '/rest/v1/waitlist?select=*&order=created_at.desc', { headers: sbH() });
+    waitlistAll = await r.json();
+    document.getElementById('wlCount').textContent = waitlistAll.length + '人に送信予定';
+    renderWaitlist();
+  } catch(e) { console.error(e); document.getElementById('waitlistList').innerHTML = '<div class="empty">読み込みエラー</div>'; }
+}
+
+function renderWaitlist() {
+  var el = document.getElementById('waitlistList');
+  if (!waitlistAll.length) { el.innerHTML = '<div class="empty">まだ事前登録者がいないにゃ</div>'; return; }
+  el.innerHTML = waitlistAll.map(function(w) {
+    var d = new Date(w.created_at);
+    var ds = d.getFullYear() + '/' + String(d.getMonth()+1).padStart(2,'0') + '/' + String(d.getDate()).padStart(2,'0')
+           + ' ' + String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
+    var sentBadge = w.mail_sent_at
+      ? '<span class="wl-badge wl-badge-sent">送信済み ' + new Date(w.mail_sent_at).toLocaleDateString('ja-JP') + '</span>'
+      : '<span class="wl-badge">未送信</span>';
+    return '<div class="wl-row">'
+      + '<div style="flex:1;min-width:0"><div class="user-email">' + w.email + '</div><div class="user-meta">登録日時: ' + ds + '</div></div>'
+      + sentBadge
+      + '<button class="btn br bsm" onclick="removeWaitlist(\'' + w.id + '\',\'' + w.email + '\')">削除</button>'
+      + '</div>';
+  }).join('');
+}
+
+async function removeWaitlist(id, email) {
+  if (!confirm(email + ' を事前登録リストから削除しますか？')) return;
+  await fetch(SB_URL + '/rest/v1/waitlist?id=eq.' + id, { method: 'DELETE', headers: sbH() });
+  loadWaitlist(); loadStats();
+}
+
+function exportWaitlistCSV() {
+  if (!waitlistAll.length) { alert('登録者がいないにゃ'); return; }
+  var csv = 'email,registered_at,mail_sent_at\n'
+    + waitlistAll.map(function(w) {
+        return '"' + w.email + '","' + (w.created_at||'') + '","' + (w.mail_sent_at||'') + '"';
+      }).join('\n');
+  var blob = new Blob(['﻿'+csv], { type: 'text/csv;charset=utf-8;' });
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'waitlist_' + new Date().toISOString().slice(0,10) + '.csv';
+  a.click();
+}
+
+// ── プレビュー更新 ──
+function updatePreview() {
+  var subject = document.getElementById('wlSubject').value.trim();
+  var body = document.getElementById('wlBody').value.trim();
+  var sampleEmail = (waitlistAll.length > 0) ? waitlistAll[0].email : 'example@gmail.com';
+  var previewBody = body.replace(/\{email\}/g, sampleEmail);
+  var el = document.getElementById('wlPreview');
+  if (!subject && !body) { el.style.color = 'var(--tx2)'; el.textContent = '本文を入力するとプレビューが表示されるにゃ'; return; }
+  el.style.color = 'var(--tx)';
+  el.textContent = '件名: ' + (subject || '（未入力）') + '\n\n' + (previewBody || '（本文未入力）');
+}
+
+// ── 一斉メール送信 ──
+async function sendWaitlistMail() {
+  var subject = document.getElementById('wlSubject').value.trim();
+  var body = document.getElementById('wlBody').value.trim();
+  var res = document.getElementById('wlSendResult');
+  if (!subject) { res.innerHTML = '<span style="color:var(--wn)">件名を入力してください</span>'; return; }
+  if (!body) { res.innerHTML = '<span style="color:var(--wn)">本文を入力してください</span>'; return; }
+  if (!waitlistAll.length) { res.innerHTML = '<span style="color:var(--wn)">送信先がいないにゃ</span>'; return; }
+  if (!confirm(waitlistAll.length + '人に一斉送信しますにゃ？\n\n件名: ' + subject + '\n\n送信前にプレビューを確認してにゃ🐾')) return;
+
+  res.innerHTML = '<span style="color:var(--tx2)">⏳ 送信中... しばらく待ってにゃ</span>';
+  try {
+    var r = await fetch(SB_URL + '/functions/v1/send-waitlist-mail', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + accessToken
+      },
+      body: JSON.stringify({ subject: subject, body: body })
+    });
+    var data = await r.json();
+    if (!r.ok) throw new Error(data.error || JSON.stringify(data));
+    var sent = data.sent || waitlistAll.length;
+    res.innerHTML = '<span style="color:var(--ok)">✅ ' + sent + '人に送信完了したにゃ🐾</span>';
+    // 送信済みログ更新
+    loadSendLogs();
+    loadWaitlist();
+    loadStats();
+    // 入力クリア
+    document.getElementById('wlSubject').value = '';
+    document.getElementById('wlBody').value = '';
+    document.getElementById('wlPreview').textContent = '本文を入力するとプレビューが表示されるにゃ';
+    document.getElementById('wlPreview').style.color = 'var(--tx2)';
+  } catch(e) {
+    res.innerHTML = '<span style="color:var(--wn)">エラー: ' + e.message + '</span>';
+  }
+}
+
+// ── 送信ログ（waitlist_logsテーブル想定、なければ省略） ──
+async function loadSendLogs() {
+  var el = document.getElementById('wlLogs');
+  try {
+    var r = await fetch(SB_URL + '/rest/v1/waitlist_send_logs?select=*&order=sent_at.desc&limit=5', { headers: sbH() });
+    if (!r.ok) { el.innerHTML = '<div class="empty" style="padding:8px">ログテーブルが未設定にゃ（waitlist_send_logsを作るにゃ）</div>'; return; }
+    var list = await r.json();
+    if (!list.length) { el.innerHTML = '<div class="empty" style="padding:8px">まだ送信ログがないにゃ</div>'; return; }
+    el.innerHTML = list.map(function(l) {
+      var d = new Date(l.sent_at);
+      var ds = d.getFullYear() + '/' + String(d.getMonth()+1).padStart(2,'0') + '/' + String(d.getDate()).padStart(2,'0')
+             + ' ' + String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
+      return '<div style="padding:8px 0;border-bottom:1px solid var(--bd);font-size:12px">'
+        + '<div style="font-weight:700;margin-bottom:2px">' + l.subject + '</div>'
+        + '<div style="color:var(--tx2)">' + ds + '　' + (l.sent_count||'—') + '人に送信</div>'
+        + '</div>';
+    }).join('');
+  } catch(e) {
+    el.innerHTML = '<div class="empty" style="padding:8px">ログ取得エラー</div>';
+  }
 }
 </script>
 </body>
