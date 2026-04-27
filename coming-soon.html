@@ -245,7 +245,7 @@ async function registerWaitlist() {
       result.classList.add('err');
     }
   } else {
-    result.textContent = '✅ 登録完了！Pro版のリリース時にお知らせします🐾';
+    result.innerHTML = '🎉 <strong>登録完了！</strong><br>Pro版のリリース時にメールでお知らせします。楽しみに待っててください🐾';
     result.classList.add('ok');
     document.getElementById('waitEmail').value = '';
     loadCount();
