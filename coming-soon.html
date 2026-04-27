@@ -202,16 +202,15 @@ footer a:hover{color:var(--ac2);}
   <p>© 2026 しっぽ日和. All rights reserved.</p>
 </footer>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
 var SB_URL = 'https://zllquptbaekezaxvysfb.supabase.co';
-var SB_KEY = 'sb_publishable_zbZqFa_gC4rX1AtHjU9NFQ_wiJdHrn2';
+var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpsbHF1cHRiYWVrZXpheHZ5c2ZiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY4MDcyMjMsImV4cCI6MjA5MjM4MzIyM30.zfiTyR_O07rOoQDnsF_hjX1adsUL5nWdZ9GSZX8cMaM';
+var sb = supabase.createClient(SB_URL, SB_KEY);
 
 async function loadCount() {
   try {
-    var r = await fetch(SB_URL + '/rest/v1/waitlist?select=id', {
-      headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY }
-    });
-    var data = await r.json();
+    var { data } = await sb.from('waitlist').select('id');
     if (data && data.length > 0) {
       document.getElementById('waitNum').textContent = data.length;
       document.getElementById('waitCount').style.display = 'inline-flex';
@@ -235,32 +234,21 @@ async function registerWaitlist() {
   btn.disabled = true;
   btn.textContent = '登録中...';
 
-  try {
-    var r = await fetch(SB_URL + '/rest/v1/waitlist', {
-      method: 'POST',
-      headers: {
-        'apikey': SB_KEY,
-        'Authorization': 'Bearer ' + SB_KEY,
-        'Content-Type': 'application/json',
-        'Prefer': 'return=representation'
-      },
-      body: JSON.stringify({ email: email })
-    });
+  var { error } = await sb.from('waitlist').insert({ email: email });
 
-    if (r.status === 409) {
+  if (error) {
+    if (error.code === '23505') {
       result.textContent = '✅ このメールアドレスは既に登録済みです！リリースをお待ちください🐾';
       result.classList.add('ok');
-    } else if (!r.ok) {
-      throw new Error('登録に失敗しました');
     } else {
-      result.textContent = '✅ 登録完了！Pro版のリリース時にお知らせします🐾';
-      result.classList.add('ok');
-      document.getElementById('waitEmail').value = '';
-      loadCount();
+      result.textContent = '❌ 登録に失敗しました。しばらくしてから再度お試しください。';
+      result.classList.add('err');
     }
-  } catch(e) {
-    result.textContent = '❌ 登録に失敗しました。しばらくしてから再度お試しください。';
-    result.classList.add('err');
+  } else {
+    result.textContent = '✅ 登録完了！Pro版のリリース時にお知らせします🐾';
+    result.classList.add('ok');
+    document.getElementById('waitEmail').value = '';
+    loadCount();
   }
 
   btn.disabled = false;
