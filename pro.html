@@ -451,6 +451,7 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
   <button class="tab" onclick="showPage('delivery')">📄 書類作成</button>
   <button class="tab" onclick="showPage('contact')">💬 問い合わせ</button>
   <button class="tab" onclick="showPage('account')">⚙️ アカウント設定</button>
+  <button class="tab" onclick="showPage('tools')">🛠️ 無料ツール</button>
 </nav>
 
 <!-- ボトムナビ（スマホ専用） -->
@@ -515,6 +516,9 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
       <button class="bn-sheet-item" onclick="bnNav('contact');closeBnMore()">
         <span style="font-size:28px">💬</span>
         <span>問い合わせ</span>
+      </button>
+      <button class="bn-sheet-item" onclick="bnNav('tools');closeBnMore()">
+        <span>🛠️</span><span>無料ツール</span>
       </button>
       <button class="bn-sheet-item" onclick="bnNav('account');closeBnMore()">
         <span style="font-size:28px">⚙️</span>
@@ -1343,6 +1347,72 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
 <div id="invoice-print-area" style="display:none"></div>
 <!-- 見積書印刷エリア -->
 <div id="estimate-print-area" style="display:none"></div>
+
+<!-- FREE TOOLS -->
+<div class="pg" id="pg-tools">
+  <div class="card">
+    <div class="ch"><span class="ct">🛠️ 無料ツール</span></div>
+    <div class="cb">
+      <p class="ts tm" style="margin-bottom:16px;line-height:1.8">ハンドメイド作家向けの無料ツールを利用できます。各ツールは別タブで開きます。</p>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px">
+        <a href="photo_checklist.html" target="_blank" rel="noopener" style="text-decoration:none">
+          <div style="background:var(--sf2);border:1.5px solid var(--bd);border-radius:var(--r);padding:16px;transition:all .2s;display:flex;align-items:flex-start;gap:12px" onmouseover="this.style.borderColor='var(--ac)'" onmouseout="this.style.borderColor='var(--bd)'">
+            <span style="font-size:28px;flex-shrink:0">📸</span>
+            <div>
+              <div style="font-size:13px;font-weight:700;margin-bottom:4px;color:var(--tx)">作品撮影チェックリスト</div>
+              <div class="ts tm" style="font-size:12px;line-height:1.6">ハンドメイド作品を魅力的に撮影するためのチェックリスト</div>
+            </div>
+          </div>
+        </a>
+        <a href="color_checker.html" target="_blank" rel="noopener" style="text-decoration:none">
+          <div style="background:var(--sf2);border:1.5px solid var(--bd);border-radius:var(--r);padding:16px;transition:all .2s;display:flex;align-items:flex-start;gap:12px" onmouseover="this.style.borderColor='var(--ac)'" onmouseout="this.style.borderColor='var(--bd)'">
+            <span style="font-size:28px;flex-shrink:0">🎨</span>
+            <div>
+              <div style="font-size:13px;font-weight:700;margin-bottom:4px;color:var(--tx)">色の組み合わせチェッカー</div>
+              <div class="ts tm" style="font-size:12px;line-height:1.6">布・糸・アクセサリーの配色を自動提案</div>
+            </div>
+          </div>
+        </a>
+        <a href="material_guide.html" target="_blank" rel="noopener" style="text-decoration:none">
+          <div style="background:var(--sf2);border:1.5px solid var(--bd);border-radius:var(--r);padding:16px;transition:all .2s;display:flex;align-items:flex-start;gap:12px" onmouseover="this.style.borderColor='var(--ac)'" onmouseout="this.style.borderColor='var(--bd)'">
+            <span style="font-size:28px;flex-shrink:0">📋</span>
+            <div>
+              <div style="font-size:13px;font-weight:700;margin-bottom:4px;color:var(--tx)">素材・生地の特徴早見表</div>
+              <div class="ts tm" style="font-size:12px;line-height:1.6">ハンドメイド作家のための素材選びガイド</div>
+            </div>
+          </div>
+        </a>
+        <a href="laundry_generator.html" target="_blank" rel="noopener" style="text-decoration:none">
+          <div style="background:var(--sf2);border:1.5px solid var(--bd);border-radius:var(--r);padding:16px;transition:all .2s;display:flex;align-items:flex-start;gap:12px" onmouseover="this.style.borderColor='var(--ac)'" onmouseout="this.style.borderColor='var(--bd)'">
+            <span style="font-size:28px;flex-shrink:0">🧺</span>
+            <div>
+              <div style="font-size:13px;font-weight:700;margin-bottom:4px;color:var(--tx)">洗濯表示ジェネレーター</div>
+              <div class="ts tm" style="font-size:12px;line-height:1.6">素材別の洗濯マーク・取扱い方法を自動表示</div>
+            </div>
+          </div>
+        </a>
+        <a href="needle_converter.html" target="_blank" rel="noopener" style="text-decoration:none">
+          <div style="background:var(--sf2);border:1.5px solid var(--bd);border-radius:var(--r);padding:16px;transition:all .2s;display:flex;align-items:flex-start;gap:12px" onmouseover="this.style.borderColor='var(--ac)'" onmouseout="this.style.borderColor='var(--bd)'">
+            <span style="font-size:28px;flex-shrink:0">🪡</span>
+            <div>
+              <div style="font-size:13px;font-weight:700;margin-bottom:4px;color:var(--tx)">編針サイズ変換ツール</div>
+              <div class="ts tm" style="font-size:12px;line-height:1.6">棒針・かぎ針・レース針の号数・mm・USサイズ早見表</div>
+            </div>
+          </div>
+        </a>
+        <a href="simulator.html" target="_blank" rel="noopener" style="text-decoration:none">
+          <div style="background:var(--sf2);border:1.5px solid var(--bd);border-radius:var(--r);padding:16px;transition:all .2s;display:flex;align-items:flex-start;gap:12px" onmouseover="this.style.borderColor='var(--ac)'" onmouseout="this.style.borderColor='var(--bd)'">
+            <span style="font-size:28px;flex-shrink:0">💰</span>
+            <div>
+              <div style="font-size:13px;font-weight:700;margin-bottom:4px;color:var(--tx)">販売価格シミュレーター</div>
+              <div class="ts tm" style="font-size:12px;line-height:1.6">ハンドメイド作家向け値付けツール</div>
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- ACCOUNT SETTINGS -->
 <div class="pg" id="pg-account">
@@ -2180,7 +2250,7 @@ async function loadAll() {
     loadInvNoConfig();
     setSyncing('ok');
     // 現在開いてるページを再描画するにゃ（ダッシュボードに強制移動しない）
-    var pageMap = { dash: rDash, products: rProds, materials: rMats, make: rMakePg, purchase: rPurPg, adjust: rAdj, sales: rSales, history: rHist, contact: rContact, account: rAccountPg, delivery: rDeliveryPg };
+    var pageMap = { dash: rDash, products: rProds, materials: rMats, make: rMakePg, purchase: rPurPg, adjust: rAdj, sales: rSales, history: rHist, contact: rContact, account: rAccountPg, delivery: rDeliveryPg, tools: rToolsPg };
     var fn = pageMap[currentPageId];
     if (fn) fn(); else rDash();
     checkAnnouncements();
@@ -2276,7 +2346,7 @@ function mstr() { var n = new Date(); return n.getFullYear() + '-' + String(n.ge
 // ══════════════════════════════════════════════
 // PAGE ROUTING
 // ══════════════════════════════════════════════
-var PAGES = ['dash', 'products', 'materials', 'make', 'purchase', 'sales', 'adjust', 'history', 'delivery', 'contact', 'account'];
+var PAGES = ['dash', 'products', 'materials', 'make', 'purchase', 'sales', 'adjust', 'history', 'delivery', 'contact', 'account', 'tools'];
 var BN_MAIN = ['dash', 'products', 'materials', 'make']; // ボトムナビのメインページ
 var currentPageId = 'dash';
 
@@ -5113,6 +5183,10 @@ function exportCSV(type) {
   a.click();
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
+}
+
+function rToolsPg() {
+  // 無料ツールページは静的なので描画処理不要
 }
 
 function rAccountPg() {
