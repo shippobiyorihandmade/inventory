@@ -334,7 +334,7 @@ function loadAll() { loadStats(); loadUsers(); loadAnnouncements(); loadContacts
 async function loadStats() {
   try {
     var [profiles, ann, contacts, waitlist] = await Promise.all([
-      fetch(SB_URL + '/rest/v1/profiles?select=id', { headers: sbH() }).then(r => r.json()),
+      fetch(SB_URL + '/rest/v1/pro_users?select=id&subscription_status=eq.active', { headers: sbH() }).then(r => r.json()),
       fetch(SB_URL + '/rest/v1/announcements?select=id', { headers: sbH() }).then(r => r.json()),
       fetch(SB_URL + '/rest/v1/contacts?select=id', { headers: sbH() }).then(r => r.json()),
       fetch(SB_URL + '/rest/v1/waitlist?select=id', { headers: sbH() }).then(r => r.json()),
@@ -350,7 +350,7 @@ async function loadStats() {
 // ── Pro版ユーザー一覧 ──
 async function loadUsers() {
   try {
-    var r = await fetch(SB_URL + '/rest/v1/profiles?select=*&order=updated_at.desc', { headers: sbH() });
+    var r = await fetch(SB_URL + '/rest/v1/pro_users?select=*&order=created_at.desc', { headers: sbH() });
     usersAll = await r.json();
     usersPage = 1;
     renderUsers();
@@ -360,7 +360,7 @@ async function loadUsers() {
 function renderUsers() {
   var q = (document.getElementById('userSearch').value || '').toLowerCase();
   var filtered = usersAll.filter(function(u) {
-    return !q || (u.email && u.email.toLowerCase().includes(q)) || (u.shop_name && u.shop_name.toLowerCase().includes(q));
+    return !q || (u.email && u.email.toLowerCase().includes(q));
   });
   var total = filtered.length;
   var totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
@@ -370,16 +370,19 @@ function renderUsers() {
   var el = document.getElementById('userList');
   if (!total) { el.innerHTML = '<div class="empty" style="padding:20px">該当ユーザーがいないにゃ</div>'; document.getElementById('userPager').innerHTML = ''; return; }
   el.innerHTML = page.map(function(u) {
-    var initial = (u.shop_name || u.email || '?').charAt(0).toUpperCase();
-    var d = new Date(u.updated_at);
+    var initial = (u.email || '?').charAt(0).toUpperCase();
+    var d = new Date(u.created_at);
     var ds = d.getFullYear() + '/' + String(d.getMonth()+1).padStart(2,'0') + '/' + String(d.getDate()).padStart(2,'0');
+    var statusBadge = u.subscription_status === 'active'
+      ? '<span class="tag tag-pro">Pro</span>'
+      : '<span class="tag" style="background:#fde8e8;color:#c04a4a">inactive</span>';
     return '<div class="user-row">'
       + '<div class="user-avatar">' + initial + '</div>'
       + '<div class="user-info">'
-      + '<div class="user-email">' + (u.shop_name || '（店舗名未設定）') + '</div>'
-      + '<div class="user-meta">' + (u.email || '—') + '　最終更新: ' + ds + '</div>'
+      + '<div class="user-email">' + (u.email || '—') + '</div>'
+      + '<div class="user-meta">登録日: ' + ds + '</div>'
       + '</div>'
-      + '<span class="tag tag-pro">Pro</span>'
+      + statusBadge
       + '</div>';
   }).join('');
   renderPager('userPager', usersPage, totalPages, total, function(p) { usersPage = p; renderUsers(); });
