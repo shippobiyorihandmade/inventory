@@ -80,9 +80,9 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(250,248,245,
 .btn-register{background:linear-gradient(135deg,var(--ac),#d4733a);color:#fff;padding:12px 28px;border-radius:10px;font-size:14px;font-weight:700;border:none;cursor:pointer;font-family:inherit;transition:all .2s;white-space:nowrap;box-shadow:0 4px 16px rgba(192,98,42,.3);}
 .btn-register:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(192,98,42,.4);}
 .btn-register:disabled{opacity:.6;cursor:not-allowed;transform:none;}
-.form-result{margin-top:12px;font-size:13px;display:none;padding:10px 14px;border-radius:8px;}
-.form-result.ok{background:#edf5f3;color:#3a6b5e;display:block;}
-.form-result.err{background:#fde8e8;color:#c04a4a;display:block;}
+.form-result{margin-top:14px;font-size:14px;display:none;padding:16px 18px;border-radius:12px;line-height:1.7;font-weight:500;}
+.form-result.ok{background:#edf5f3;color:#2d5a4e;display:block;border:1.5px solid #a8d5c8;font-size:15px;}
+.form-result.err{background:#fde8e8;color:#c04a4a;display:block;border:1.5px solid #f5b8b8;}
 .count-badge{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--tx2);margin-top:12px;}
 .count-badge strong{color:var(--ac);font-size:14px;}
 
@@ -245,7 +245,7 @@ async function registerWaitlist() {
       result.classList.add('err');
     }
   } else {
-    result.innerHTML = '🎉 <strong>登録完了！</strong><br>Pro版のリリース時にメールでお知らせします。楽しみに待っててください🐾';
+    result.innerHTML = '🎉 <strong>登録完了！</strong><br>' + email + ' 宛にリリース時お知らせします。楽しみに待っててください🐾';
     result.classList.add('ok');
     document.getElementById('waitEmail').value = '';
     loadCount();
