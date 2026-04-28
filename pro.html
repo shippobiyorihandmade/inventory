@@ -674,20 +674,7 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
                 <span class="ptag" data-value="Creema" data-default="1" onclick="togglePtag(this)">Creema</span>
                 <div id="mkNCustomPlatforms" style="display:contents"></div>
               </div>
-              <div style="margin-top:8px">
-                <div style="display:flex;gap:10px;margin-bottom:6px">
-                  <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;background:#f3efe9;border:1.5px solid #e5ddd0;border-radius:8px;padding:6px 12px;flex:1;justify-content:center" id="mkNTypePhysical">
-                    <input type="radio" name="mkNPlatformType" value="physical" style="width:auto;padding:0;accent-color:#c0622a"> 🏪 委託・実店舗
-                  </label>
-                  <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;background:#f3efe9;border:1.5px solid #e5ddd0;border-radius:8px;padding:6px 12px;flex:1;justify-content:center" id="mkNTypeOnline">
-                    <input type="radio" name="mkNPlatformType" value="online" checked style="width:auto;padding:0;accent-color:#c0622a"> 🌐 ネット販売
-                  </label>
-                </div>
-                <div style="display:flex;gap:6px;align-items:center">
-                  <input type="text" id="mkNNewPlatform" placeholder="＋ カスタム追加..." style="flex:1;font-size:12px;padding:5px 8px" onkeydown="if(event.key==='Enter')addMkNCustomPlatform()">
-                  <button type="button" class="btn bs bsm" onclick="addMkNCustomPlatform()">追加</button>
-                </div>
-              </div>
+              <span class="ptag" onclick="openPlatformPopup('mkN')" style="cursor:pointer;font-size:16px;padding:3px 10px;line-height:1">＋</span>
             </div>
           </div>
         </div>
@@ -1781,20 +1768,7 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
               <span class="ptag" data-value="Creema" data-default="1" onclick="togglePtag(this)">Creema</span>
               <div id="imCustomPlatforms" style="display:contents"></div>
             </div>
-            <div style="margin-top:8px">
-              <div style="display:flex;gap:10px;margin-bottom:6px">
-                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;background:#f3efe9;border:1.5px solid #e5ddd0;border-radius:8px;padding:6px 12px;flex:1;justify-content:center">
-                  <input type="radio" name="imPlatformType" value="physical" style="width:auto;padding:0;accent-color:#c0622a"> 🏪 委託・実店舗
-                </label>
-                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;background:#f3efe9;border:1.5px solid #e5ddd0;border-radius:8px;padding:6px 12px;flex:1;justify-content:center">
-                  <input type="radio" name="imPlatformType" value="online" checked style="width:auto;padding:0;accent-color:#c0622a"> 🌐 ネット販売
-                </label>
-              </div>
-              <div style="display:flex;gap:6px;align-items:center">
-                <input type="text" id="imNewPlatform" placeholder="＋ カスタム追加..." style="flex:1;font-size:12px;padding:5px 8px" onkeydown="if(event.key==='Enter')addCustomPlatform()">
-                <button type="button" class="btn bs bsm" onclick="addCustomPlatform()">追加</button>
-              </div>
-            </div>
+              <span class="ptag" onclick="openPlatformPopup('im')" style="cursor:pointer;font-size:16px;padding:3px 10px;line-height:1">＋</span>
           </div>
         </div>
         <div class="stl" style="margin-top:6px">🧾 材料レシピ（1点あたり）</div>
@@ -3386,6 +3360,67 @@ async function addCustomPlatform() {
   try { await fetch(SB_URL + '/rest/v1/platforms', { method: 'POST', headers: sbHeaders(), body: JSON.stringify({ id: obj.id, user_id: obj.user_id, name: obj.name, type: obj.type }) }); } catch(e) { console.error(e); }
   document.getElementById('imNewPlatform').value = '';
   rebuildPlatformTags('imPlatforms', 'imCustomPlatforms', getPlatforms('imPlatforms'), true);
+}
+
+
+// ── プラットフォーム追加ポップアップ ──
+var _platformPopupTarget = 'im'; // 'im' or 'mkN'
+
+function openPlatformPopup(target) {
+  _platformPopupTarget = target;
+  document.getElementById('popupPlatformName').value = '';
+  selectPopupType('online');
+  var overlay = document.getElementById('platformPopupOverlay');
+  overlay.style.display = 'flex';
+  setTimeout(function() { document.getElementById('popupPlatformName').focus(); }, 100);
+}
+
+function closePlatformPopup(e) {
+  if (!e || e.target === document.getElementById('platformPopupOverlay')) {
+    document.getElementById('platformPopupOverlay').style.display = 'none';
+  }
+}
+
+function selectPopupType(type) {
+  var physLabel = document.getElementById('popupTypePhysicalLabel');
+  var onlLabel = document.getElementById('popupTypeOnlineLabel');
+  var physRadio = document.querySelector('input[name="popupPlatformType"][value="physical"]');
+  var onlRadio = document.querySelector('input[name="popupPlatformType"][value="online"]');
+  if (type === 'physical') {
+    physRadio.checked = true;
+    physLabel.style.borderColor = '#c0622a';
+    physLabel.style.background = '#fff3ed';
+    onlLabel.style.borderColor = '#e5ddd0';
+    onlLabel.style.background = '#f3efe9';
+  } else {
+    onlRadio.checked = true;
+    onlLabel.style.borderColor = '#c0622a';
+    onlLabel.style.background = '#fff3ed';
+    physLabel.style.borderColor = '#e5ddd0';
+    physLabel.style.background = '#f3efe9';
+  }
+}
+
+async function submitPlatformPopup() {
+  var name = document.getElementById('popupPlatformName').value.trim();
+  if (!name) { document.getElementById('popupPlatformName').focus(); return; }
+  if (getAllPlatforms().includes(name)) { alert('同じ名前がすでにあります'); return; }
+  var typeEl = document.querySelector('input[name="popupPlatformType"]:checked');
+  var type = typeEl ? typeEl.value : 'online';
+  var obj = { id: crypto.randomUUID ? crypto.randomUUID() : uid(), user_id: currentUser.id, name: name, type: type };
+  customPlatforms.push(obj);
+  try {
+    await fetch(SB_URL + '/rest/v1/platforms', {
+      method: 'POST', headers: sbHeaders(),
+      body: JSON.stringify({ id: obj.id, user_id: obj.user_id, name: obj.name, type: obj.type })
+    });
+  } catch(e) { console.error(e); }
+  document.getElementById('platformPopupOverlay').style.display = 'none';
+  if (_platformPopupTarget === 'mkN') {
+    rebuildPlatformTags('mkNPlatforms', 'mkNCustomPlatforms', getPlatforms('mkNPlatforms'), true);
+  } else {
+    rebuildPlatformTags('imPlatforms', 'imCustomPlatforms', getPlatforms('imPlatforms'), true);
+  }
 }
 
 async function addMkNCustomPlatform() {
@@ -5771,5 +5806,23 @@ async function executeMigration(direction) {
   btn.textContent = '🔄 データ移行を実行する';
 }
 </script>
+
+<!-- プラットフォーム追加ポップアップ -->
+<div id="platformPopupOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9000;align-items:center;justify-content:center" onclick="closePlatformPopup(event)">
+  <div style="background:#fff;border-radius:16px;padding:24px 20px;width:calc(100% - 48px);max-width:360px;box-shadow:0 8px 32px rgba(0,0,0,.18)" onclick="event.stopPropagation()">
+    <div style="font-size:14px;font-weight:700;margin-bottom:16px">＋ プラットフォームを追加</div>
+    <input type="text" id="popupPlatformName" placeholder="例：〇〇マルシェ、BASE shop" style="width:100%;margin-bottom:12px;font-size:14px;padding:10px 12px">
+    <div style="display:flex;gap:8px;margin-bottom:16px">
+      <label id="popupTypePhysicalLabel" style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;background:#f3efe9;border:2px solid #e5ddd0;border-radius:10px;padding:10px 14px;flex:1;justify-content:center;font-weight:500;transition:all .15s" onclick="selectPopupType('physical')">
+        <input type="radio" name="popupPlatformType" value="physical" style="width:15px;height:15px;padding:0;accent-color:#c0622a"> 🏪 委託・実店舗
+      </label>
+      <label id="popupTypeOnlineLabel" style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;background:#f3efe9;border:2px solid #e5ddd0;border-radius:10px;padding:10px 14px;flex:1;justify-content:center;font-weight:500;transition:all .15s" onclick="selectPopupType('online')">
+        <input type="radio" name="popupPlatformType" value="online" style="width:15px;height:15px;padding:0;accent-color:#c0622a"> 🌐 ネット販売
+      </label>
+    </div>
+    <button class="btn bg" style="width:100%;font-size:14px" onclick="submitPlatformPopup()">追加する</button>
+    <button class="btn bs" style="width:100%;font-size:13px;margin-top:8px" onclick="document.getElementById('platformPopupOverlay').style.display='none'">キャンセル</button>
+  </div>
+</div>
 </body>
 </html>
