@@ -5340,7 +5340,7 @@ async function changeEmail() {
   // パスワード確認のため再認証
   var reauth = await sbClient.auth.signInWithPassword({ email: currentUser.email, password: pass });
   if (reauth.error) { acMsg('acEmailMsg', 'パスワードが正しくありません', false); return; }
-  var res = await sbClient.auth.updateUser({ email: newEmail });
+  var res = await sbClient.auth.updateUser({ email: newEmail }, { emailRedirectTo: 'https://shippo-tools.com/pro.html' });
   if (res.error) { acMsg('acEmailMsg', 'エラー: ' + res.error.message, false); return; }
   acMsg('acEmailMsg', '確認メールを送信しました。メール内のリンクをクリックして変更を完了してください。', true);
   document.getElementById('acNewEmail').value = '';
