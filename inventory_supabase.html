@@ -1374,6 +1374,13 @@ function initSupabase() {
     }
   });
   sbClient.auth.onAuthStateChange(function(event, session) {
+    if (event === 'USER_UPDATED' && session && session.user) {
+      currentUser = session.user;
+      accessToken = session.access_token;
+      var acEmailEl = document.getElementById('acEmail');
+      if (acEmailEl) acEmailEl.textContent = currentUser.email || '—';
+      return;
+    }
     if (session && session.user) {
       currentUser = session.user;
       accessToken = session.access_token;
@@ -3491,7 +3498,7 @@ async function changeEmail() {
   // パスワード確認のため再認証
   var reauth = await sbClient.auth.signInWithPassword({ email: currentUser.email, password: pass });
   if (reauth.error) { acMsg('acEmailMsg', 'パスワードが正しくありません', false); return; }
-  var res = await sbClient.auth.updateUser({ email: newEmail });
+  var res = await sbClient.auth.updateUser({ email: newEmail }, { emailRedirectTo: 'https://shippo-tools.com/inventory_supabase.html' });
   if (res.error) { acMsg('acEmailMsg', 'エラー: ' + res.error.message, false); return; }
 
   // invited_usersのメアドも更新するにゃ
