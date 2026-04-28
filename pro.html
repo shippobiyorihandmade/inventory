@@ -1847,13 +1847,32 @@ function checkConfig() {
 }
 
 function initSupabase() {
+  var params = new URLSearchParams(window.location.search);
+  var tokenHash = params.get('token_hash');
+  var type = params.get('type');
+
   sbClient = supabase.createClient(SB_URL, SB_KEY, {
     auth: {
-      detectSessionInUrl: true,
+      detectSessionInUrl: !tokenHash,
       persistSession: true,
       autoRefreshToken: true
     }
   });
+
+  // token_hashを処理（メアド変更対応）
+  if (tokenHash && type) {
+    sbClient.auth.verifyOtp({ token_hash: tokenHash, type: type }).then(function(res) {
+      if (res.error) {
+        console.error('OTP検証エラー:', res.error.message);
+      } else {
+        console.log('OTP検証成功にゃ');
+        // Webhookがpro_usersを更新するのを少し待ってからリロード
+        setTimeout(function() {
+          window.location.href = window.location.pathname;
+        }, 1500);
+      }
+    });
+  }
   sbClient.auth.onAuthStateChange(function(event, session) {
     if (event === 'USER_UPDATED' && session && session.user) {
       var oldEmail = currentUser ? currentUser.email : null;
