@@ -1213,6 +1213,20 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
       </div>
     </div>
   </div>
+
+  <!-- 退会 -->
+  <div class="card">
+    <div class="ch"><span class="ct">🗑️ 退会</span></div>
+    <div class="cb">
+      <p class="ts tm" style="margin-bottom:14px;line-height:1.7">
+        退会するとアカウントおよびすべてのデータが<b>完全に削除</b>されます。<br>
+        この操作は取り消せません。必要なデータはCSVでエクスポートしてからお手続きください。
+      </p>
+      <button class="btn br" onclick="deleteAccount()">🗑️ 退会する</button>
+      <div id="deleteAccountMsg" style="margin-top:8px;font-size:12px;display:none"></div>
+    </div>
+  </div>
+
 </div>
 
 <!-- 販売場所管理モーダル -->
@@ -1365,7 +1379,8 @@ function initSupabase() {
       accessToken = session.access_token;
       checkInviteAndLoad();
     } else {
-      currentUser = null; accessToken = null;
+      currentUser = null; accessToken = null; userProfile = null;
+      clearProfileForm();
       document.getElementById("userMenu").style.display = "none";
       if (event !== "INITIAL_SESSION") showLogin();
     }
@@ -1459,11 +1474,45 @@ async function doSignup() {
   document.getElementById('signupErr').style.color = '#3a6b5e';
 }
 
+// ── 退会 ──
+async function deleteAccount() {
+  if (!confirm('⚠️ 退会しますか？\n\nアカウントとすべてのデータが完全に削除されます。\nこの操作は取り消せません。')) return;
+  if (!confirm('本当に削除してもよろしいですか？\n削除後はログインできなくなります。')) return;
+
+  var btn = event.target;
+  btn.disabled = true;
+  btn.textContent = '削除中...';
+  var msg = document.getElementById('deleteAccountMsg');
+  msg.style.display = 'none';
+
+  try {
+    var res = await fetch(SB_URL + '/functions/v1/delete-account', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + accessToken
+      }
+    });
+    var data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'エラーが発生しました');
+    await sbClient.auth.signOut();
+    alert('退会が完了しました。ご利用ありがとうございました🐾');
+    window.location.reload();
+  } catch(e) {
+    msg.textContent = '❌ ' + e.message;
+    msg.style.color = '#c04a4a';
+    msg.style.display = 'block';
+    btn.disabled = false;
+    btn.textContent = '🗑️ 退会する';
+  }
+}
+
 // ── ログアウト ──
 async function doLogout() {
   if (!confirm('ログアウトしますか？')) return;
   await sbClient.auth.signOut();
-  currentUser = null; accessToken = null;
+  currentUser = null; accessToken = null; userProfile = null;
+  clearProfileForm();
   showLogin();
 }
 
@@ -3295,6 +3344,14 @@ function rProfileForm() {
     document.getElementById('stampPreview').innerHTML = '<img src="' + userProfile.stamp_url + '" style="width:76px;height:76px;object-fit:contain;border-radius:6px">';
     document.getElementById('stampDelBtn').style.display = 'block';
   }
+}
+
+function clearProfileForm() {
+  var ids = ['prfShop','prfName','prfZip','prfAddr','prfPhone','prfEmail'];
+  ids.forEach(function(id) { var el = document.getElementById(id); if (el) el.value = ''; });
+  var stampPreview = document.getElementById('stampPreview');
+  if (stampPreview) stampPreview.innerHTML = '<span style="font-size:11px;color:var(--tx2)">未設定</span>';
+  var stampDelBtn = document.getElementById('stampDelBtn'); if (stampDelBtn) stampDelBtn.style.display = 'none';
 }
 
 async function saveProfile() {
