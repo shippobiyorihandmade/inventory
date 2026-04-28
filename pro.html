@@ -1856,10 +1856,15 @@ function initSupabase() {
   });
   sbClient.auth.onAuthStateChange(function(event, session) {
     if (event === 'USER_UPDATED' && session && session.user) {
-      // メアド変更確定時にStripeを更新
+      var oldEmail = currentUser ? currentUser.email : null;
       currentUser = session.user;
       accessToken = session.access_token;
-      updateStripeEmail();
+      var newEmail = session.user.email;
+      if (oldEmail && newEmail && oldEmail !== newEmail) {
+        updateStripeEmail(newEmail);
+      }
+      var acEmailEl = document.getElementById('acEmail');
+      if (acEmailEl) acEmailEl.textContent = newEmail || '—';
       return;
     }
     if (session && session.user) {
@@ -1969,17 +1974,15 @@ async function doSignup() {
 }
 
 // ── Stripeメアド更新 ──
-async function updateStripeEmail() {
-  // 表示を更新
-  var acEmailEl = document.getElementById('acEmail');
-  if (acEmailEl && currentUser) acEmailEl.textContent = currentUser.email || '—';
+async function updateStripeEmail(newEmail) {
   try {
     var res = await fetch(SB_URL + '/functions/v1/update-stripe-email', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer ' + accessToken
-      }
+      },
+      body: JSON.stringify({ new_email: newEmail })
     });
     var data = await res.json();
     if (!res.ok) throw new Error(data.error || 'エラー');
