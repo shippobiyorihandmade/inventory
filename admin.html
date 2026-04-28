@@ -159,6 +159,48 @@ textarea{resize:vertical;min-height:80px;}
     </div>
   </div>
 
+  <!-- ユーザーへの一斉メール送信 -->
+  <div class="card">
+    <div class="ch"><span class="ct">📧 ユーザーへの一斉メール送信</span></div>
+    <div class="cb">
+      <p style="font-size:13px;color:var(--tx2);margin-bottom:14px">招待済みユーザー全員にメールを送信するにゃ🐾</p>
+
+      <!-- 送信先 -->
+      <div class="fr" style="margin-bottom:8px">
+        <div>
+          <label>送信先</label>
+          <div style="display:flex;align-items:center;gap:8px;padding:9px 11px;background:var(--sf2);border-radius:8px;border:1.5px solid var(--bd);font-size:13px">
+            👥 招待済みユーザー全員 <span id="mailTargetCount" style="font-weight:700;color:var(--ac)"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 件名 -->
+      <div class="fr" style="margin-bottom:8px">
+        <div><label>件名</label><input type="text" id="mailSubject" placeholder="例：Pro版リリースのお知らせ"></div>
+      </div>
+
+      <!-- 本文タブ切り替え -->
+      <div style="margin-bottom:8px">
+        <label>本文</label>
+        <div style="display:flex;gap:4px;margin-bottom:6px">
+          <button id="tabText" class="btn bp bsm" onclick="switchMailTab('text')">テキスト</button>
+          <button id="tabHtml" class="btn bs bsm" onclick="switchMailTab('html')">HTML</button>
+          <button id="tabPreview" class="btn bs bsm" onclick="switchMailTab('preview')">プレビュー</button>
+        </div>
+        <textarea id="mailBodyText" rows="8" placeholder="メール本文をテキストで入力してください"></textarea>
+        <textarea id="mailBodyHtml" rows="8" placeholder="HTMLメールのソースを入力してください（例：&lt;h1&gt;タイトル&lt;/h1&gt;&lt;p&gt;本文&lt;/p&gt;）" style="display:none;font-family:monospace;font-size:12px"></textarea>
+        <div id="mailPreview" style="display:none;border:1.5px solid var(--bd);border-radius:8px;padding:16px;min-height:120px;background:#fff;font-size:13px"></div>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:10px;margin-top:4px;flex-wrap:wrap">
+        <button class="btn bp" onclick="sendUserMail()" id="mailSendBtn">📧 一斉送信する</button>
+        <span style="font-size:12px;color:var(--tx2)">※ 送信前にプレビューで確認することをおすすめするにゃ</span>
+      </div>
+      <div id="mailResult" style="font-size:12px;margin-top:10px;display:none;padding:10px 12px;border-radius:8px"></div>
+    </div>
+  </div>
+
   <!-- お知らせ配信 -->
   <div class="card">
     <div class="ch"><span class="ct">📢 お知らせ配信</span></div>
@@ -278,7 +320,89 @@ function sbH() {
   return { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + accessToken, 'Content-Type': 'application/json', 'Prefer': 'return=representation' };
 }
 
-function loadAll() { loadStats(); loadInvited(); loadUsers(); loadAnnouncements(); loadContacts(); }
+function loadAll() { loadStats(); loadInvited(); loadUsers(); loadAnnouncements(); loadContacts(); loadMailTargetCount(); }
+
+// ── 一斉メール送信 ──
+async function loadMailTargetCount() {
+  try {
+    var r = await fetch(SB_URL + '/rest/v1/invited_users?select=id', { headers: sbH() });
+    var data = await r.json();
+    var el = document.getElementById('mailTargetCount');
+    if (el) el.textContent = '(' + (data.length || 0) + '名)';
+  } catch(e) { console.error(e); }
+}
+
+var mailTab = 'text';
+function switchMailTab(tab) {
+  mailTab = tab;
+  document.getElementById('mailBodyText').style.display = tab === 'text' ? 'block' : 'none';
+  document.getElementById('mailBodyHtml').style.display = tab === 'html' ? 'block' : 'none';
+  document.getElementById('mailPreview').style.display = tab === 'preview' ? 'block' : 'none';
+  document.getElementById('tabText').className = 'btn bsm ' + (tab === 'text' ? 'bp' : 'bs');
+  document.getElementById('tabHtml').className = 'btn bsm ' + (tab === 'html' ? 'bp' : 'bs');
+  document.getElementById('tabPreview').className = 'btn bsm ' + (tab === 'preview' ? 'bp' : 'bs');
+  if (tab === 'preview') {
+    var html = document.getElementById('mailBodyHtml').value;
+    var text = document.getElementById('mailBodyText').value;
+    var preview = document.getElementById('mailPreview');
+    if (html) {
+      preview.innerHTML = html;
+    } else if (text) {
+      preview.innerHTML = '<div style="white-space:pre-wrap;font-family:sans-serif;font-size:14px;line-height:1.8;color:#2c2416">' + text.replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</div>';
+    } else {
+      preview.innerHTML = '<span style="color:var(--tx2)">本文を入力するとプレビューが表示されるにゃ</span>';
+    }
+  }
+}
+
+async function sendUserMail() {
+  var subject = document.getElementById('mailSubject').value.trim();
+  var bodyText = document.getElementById('mailBodyText').value.trim();
+  var bodyHtml = document.getElementById('mailBodyHtml').value.trim();
+  var result = document.getElementById('mailResult');
+
+  if (!subject) { showMailResult('❌ 件名を入力してください', false); return; }
+  if (!bodyText && !bodyHtml) { showMailResult('❌ 本文を入力してください', false); return; }
+
+  if (!confirm('招待済みユーザー全員にメールを送信しますか？\n件名：' + subject)) return;
+
+  var btn = document.getElementById('mailSendBtn');
+  btn.disabled = true;
+  btn.textContent = '送信中...';
+  result.style.display = 'none';
+
+  try {
+    var res = await fetch(SB_URL + '/functions/v1/send-user-mail', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + accessToken
+      },
+      body: JSON.stringify({
+        subject: subject,
+        body_text: bodyText,
+        body_html: bodyHtml || null,
+      })
+    });
+    var data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'エラーが発生しました');
+    showMailResult('✅ 送信完了！' + data.sent + '件成功' + (data.failed > 0 ? '・' + data.failed + '件失敗' : ''), true);
+  } catch(e) {
+    showMailResult('❌ ' + e.message, false);
+  }
+
+  btn.disabled = false;
+  btn.textContent = '📧 一斉送信する';
+}
+
+function showMailResult(msg, isOk) {
+  var el = document.getElementById('mailResult');
+  el.textContent = msg;
+  el.style.display = 'block';
+  el.style.background = isOk ? 'var(--ob)' : '#fde8e8';
+  el.style.color = isOk ? 'var(--ok)' : '#c04a4a';
+  el.style.border = '1px solid ' + (isOk ? '#b2dcc5' : '#f5c0c0');
+}
 
 // ── 統計 ──
 async function loadStats() {
