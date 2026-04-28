@@ -1860,7 +1860,8 @@ function initSupabase() {
       accessToken = session.access_token;
       checkInviteAndLoad();
     } else {
-      currentUser = null; accessToken = null;
+      currentUser = null; accessToken = null; userProfile = null;
+      clearProfileForm();
       document.getElementById("userMenu").style.display = "none";
       if (event !== "INITIAL_SESSION") showLogin();
     }
@@ -1965,6 +1966,7 @@ async function doLogout() {
   if (!confirm('ログアウトしますか？')) return;
   await sbClient.auth.signOut();
   currentUser = null; accessToken = null; userProfile = null;
+  clearProfileForm();
   showLogin();
 }
 
@@ -5056,6 +5058,15 @@ function rProfileForm() {
     });
     document.getElementById('stampDelBtn').style.display = 'block';
   }
+}
+
+function clearProfileForm() {
+  var ids = ['prfShop','prfName','prfZip','prfAddr','prfPhone','prfEmail','prfBankName','prfBankBranch','prfBankNumber','prfBankHolder'];
+  ids.forEach(function(id) { var el = document.getElementById(id); if (el) el.value = ''; });
+  var bankType = document.getElementById('prfBankType'); if (bankType) bankType.value = '';
+  var stampPreview = document.getElementById('stampPreview');
+  if (stampPreview) stampPreview.innerHTML = '<span style="font-size:11px;color:var(--tx2)">未設定</span>';
+  var stampDelBtn = document.getElementById('stampDelBtn'); if (stampDelBtn) stampDelBtn.style.display = 'none';
 }
 
 async function saveProfile() {
