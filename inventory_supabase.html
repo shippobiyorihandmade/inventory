@@ -1391,16 +1391,23 @@ function initSupabase() {
         console.error('OTP検証エラー:', res.error.message);
       } else {
         console.log('OTP検証成功にゃ');
-        if (type === 'email_change' && res.data && res.data.session) {
-          var newEmail = res.data.session.user.email;
-          var token = res.data.session.access_token;
-          fetch(SB_URL + '/functions/v1/update-free-email', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-            body: JSON.stringify({ new_email: newEmail, old_email: oldEmail })
-          }).then(function(r) {
-            console.log('invited_users更新完了にゃ');
-            window.location.href = window.location.pathname;
+        if (type === 'email_change') {
+          // 最新セッションを取り直してからEdge Functionを呼ぶ
+          sbClient.auth.getSession().then(function(s) {
+            if (s.data && s.data.session) {
+              var newEmail = s.data.session.user.email;
+              var token = s.data.session.access_token;
+              fetch(SB_URL + '/functions/v1/update-free-email', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+                body: JSON.stringify({ new_email: newEmail, old_email: oldEmail })
+              }).then(function() {
+                console.log('invited_users更新完了にゃ');
+                window.location.href = window.location.pathname;
+              });
+            } else {
+              window.location.href = window.location.pathname;
+            }
           });
         } else {
           window.location.href = window.location.pathname;
