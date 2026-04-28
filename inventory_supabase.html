@@ -1381,37 +1381,15 @@ function initSupabase() {
 
   // token_hashを処理（メアド変更・パスワードリセット対応）
   if (tokenHash && type) {
-    var oldEmail = null;
-    // verifyOtp前に古いメアドを取得してから処理
-    sbClient.auth.getSession().then(function(sessionRes) {
-      oldEmail = sessionRes.data && sessionRes.data.session ? sessionRes.data.session.user.email : null;
-      return sbClient.auth.verifyOtp({ token_hash: tokenHash, type: type });
-    }).then(function(res) {
+    sbClient.auth.verifyOtp({ token_hash: tokenHash, type: type }).then(function(res) {
       if (res.error) {
         console.error('OTP検証エラー:', res.error.message);
       } else {
         console.log('OTP検証成功にゃ');
-        if (type === 'email_change') {
-          // 最新セッションを取り直してからEdge Functionを呼ぶ
-          sbClient.auth.getSession().then(function(s) {
-            if (s.data && s.data.session) {
-              var newEmail = s.data.session.user.email;
-              var token = s.data.session.access_token;
-              fetch(SB_URL + '/functions/v1/update-free-email', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-                body: JSON.stringify({ new_email: newEmail, old_email: oldEmail })
-              }).then(function() {
-                console.log('invited_users更新完了にゃ');
-                window.location.href = window.location.pathname;
-              });
-            } else {
-              window.location.href = window.location.pathname;
-            }
-          });
-        } else {
+        // Webhookがinvited_usersを更新するのを少し待ってからリロード
+        setTimeout(function() {
           window.location.href = window.location.pathname;
-        }
+        }, 1500);
       }
     });
   }
