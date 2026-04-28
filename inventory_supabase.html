@@ -1366,25 +1366,26 @@ function checkConfig() {
 }
 
 function initSupabase() {
+  // URLのtoken_hashがある場合はdetectSessionInUrlをfalseに
+  var params = new URLSearchParams(window.location.search);
+  var tokenHash = params.get('token_hash');
+  var type = params.get('type');
+
   sbClient = supabase.createClient(SB_URL, SB_KEY, {
     auth: {
-      detectSessionInUrl: true,
+      detectSessionInUrl: !tokenHash,
       persistSession: true,
       autoRefreshToken: true
     }
   });
 
-  // URLのtoken_hashを処理（メアド変更・パスワードリセット対応）
-  var params = new URLSearchParams(window.location.search);
-  var tokenHash = params.get('token_hash');
-  var type = params.get('type');
+  // token_hashを処理（メアド変更・パスワードリセット対応）
   if (tokenHash && type) {
     sbClient.auth.verifyOtp({ token_hash: tokenHash, type: type }).then(function(res) {
       if (res.error) {
         console.error('OTP検証エラー:', res.error.message);
       } else {
         console.log('OTP検証成功にゃ');
-        // URLパラメータをきれいにする
         window.history.replaceState({}, '', window.location.pathname);
       }
     });
