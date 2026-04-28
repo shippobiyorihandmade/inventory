@@ -194,8 +194,8 @@ textarea{resize:vertical;min-height:80px;}
       </div>
 
       <div style="display:flex;align-items:center;gap:10px;margin-top:4px;flex-wrap:wrap">
-        <button class="btn bp" onclick="sendUserMail()" id="mailSendBtn">📧 一斉送信する</button>
-        <span style="font-size:12px;color:var(--tx2)">※ 送信前にプレビューで確認することをおすすめするにゃ</span>
+        <button class="btn bs" onclick="sendUserMail(true)" id="mailTestBtn">🧪 テスト送信（自分だけ）</button>
+        <button class="btn bp" onclick="sendUserMail(false)" id="mailSendBtn">📧 一斉送信する</button>
       </div>
       <div id="mailResult" style="font-size:12px;margin-top:10px;display:none;padding:10px 12px;border-radius:8px"></div>
     </div>
@@ -355,7 +355,7 @@ function switchMailTab(tab) {
   }
 }
 
-async function sendUserMail() {
+async function sendUserMail(testOnly) {
   var subject = document.getElementById('mailSubject').value.trim();
   var bodyText = document.getElementById('mailBodyText').value.trim();
   var bodyHtml = document.getElementById('mailBodyHtml').value.trim();
@@ -364,9 +364,13 @@ async function sendUserMail() {
   if (!subject) { showMailResult('❌ 件名を入力してください', false); return; }
   if (!bodyText && !bodyHtml) { showMailResult('❌ 本文を入力してください', false); return; }
 
-  if (!confirm('招待済みユーザー全員にメールを送信しますか？\n件名：' + subject)) return;
+  if (testOnly) {
+    if (!confirm('自分のメアドにテスト送信しますか？\n件名：' + subject)) return;
+  } else {
+    if (!confirm('招待済みユーザー全員にメールを送信しますか？\n件名：' + subject)) return;
+  }
 
-  var btn = document.getElementById('mailSendBtn');
+  var btn = testOnly ? document.getElementById('mailTestBtn') : document.getElementById('mailSendBtn');
   btn.disabled = true;
   btn.textContent = '送信中...';
   result.style.display = 'none';
@@ -382,17 +386,19 @@ async function sendUserMail() {
         subject: subject,
         body_text: bodyText,
         body_html: bodyHtml || null,
+        test_only: testOnly,
       })
     });
     var data = await res.json();
     if (!res.ok) throw new Error(data.error || 'エラーが発生しました');
-    showMailResult('✅ 送信完了！' + data.sent + '件成功' + (data.failed > 0 ? '・' + data.failed + '件失敗' : ''), true);
+    var label = testOnly ? 'テスト送信完了！' : '送信完了！';
+    showMailResult('✅ ' + label + data.sent + '件成功' + (data.failed > 0 ? '・' + data.failed + '件失敗' : ''), true);
   } catch(e) {
     showMailResult('❌ ' + e.message, false);
   }
 
   btn.disabled = false;
-  btn.textContent = '📧 一斉送信する';
+  btn.textContent = testOnly ? '🧪 テスト送信（自分だけ）' : '📧 一斉送信する';
 }
 
 function showMailResult(msg, isOk) {
