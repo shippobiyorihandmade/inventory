@@ -1970,6 +1970,9 @@ async function doSignup() {
 
 // ── Stripeメアド更新 ──
 async function updateStripeEmail() {
+  // 表示を更新
+  var acEmailEl = document.getElementById('acEmail');
+  if (acEmailEl && currentUser) acEmailEl.textContent = currentUser.email || '—';
   try {
     var res = await fetch(SB_URL + '/functions/v1/update-stripe-email', {
       method: 'POST',
