@@ -1964,7 +1964,7 @@ async function doSignup() {
 async function doLogout() {
   if (!confirm('ログアウトしますか？')) return;
   await sbClient.auth.signOut();
-  currentUser = null; accessToken = null;
+  currentUser = null; accessToken = null; userProfile = null;
   showLogin();
 }
 
