@@ -1391,7 +1391,6 @@ function initSupabase() {
         console.error('OTP検証エラー:', res.error.message);
       } else {
         console.log('OTP検証成功にゃ');
-        window.history.replaceState({}, '', window.location.pathname);
         if (type === 'email_change' && res.data && res.data.session) {
           var newEmail = res.data.session.user.email;
           var token = res.data.session.access_token;
@@ -1399,7 +1398,12 @@ function initSupabase() {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
             body: JSON.stringify({ new_email: newEmail, old_email: oldEmail })
-          }).then(function(r) { console.log('invited_users更新完了にゃ'); });
+          }).then(function(r) {
+            console.log('invited_users更新完了にゃ');
+            window.location.href = window.location.pathname;
+          });
+        } else {
+          window.location.href = window.location.pathname;
         }
       }
     });
@@ -1436,7 +1440,7 @@ function initSupabase() {
 
 async function checkInviteAndLoad() {
   try {
-    var invRes = await fetch(SB_URL + "/rest/v1/invited_users?email=eq." + encodeURIComponent(currentUser.email) + "&select=email", {
+    var invRes = await fetch(SB_URL + "/rest/v1/invited_users?email=eq." + encodeURIComponent(currentUser.email) + "&select=email,user_id", {
       headers: { "apikey": SB_KEY, "Authorization": "Bearer " + SB_KEY }
     });
     var invData = await invRes.json();
@@ -1445,6 +1449,14 @@ async function checkInviteAndLoad() {
       currentUser = null; accessToken = null;
       showLoginErr("このアカウントは招待されていません。管理者にお問い合わせください。");
       return;
+    }
+    // user_idが未設定なら紐づける
+    if (!invData[0].user_id) {
+      fetch(SB_URL + "/rest/v1/invited_users?email=eq." + encodeURIComponent(currentUser.email), {
+        method: "PATCH",
+        headers: { "apikey": SB_KEY, "Authorization": "Bearer " + accessToken, "Content-Type": "application/json", "Prefer": "return=minimal" },
+        body: JSON.stringify({ user_id: currentUser.id })
+      });
     }
   } catch(e) { console.error("招待チェックエラー:", e); }
   updateUserUI();
