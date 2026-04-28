@@ -674,9 +674,19 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
                 <span class="ptag" data-value="Creema" data-default="1" onclick="togglePtag(this)">Creema</span>
                 <div id="mkNCustomPlatforms" style="display:contents"></div>
               </div>
-              <div style="display:flex;gap:6px;margin-top:6px;align-items:center">
-                <input type="text" id="mkNNewPlatform" placeholder="＋ カスタム追加..." style="flex:1;font-size:12px;padding:5px 8px" onkeydown="if(event.key==='Enter')addMkNCustomPlatform()">
-                <button type="button" class="btn bs bsm" onclick="addMkNCustomPlatform()">追加</button>
+              <div style="margin-top:8px">
+                <div style="display:flex;gap:10px;margin-bottom:6px">
+                  <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;background:#f3efe9;border:1.5px solid #e5ddd0;border-radius:8px;padding:6px 12px;flex:1;justify-content:center" id="mkNTypePhysical">
+                    <input type="radio" name="mkNPlatformType" value="physical" style="width:auto;padding:0;accent-color:#c0622a"> 🏪 委託・実店舗
+                  </label>
+                  <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;background:#f3efe9;border:1.5px solid #e5ddd0;border-radius:8px;padding:6px 12px;flex:1;justify-content:center" id="mkNTypeOnline">
+                    <input type="radio" name="mkNPlatformType" value="online" checked style="width:auto;padding:0;accent-color:#c0622a"> 🌐 ネット販売
+                  </label>
+                </div>
+                <div style="display:flex;gap:6px;align-items:center">
+                  <input type="text" id="mkNNewPlatform" placeholder="＋ カスタム追加..." style="flex:1;font-size:12px;padding:5px 8px" onkeydown="if(event.key==='Enter')addMkNCustomPlatform()">
+                  <button type="button" class="btn bs bsm" onclick="addMkNCustomPlatform()">追加</button>
+                </div>
               </div>
             </div>
           </div>
@@ -1626,12 +1636,12 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
       <p class="ts tm" style="margin-bottom:12px">委託先・マルシェなど追加のプラットフォームを登録できます。<br>販売記録・納品書の選択肢に反映されます。</p>
       <div style="margin-bottom:8px">
         <input type="text" id="dlvDestNewName" placeholder="例：〇〇マルシェ、saari cafe" style="width:100%;margin:0 0 8px 0" onkeydown="if(event.key==='Enter')addCustomPlatformFromMgr()">
-        <div style="display:flex;gap:12px;margin-bottom:8px;font-size:13px">
-          <label style="display:flex;align-items:center;gap:5px;cursor:pointer;margin:0;font-weight:400">
-            <input type="radio" name="dlvDestType" value="physical" checked style="width:auto;padding:0"> 🏪 委託・実店舗
+        <div style="display:flex;gap:10px;margin-bottom:8px">
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;background:#f3efe9;border:1.5px solid #e5ddd0;border-radius:10px;padding:10px 14px;flex:1;justify-content:center;font-weight:500" id="dlvTypePhysicalLabel">
+            <input type="radio" name="dlvDestType" value="physical" checked style="width:16px;height:16px;padding:0;accent-color:#c0622a"> 🏪 委託・実店舗
           </label>
-          <label style="display:flex;align-items:center;gap:5px;cursor:pointer;margin:0;font-weight:400">
-            <input type="radio" name="dlvDestType" value="online" style="width:auto;padding:0"> 🌐 ネット販売
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;background:#f3efe9;border:1.5px solid #e5ddd0;border-radius:10px;padding:10px 14px;flex:1;justify-content:center;font-weight:500" id="dlvTypeOnlineLabel">
+            <input type="radio" name="dlvDestType" value="online" style="width:16px;height:16px;padding:0;accent-color:#c0622a"> 🌐 ネット販売
           </label>
         </div>
         <button class="btn bg bsm" onclick="addCustomPlatformFromMgr()" style="width:100%">＋ 追加</button>
@@ -1771,9 +1781,19 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
               <span class="ptag" data-value="Creema" data-default="1" onclick="togglePtag(this)">Creema</span>
               <div id="imCustomPlatforms" style="display:contents"></div>
             </div>
-            <div style="display:flex;gap:6px;margin-top:6px;align-items:center">
-              <input type="text" id="imNewPlatform" placeholder="＋ カスタム追加..." style="flex:1;font-size:12px;padding:5px 8px" onkeydown="if(event.key==='Enter')addCustomPlatform()">
-              <button type="button" class="btn bs bsm" onclick="addCustomPlatform()">追加</button>
+            <div style="margin-top:8px">
+              <div style="display:flex;gap:10px;margin-bottom:6px">
+                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;background:#f3efe9;border:1.5px solid #e5ddd0;border-radius:8px;padding:6px 12px;flex:1;justify-content:center">
+                  <input type="radio" name="imPlatformType" value="physical" style="width:auto;padding:0;accent-color:#c0622a"> 🏪 委託・実店舗
+                </label>
+                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;background:#f3efe9;border:1.5px solid #e5ddd0;border-radius:8px;padding:6px 12px;flex:1;justify-content:center">
+                  <input type="radio" name="imPlatformType" value="online" checked style="width:auto;padding:0;accent-color:#c0622a"> 🌐 ネット販売
+                </label>
+              </div>
+              <div style="display:flex;gap:6px;align-items:center">
+                <input type="text" id="imNewPlatform" placeholder="＋ カスタム追加..." style="flex:1;font-size:12px;padding:5px 8px" onkeydown="if(event.key==='Enter')addCustomPlatform()">
+                <button type="button" class="btn bs bsm" onclick="addCustomPlatform()">追加</button>
+              </div>
             </div>
           </div>
         </div>
@@ -3359,9 +3379,11 @@ async function addCustomPlatform() {
   var name = document.getElementById('imNewPlatform').value.trim();
   if (!name) return;
   if (getAllPlatforms().includes(name)) { alert('同じ名前がすでにあります'); return; }
-  var obj = { id: crypto.randomUUID ? crypto.randomUUID() : uid(), user_id: currentUser.id, name: name };
+  var typeEl = document.querySelector('input[name="imPlatformType"]:checked');
+  var type = typeEl ? typeEl.value : 'online';
+  var obj = { id: crypto.randomUUID ? crypto.randomUUID() : uid(), user_id: currentUser.id, name: name, type: type };
   customPlatforms.push(obj);
-  try { await fetch(SB_URL + '/rest/v1/platforms', { method: 'POST', headers: sbHeaders(), body: JSON.stringify({ id: obj.id, user_id: obj.user_id, name: obj.name }) }); } catch(e) { console.error(e); }
+  try { await fetch(SB_URL + '/rest/v1/platforms', { method: 'POST', headers: sbHeaders(), body: JSON.stringify({ id: obj.id, user_id: obj.user_id, name: obj.name, type: obj.type }) }); } catch(e) { console.error(e); }
   document.getElementById('imNewPlatform').value = '';
   rebuildPlatformTags('imPlatforms', 'imCustomPlatforms', getPlatforms('imPlatforms'), true);
 }
@@ -3370,9 +3392,11 @@ async function addMkNCustomPlatform() {
   var name = document.getElementById('mkNNewPlatform').value.trim();
   if (!name) return;
   if (getAllPlatforms().includes(name)) { alert('同じ名前がすでにあります'); return; }
-  var obj = { id: crypto.randomUUID ? crypto.randomUUID() : uid(), user_id: currentUser.id, name: name };
+  var typeEl = document.querySelector('input[name="mkNPlatformType"]:checked');
+  var type = typeEl ? typeEl.value : 'online';
+  var obj = { id: crypto.randomUUID ? crypto.randomUUID() : uid(), user_id: currentUser.id, name: name, type: type };
   customPlatforms.push(obj);
-  try { await fetch(SB_URL + '/rest/v1/platforms', { method: 'POST', headers: sbHeaders(), body: JSON.stringify({ id: obj.id, user_id: obj.user_id, name: obj.name }) }); } catch(e) { console.error(e); }
+  try { await fetch(SB_URL + '/rest/v1/platforms', { method: 'POST', headers: sbHeaders(), body: JSON.stringify({ id: obj.id, user_id: obj.user_id, name: obj.name, type: obj.type }) }); } catch(e) { console.error(e); }
   document.getElementById('mkNNewPlatform').value = '';
   rebuildPlatformTags('mkNPlatforms', 'mkNCustomPlatforms', getPlatforms('mkNPlatforms'), true);
 }
