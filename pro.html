@@ -385,7 +385,7 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
   <div class="login-box">
     <span class="setup-icon">🧵</span>
     <h2>ハンドメイド在庫管理</h2>
-    <p>ログインして始めましょう🐾<br><small style="color:var(--tx2)">招待されたアカウントでログインしてください</small></p>
+    <p>ログインして始めましょう🐾</p>
     <button class="btn-google" onclick="loginGoogle()">
       <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
       Googleでログイン
@@ -400,28 +400,7 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
       <input type="password" id="loginPass" placeholder="パスワード" onkeydown="if(event.key==='Enter')loginEmail_pw()">
     </div></div>
     <button class="btn bp" style="width:100%;margin-bottom:8px" onclick="loginEmailPw()">ログイン</button>
-    <button class="btn bs" style="width:100%;font-size:12px" onclick="showSignup()">新規登録（招待コードが必要）</button>
     <div class="login-err" id="loginErr"></div>
-  </div>
-</div>
-
-<!-- 新規登録画面 -->
-<div class="login-screen" id="signupScreen">
-  <div class="login-box">
-    <span class="setup-icon">✉️</span>
-    <h2>新規登録</h2>
-    <p>管理者から招待されたメールアドレスで登録してください</p>
-    <div class="fr" style="margin-bottom:8px"><div>
-      <label>メールアドレス</label>
-      <input type="email" id="signupEmail" placeholder="招待されたメールアドレス">
-    </div></div>
-    <div class="fr" style="margin-bottom:12px"><div>
-      <label>パスワード（8文字以上）</label>
-      <input type="password" id="signupPass" placeholder="パスワードを設定">
-    </div></div>
-    <button class="btn bp" style="width:100%;margin-bottom:8px" onclick="doSignup()">登録する</button>
-    <button class="btn bs" style="width:100%;font-size:12px" onclick="showLogin()">← ログインに戻る</button>
-    <div class="login-err" id="signupErr"></div>
   </div>
 </div>
 
@@ -1911,15 +1890,10 @@ function updateUserUI() {
 // ── ログイン画面表示 ──
 function showLogin() {
   document.getElementById('loginScreen').classList.add('open');
-  document.getElementById('signupScreen').classList.remove('open');
 }
-function showSignup() {
-  document.getElementById('loginScreen').classList.remove('open');
-  document.getElementById('signupScreen').classList.add('open');
-}
+
 function hideLoginScreens() {
   document.getElementById('loginScreen').classList.remove('open');
-  document.getElementById('signupScreen').classList.remove('open');
 }
 
 // ── Googleログイン ──
@@ -1942,24 +1916,6 @@ async function loginEmailPw() {
 }
 
 // ── 新規登録 ──
-async function doSignup() {
-  var email = document.getElementById('signupEmail').value.trim();
-  var pass = document.getElementById('signupPass').value;
-  if (!email || !pass) { showSignupErr('メールとパスワードを入力してください'); return; }
-  if (pass.length < 8) { showSignupErr('パスワードは8文字以上にしてください'); return; }
-  // 招待チェック
-  var inv = await fetch(SB_URL + '/rest/v1/invited_users?email=eq.' + encodeURIComponent(email) + '&select=email', {
-    headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY }
-  });
-  var invData = await inv.json();
-  if (!invData || invData.length === 0) { showSignupErr('このメールアドレスは招待されていません。管理者に招待を依頼してください。'); return; }
-  var res = await sbClient.auth.signUp({ email: email, password: pass });
-  if (res.error) { showSignupErr('登録に失敗しました：' + res.error.message); return; }
-  showSignupErr('確認メールを送りました！メールのリンクをクリックして登録を完了してください。');
-  document.getElementById('signupErr').style.background = '#edf5f3';
-  document.getElementById('signupErr').style.borderColor = '#b2dcc5';
-  document.getElementById('signupErr').style.color = '#3a6b5e';
-}
 
 // ── ログアウト ──
 async function doLogout() {
@@ -1972,10 +1928,6 @@ async function doLogout() {
 
 function showLoginErr(msg) {
   var el = document.getElementById('loginErr');
-  el.textContent = msg; el.classList.add('show');
-}
-function showSignupErr(msg) {
-  var el = document.getElementById('signupErr');
   el.textContent = msg; el.classList.add('show');
 }
 
