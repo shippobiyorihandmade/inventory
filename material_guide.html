@@ -47,9 +47,6 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(250,248,245,
 .fchip.on{background:var(--ac);color:#fff;border-color:var(--ac);}
 .fchip:hover:not(.on){background:var(--bd);}
 
-/* 広告スペース */
-.ad-space{background:var(--sf2);border:1px dashed var(--bd);border-radius:var(--r);padding:20px;text-align:center;color:var(--tx3);font-size:12px;margin-bottom:16px;min-height:90px;display:flex;align-items:center;justify-content:center;}
-
 /* カードグリッド */
 .card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;margin-bottom:16px;}
 .mat-card{background:var(--sf);border:1px solid var(--bd);border-radius:var(--rL);box-shadow:var(--sh);cursor:pointer;transition:all .2s;overflow:hidden;}
@@ -136,9 +133,6 @@ footer p{font-size:12px;opacity:.5;margin-top:12px;}
     <div class="filter-label" id="filterLabel">▼ 絞り込む</div>
     <div class="filter-chips" id="filterChips"></div>
   </div>
-
-  <!-- 広告スペース -->
-  <div class="ad-space">広告スペース</div>
 
   <!-- カード一覧 -->
   <div class="card-grid" id="cardGrid"></div>

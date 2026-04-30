@@ -308,9 +308,6 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
 .bn-sheet-item{display:flex;flex-direction:column;align-items:center;gap:5px;padding:14px 8px;border:1.5px solid var(--bd);border-radius:12px;background:var(--sf2);font-family:inherit;font-size:12px;font-weight:700;color:var(--tx);cursor:pointer;transition:all .15s;-webkit-tap-highlight-color:transparent;}
 .bn-sheet-item:hover,.bn-sheet-item:active{background:var(--bd);transform:scale(.97);}
 
-/* 広告スペース */
-.ad-banner{width:100%;min-height:60px;background:var(--sf2);border:1px dashed var(--bd);border-radius:var(--r);display:flex;align-items:center;justify-content:center;margin-bottom:14px;overflow:hidden;font-size:11px;color:var(--tx2);}
-.ad-banner ins{display:block;width:100%;}
 @keyframes spin{to{transform:rotate(360deg)}}
 .uploading::after{content:'';display:inline-block;width:12px;height:12px;border:2px solid var(--bd);border-top-color:var(--ac);border-radius:50%;animation:spin .7s linear infinite;margin-left:6px;vertical-align:middle;}
 /* お知らせポップアップ */
@@ -549,12 +546,6 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
 <!-- DASHBOARD -->
 <div class="pg on" id="pg-dash">
   <div class="sg" id="sgrid"></div>
-  <!-- 広告スペース（AdSense用） -->
-  <div class="ad-banner" id="adBanner1">
-    <!-- Google AdSense ここに貼り付け
-    -->
-    広告スペース
-  </div>
   <div id="alrt"></div>
   <div class="card">
     <div class="ch">
@@ -903,12 +894,6 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
     </div>
     <div class="tw"><table><thead><tr><th>日付</th><th>商品</th><th>数</th><th>売上</th><th>利益</th><th>率</th><th>販売場所</th><th>メモ</th><th></th></tr></thead><tbody id="saleTbody"></tbody></table></div>
     <div class="dash-mobile-list" id="saleMobileList" style="padding:0 4px"></div>
-  </div>
-  <!-- 広告スペース（AdSense用） -->
-  <div class="ad-banner" id="adBanner2">
-    <!-- Google AdSense ここに貼り付け
-    -->
-    広告スペース
   </div>
 </div>
 
