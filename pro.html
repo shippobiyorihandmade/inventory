@@ -1886,21 +1886,37 @@ function initSupabase() {
 
 async function checkInviteAndLoad() {
   try {
-    var proRes = await fetch(SB_URL + "/rest/v1/pro_users?email=eq." + encodeURIComponent(currentUser.email) + "&select=email,subscription_status", {
+    // user_idでpro_usersを検索
+    var proRes = await fetch(SB_URL + "/rest/v1/pro_users?user_id=eq." + encodeURIComponent(currentUser.id) + "&select=email,subscription_status", {
       headers: { "apikey": SB_KEY, "Authorization": "Bearer " + accessToken }
     });
     var proData = await proRes.json();
+
+    // user_idで見つからなければメアドで検索
+    if (!proData || proData.length === 0) {
+      var proRes2 = await fetch(SB_URL + "/rest/v1/pro_users?email=eq." + encodeURIComponent(currentUser.email) + "&select=email,subscription_status", {
+        headers: { "apikey": SB_KEY, "Authorization": "Bearer " + accessToken }
+      });
+      proData = await proRes2.json();
+    }
+
     if (!proData || proData.length === 0) {
       sbClient.auth.signOut();
       currentUser = null; accessToken = null;
       showLoginErr("Pro版の登録が確認できません。upgrade.htmlよりお申し込みください。");
       return;
     }
-    if (proData[0].subscription_status !== "active") {
+    if (proData[0].subscription_status !== "active" && proData[0].subscription_status !== "cancel_scheduled") {
       sbClient.auth.signOut();
       currentUser = null; accessToken = null;
       showLoginErr("サブスクリプションが無効です。お支払い状況をご確認ください。");
       return;
+    }
+
+    // メアドがずれてたらStripeとpro_usersを更新
+    if (proData[0].email !== currentUser.email) {
+      console.log("メアドずれ検知、更新するにゃ:", proData[0].email, "→", currentUser.email);
+      updateStripeEmail(currentUser.email);
     }
   } catch(e) { console.error("Proチェックエラー:", e); }
   updateUserUI();
