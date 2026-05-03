@@ -5282,6 +5282,22 @@ function acMsg(elId, msg, isOk) {
   setTimeout(function() { el.style.display = 'none'; }, 5000);
 }
 
+async function updateStripeEmail(newEmail) {
+  try {
+    await fetch('https://zllquptbaekezaxvysfb.supabase.co/functions/v1/update-stripe-email', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + accessToken,
+      },
+      body: JSON.stringify({ email: newEmail }),
+    });
+    console.log("Stripeメアド更新完了:", newEmail);
+  } catch(e) {
+    console.error("Stripeメアド更新エラー:", e);
+  }
+}
+
 async function changeEmail() {
   var newEmail = document.getElementById('acNewEmail').value.trim();
   var pass = document.getElementById('acEmailPass').value;
