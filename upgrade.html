@@ -399,7 +399,10 @@ async function startCheckout() {
   try {
     var res = await fetch('https://zllquptbaekezaxvysfb.supabase.co/functions/v1/create-checkout-session', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + PRO_SB_KEY,
+      },
       body: JSON.stringify({ email: email }),
     });
     var data = await res.json();
