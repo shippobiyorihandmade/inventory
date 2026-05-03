@@ -1945,6 +1945,11 @@ function updateUserUI() {
 }
 
 // ── ログイン画面表示 ──
+function showLoginErr(msg) {
+  var el = document.getElementById('loginErr');
+  if (el) { el.textContent = msg; el.style.display = 'block'; }
+}
+
 function showLogin() {
   document.getElementById('loginScreen').classList.add('open');
 }
