@@ -387,7 +387,32 @@ footer p{font-size:12px;opacity:.5;margin-top:16px;}
 
 <script>
 async function startCheckout() {
-  window.location.href = 'https://buy.stripe.com/test_00w9ATg3TbWq9Gp94X0Jq00';
+  var email = prompt('ご登録のメールアドレスを入力してください：');
+  if (!email || !email.includes('@')) {
+    alert('正しいメールアドレスを入力してください。');
+    return;
+  }
+
+  var btn = document.querySelector('.btn-upgrade');
+  if (btn) { btn.disabled = true; btn.textContent = '処理中...'; }
+
+  try {
+    var res = await fetch('https://zllquptbaekezaxvysfb.supabase.co/functions/v1/create-checkout-session', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: email }),
+    });
+    var data = await res.json();
+    if (data.url) {
+      window.location.href = data.url;
+    } else {
+      alert('エラーが発生しました。しばらくしてから再度お試しください。');
+      if (btn) { btn.disabled = false; btn.textContent = 'Pro版にアップグレード →'; }
+    }
+  } catch (err) {
+    alert('エラーが発生しました。しばらくしてから再度お試しください。');
+    if (btn) { btn.disabled = false; btn.textContent = 'Pro版にアップグレード →'; }
+  }
 }
 
 var PRO_SB_URL = 'https://zllquptbaekezaxvysfb.supabase.co';
