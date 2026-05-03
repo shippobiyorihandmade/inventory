@@ -4174,6 +4174,9 @@ function printStocktake(type) {
   }).join('');
   var html = '<div class="pr-header"><div><div class="pr-title">' + title + '</div><div class="pr-sub">棚卸実施日: ' + jissiDate + '</div></div><div class="pr-date">出力日: ' + dateStr + '<br>アイテム数: ' + list.length + '件</div></div>' + sectionsHtml + '<div class="pr-summary">棚卸資産合計: <b>¥' + Math.round(totalAsset).toLocaleString() + '</b></div>';
   document.getElementById('print-area').innerHTML = html;
+  document.getElementById('delivery-print-area').innerHTML = '';
+  document.getElementById('invoice-print-area').innerHTML = '';
+  document.getElementById('estimate-print-area').innerHTML = '';
   window.print();
 }
 
