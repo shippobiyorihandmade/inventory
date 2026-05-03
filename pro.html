@@ -1924,6 +1924,14 @@ async function checkInviteAndLoad() {
   loadAll();
 }
 
+async function doLogout() {
+  await sbClient.auth.signOut();
+  currentUser = null;
+  accessToken = null;
+  userProfile = null;
+  showLogin();
+}
+
 function updateUserUI() {
   var menu = document.getElementById('userMenu');
   var avatar = document.getElementById('userAvatar');
