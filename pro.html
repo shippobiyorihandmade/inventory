@@ -1913,10 +1913,20 @@ async function checkInviteAndLoad() {
       return;
     }
 
-    // メアドがずれてたらStripeとpro_usersを更新
+    // メアドがずれてたらAuth.Usersを正として更新
+    // ただし古いセッションによる誤上書きを防ぐため、Auth.Usersの最新メアドを確認してから更新
     if (proData[0].email !== currentUser.email) {
-      console.log("メアドずれ検知、更新するにゃ:", proData[0].email, "→", currentUser.email);
-      updateStripeEmail(currentUser.email);
+      var freshUser = await sbClient.auth.getUser();
+      if (!freshUser.error && freshUser.data.user && freshUser.data.user.email === currentUser.email) {
+        console.log("メアドずれ検知、更新するにゃ:", proData[0].email, "→", currentUser.email);
+        updateStripeEmail(currentUser.email);
+      } else {
+        console.log("古いセッションのため更新をスキップするにゃ");
+        await sbClient.auth.signOut();
+        currentUser = null; accessToken = null;
+        showLogin();
+        return;
+      }
     }
   } catch(e) { console.error("Proチェックエラー:", e); }
   updateUserUI();
