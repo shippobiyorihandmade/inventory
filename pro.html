@@ -5036,6 +5036,9 @@ async function printDelivery() {
     html = html.replace(new RegExp('src="[^"]*stamp[^"]*"'), 'src="' + signedStampUrl2 + '"');
   }
   document.getElementById('delivery-print-area').innerHTML = html;
+  document.getElementById('print-area').innerHTML = '';
+  document.getElementById('invoice-print-area').innerHTML = '';
+  document.getElementById('estimate-print-area').innerHTML = '';
   window.print();
 
   // 印刷後に在庫移動を確認するにゃ
@@ -5788,6 +5791,9 @@ async function printEstimate() {
     + (note ? '<div style="margin-top:18px;padding:10px 12px;border:1px solid #ddd;border-radius:6px;font-size:11px;color:#555;line-height:1.8;white-space:pre-wrap"><b>備考</b><br>' + note + '</div>' : '');
 
   document.getElementById('estimate-print-area').innerHTML = html;
+  document.getElementById('print-area').innerHTML = '';
+  document.getElementById('delivery-print-area').innerHTML = '';
+  document.getElementById('invoice-print-area').innerHTML = '';
   var pg = document.getElementById('pg-delivery');
   if (pg) pg.style.display = 'none';
   window.print();
