@@ -385,7 +385,7 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
   <div class="login-box">
     <span class="setup-icon">🧵</span>
     <h2>ハンドメイド在庫管理</h2>
-    <p>ログインして始めましょう🐾<br><small style="color:var(--tx2)">Pro版にご登録のアカウントでログインしてください</small></p>
+    <p>ログインして始めましょう🐾<br><small style="color:var(--tx2)">アカウントをお持ちの方はこちらからログイン</small></p>
     <button class="btn-google" onclick="loginGoogle()">
       <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
       Googleでログイン
@@ -397,11 +397,51 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
     </div></div>
     <div class="fr" style="margin-bottom:12px"><div>
       <label>パスワード</label>
-      <input type="password" id="loginPass" placeholder="パスワード" onkeydown="if(event.key==='Enter')loginEmail_pw()">
+      <input type="password" id="loginPass" placeholder="パスワード" onkeydown="if(event.key==='Enter')loginEmailPw()">
     </div></div>
     <button class="btn bp" style="width:100%;margin-bottom:8px" onclick="loginEmailPw()">ログイン</button>
-
+    <div style="text-align:center;margin-top:6px">
+      <span style="font-size:12px;color:var(--tx2)">アカウントをお持ちでない方 →</span>
+      <button class="btn bs" style="font-size:12px;padding:4px 12px;margin-left:6px" onclick="showSignup()">無料で新規登録</button>
+    </div>
     <div class="login-err" id="loginErr"></div>
+  </div>
+</div>
+
+<!-- 新規登録画面 -->
+<div class="login-screen" id="signupScreen">
+  <div class="login-box">
+    <span class="setup-icon">✨</span>
+    <h2>無料で新規登録</h2>
+    <p>メールアドレスとパスワードで登録できます🐾<br><small style="color:var(--tx2)">完成品40件・材料60件まで無料でご利用いただけます</small></p>
+    <button class="btn-google" onclick="signupGoogle()">
+      <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
+      Googleで登録
+    </button>
+    <div class="login-divider">または</div>
+    <div class="fr" style="margin-bottom:8px"><div>
+      <label>メールアドレス</label>
+      <input type="email" id="signupEmail" placeholder="example@gmail.com">
+    </div></div>
+    <div class="fr" style="margin-bottom:12px"><div>
+      <label>パスワード（8文字以上）</label>
+      <input type="password" id="signupPass" placeholder="パスワードを設定" onkeydown="if(event.key==='Enter')doSignup()">
+    </div></div>
+    <button class="btn bp" style="width:100%;margin-bottom:8px" onclick="doSignup()">登録する</button>
+    <div style="text-align:center;margin-top:6px">
+      <button class="btn bs" style="font-size:12px;padding:4px 12px" onclick="showLogin()">← ログインに戻る</button>
+    </div>
+    <div class="login-err" id="signupErr"></div>
+  </div>
+</div>
+
+<!-- 登録確認メール送信完了画面 -->
+<div class="login-screen" id="signupDoneScreen">
+  <div class="login-box" style="text-align:center">
+    <span class="setup-icon">📧</span>
+    <h2>確認メールを送信しました</h2>
+    <p style="margin-bottom:18px">メール内のリンクをクリックして登録を完了してください🐾<br><small style="color:var(--tx2)">メールが届かない場合は迷惑メールフォルダをご確認ください</small></p>
+    <button class="btn bs" style="width:100%" onclick="showLogin()">ログイン画面に戻る</button>
   </div>
 </div>
 
@@ -1406,6 +1446,11 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
           <span style="font-size:12px;font-weight:700;color:var(--tx2);min-width:110px">ログイン方式</span>
           <span style="font-size:12px;font-weight:700;padding:2px 10px;border-radius:20px" id="acProvider">—</span>
         </div>
+        <div style="display:flex;gap:10px;align-items:center">
+          <span style="font-size:12px;font-weight:700;color:var(--tx2);min-width:110px">プラン</span>
+          <span style="font-size:12px;font-weight:700;padding:2px 10px;border-radius:20px" id="acPlanBadge">—</span>
+          <a href="upgrade.html" id="acUpgradeLink" style="font-size:11px;color:var(--ac);text-decoration:none;font-weight:700;display:none">→ Pro版にアップグレード</a>
+        </div>
       </div>
     </div>
   </div>
@@ -1591,8 +1636,8 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
     </div>
   </div>
 
-  <!-- サブスクリプション -->
-  <div class="card">
+  <!-- サブスクリプション（Proのみ表示） -->
+  <div class="card" id="subscriptionCard" style="display:none">
     <div class="ch"><span class="ct">💳 サブスクリプション</span></div>
     <div class="cb">
       <p class="ts tm" style="margin-bottom:14px;line-height:1.7">
@@ -1601,6 +1646,18 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
       </p>
       <button class="btn bs" onclick="openCustomerPortal()" id="portalBtn">💳 お支払い・解約の管理</button>
       <div id="portalMsg" style="margin-top:8px;font-size:12px;display:none"></div>
+    </div>
+  </div>
+
+  <!-- 無料プランのアップグレード案内 -->
+  <div class="card" id="upgradeCard" style="display:none">
+    <div class="ch"><span class="ct">⭐ Pro版にアップグレード</span></div>
+    <div class="cb">
+      <p class="ts tm" style="margin-bottom:14px;line-height:1.7">
+        現在は無料プランをご利用中です。<br>
+        Pro版では完成品100件・材料200件の登録、見積書・請求書作成、マルチプラットフォーム管理など全機能が使えます。
+      </p>
+      <a href="upgrade.html" class="btn bp" style="display:inline-block;text-decoration:none;padding:10px 20px">⭐ Pro版を見る（月額500円）</a>
     </div>
   </div>
 
@@ -1808,6 +1865,7 @@ var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZ
 var sbClient = null;
 var currentUser = null;
 var accessToken = null;
+var currentPlan = 'free'; // 'free' | 'pro'
 
 function saveConfig() {
   var key = document.getElementById('cfgKey').value.trim();
@@ -1887,51 +1945,81 @@ function initSupabase() {
 async function checkInviteAndLoad() {
   try {
     // user_idでpro_usersを検索
-    var proRes = await fetch(SB_URL + "/rest/v1/pro_users?user_id=eq." + encodeURIComponent(currentUser.id) + "&select=email,subscription_status", {
+    var proRes = await fetch(SB_URL + "/rest/v1/pro_users?user_id=eq." + encodeURIComponent(currentUser.id) + "&select=email,subscription_status,plan", {
       headers: { "apikey": SB_KEY, "Authorization": "Bearer " + accessToken }
     });
     var proData = await proRes.json();
 
     // user_idで見つからなければメアドで検索
     if (!proData || proData.length === 0) {
-      var proRes2 = await fetch(SB_URL + "/rest/v1/pro_users?email=eq." + encodeURIComponent(currentUser.email) + "&select=email,subscription_status", {
+      var proRes2 = await fetch(SB_URL + "/rest/v1/pro_users?email=eq." + encodeURIComponent(currentUser.email) + "&select=email,subscription_status,plan", {
         headers: { "apikey": SB_KEY, "Authorization": "Bearer " + accessToken }
       });
       proData = await proRes2.json();
     }
 
     if (!proData || proData.length === 0) {
-      sbClient.auth.signOut();
-      currentUser = null; accessToken = null;
-      showLoginErr("Pro版の登録が確認できません。upgrade.htmlよりお申し込みください。");
-      return;
-    }
-    if (proData[0].subscription_status !== "active" && proData[0].subscription_status !== "cancel_scheduled") {
-      sbClient.auth.signOut();
-      currentUser = null; accessToken = null;
-      showLoginErr("サブスクリプションが無効です。お支払い状況をご確認ください。");
-      return;
-    }
+      // pro_usersに未登録 → 無料プランとして新規登録
+      currentPlan = 'free';
+      await registerFreeUser();
+    } else {
+      var status = proData[0].subscription_status;
+      var plan = proData[0].plan || 'free';
 
-    // メアドがずれてたらAuth.Usersを正として更新
-    // ただし古いセッションによる誤上書きを防ぐため、Auth.Usersの最新メアドを確認してから更新
-    if (proData[0].email !== currentUser.email) {
-      var freshUser = await sbClient.auth.getUser();
-      if (!freshUser.error && freshUser.data.user && freshUser.data.user.email === currentUser.email) {
-        console.log("メアドずれ検知、更新するにゃ:", proData[0].email, "→", currentUser.email);
-        updateStripeEmail(currentUser.email);
+      if (status === 'active' || status === 'cancel_scheduled') {
+        // 有料プラン（Pro）
+        currentPlan = 'pro';
+      } else if (plan === 'free' || !status || status === 'free') {
+        // 無料プラン
+        currentPlan = 'free';
       } else {
-        console.log("古いセッションのため更新をスキップするにゃ");
-        await sbClient.auth.signOut();
-        currentUser = null; accessToken = null;
-        showLogin();
-        return;
+        // subscription_statusが無効でplanもproでない → サブスク切れ
+        currentPlan = 'free'; // 無料にフォールバック
+      }
+
+      // メアドがずれてたらAuth.Usersを正として更新
+      if (proData[0].email !== currentUser.email) {
+        var freshUser = await sbClient.auth.getUser();
+        if (!freshUser.error && freshUser.data.user && freshUser.data.user.email === currentUser.email) {
+          console.log("メアドずれ検知、更新するにゃ:", proData[0].email, "→", currentUser.email);
+          if (currentPlan === 'pro') updateStripeEmail(currentUser.email);
+        } else {
+          console.log("古いセッションのため更新をスキップするにゃ");
+          await sbClient.auth.signOut();
+          currentUser = null; accessToken = null;
+          showLogin();
+          return;
+        }
       }
     }
-  } catch(e) { console.error("Proチェックエラー:", e); }
+  } catch(e) { console.error("Proチェックエラー:", e); currentPlan = 'free'; }
   updateUserUI();
   hideLoginScreens();
   loadAll();
+}
+
+// 無料プランユーザーをpro_usersに登録
+async function registerFreeUser() {
+  try {
+    await fetch(SB_URL + "/rest/v1/pro_users", {
+      method: 'POST',
+      headers: {
+        "apikey": SB_KEY,
+        "Authorization": "Bearer " + accessToken,
+        "Content-Type": "application/json",
+        "Prefer": "return=minimal"
+      },
+      body: JSON.stringify({
+        user_id: currentUser.id,
+        email: currentUser.email,
+        plan: 'free',
+        subscription_status: 'free'
+      })
+    });
+    console.log("無料プランユーザーを登録したにゃ");
+  } catch(e) {
+    console.error("無料プラン登録エラー:", e);
+  }
 }
 
 async function doLogout() {
@@ -1952,6 +2040,19 @@ function updateUserUI() {
     var name = currentUser.email || '?';
     avatar.textContent = name.charAt(0).toUpperCase();
   }
+  // ヘッダーバッジをプランに応じて更新
+  var headerBadge = document.querySelector('.ht .badge');
+  if (headerBadge) {
+    if (currentPlan === 'pro') {
+      headerBadge.textContent = 'Pro';
+      headerBadge.style.background = 'rgba(232,168,124,.18)';
+      headerBadge.style.color = '#e8a87c';
+    } else {
+      headerBadge.textContent = '無料';
+      headerBadge.style.background = 'rgba(255,255,255,.12)';
+      headerBadge.style.color = 'rgba(255,255,255,.7)';
+    }
+  }
 }
 
 // ── ログイン画面表示 ──
@@ -1959,12 +2060,25 @@ function showLoginErr(msg) {
   var el = document.getElementById('loginErr');
   if (el) { el.textContent = msg; el.style.display = 'block'; }
 }
+function showSignupErr(msg) {
+  var el = document.getElementById('signupErr');
+  if (el) { el.textContent = msg; el.style.display = 'block'; }
+}
 
 function showLogin() {
   document.getElementById('loginScreen').classList.add('open');
+  document.getElementById('signupScreen').classList.remove('open');
+  document.getElementById('signupDoneScreen').classList.remove('open');
+}
+function showSignup() {
+  document.getElementById('loginScreen').classList.remove('open');
+  document.getElementById('signupScreen').classList.add('open');
+  document.getElementById('signupDoneScreen').classList.remove('open');
 }
 function hideLoginScreens() {
   document.getElementById('loginScreen').classList.remove('open');
+  document.getElementById('signupScreen').classList.remove('open');
+  document.getElementById('signupDoneScreen').classList.remove('open');
 }
 
 // ── Googleログイン ──
@@ -1976,6 +2090,15 @@ async function loginGoogle() {
   if (res.error) showLoginErr(res.error.message);
 }
 
+// ── Google新規登録（ログインと同じ） ──
+async function signupGoogle() {
+  var res = await sbClient.auth.signInWithOAuth({
+    provider: 'google',
+    options: { redirectTo: 'https://shippo-tools.com/pro.html' }
+  });
+  if (res.error) showSignupErr(res.error.message);
+}
+
 // ── メール＋パスワードログイン ──
 async function loginEmailPw() {
   var email = document.getElementById('loginEmail').value.trim();
@@ -1984,6 +2107,26 @@ async function loginEmailPw() {
   var res = await sbClient.auth.signInWithPassword({ email: email, password: pass });
   if (res.error) { showLoginErr('ログインに失敗しました：' + res.error.message); return; }
   hideLoginScreens();
+}
+
+// ── 新規登録（無料プラン） ──
+async function doSignup() {
+  var email = document.getElementById('signupEmail').value.trim();
+  var pass = document.getElementById('signupPass').value;
+  var errEl = document.getElementById('signupErr');
+  errEl.style.display = 'none';
+  if (!email) { showSignupErr('メールアドレスを入力してください'); return; }
+  if (!pass) { showSignupErr('パスワードを入力してください'); return; }
+  if (pass.length < 8) { showSignupErr('パスワードは8文字以上にしてください'); return; }
+  var res = await sbClient.auth.signUp({
+    email: email,
+    password: pass,
+    options: { emailRedirectTo: 'https://shippo-tools.com/pro.html' }
+  });
+  if (res.error) { showSignupErr('登録に失敗しました：' + res.error.message); return; }
+  // 確認メール送信完了画面へ
+  document.getElementById('signupScreen').classList.remove('open');
+  document.getElementById('signupDoneScreen').classList.add('open');
 }
 
 
@@ -2277,6 +2420,7 @@ async function loadAll() {
     var fn = pageMap[currentPageId];
     if (fn) fn(); else rDash();
     checkAnnouncements();
+    applyFreePlanUI();
   } catch(e) {
     setSyncing('error');
     console.error(e);
@@ -2475,6 +2619,59 @@ function calcCost(item) {
 function isLow(item) {
   if (item.min === null || item.min === undefined || item.min === '') return false;
   return item.stock <= item.min;
+}
+
+// ══════════════════════════════════════════════
+// 無料プラン制限UI
+// ══════════════════════════════════════════════
+function showProOnlyOverlay(id, message) {
+  var existing = document.getElementById(id);
+  if (existing) existing.remove();
+  var el = document.createElement('div');
+  el.id = id;
+  el.innerHTML = '<div style="position:fixed;inset:0;z-index:8000;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;padding:20px" onclick="document.getElementById(\'' + id + '\').remove()">'
+    + '<div style="background:var(--sf);border-radius:20px;padding:28px 24px;max-width:340px;width:100%;text-align:center;box-shadow:0 12px 48px rgba(0,0,0,.2)" onclick="event.stopPropagation()">'
+    + '<div style="font-size:32px;margin-bottom:12px">⭐</div>'
+    + '<div style="font-size:16px;font-weight:700;margin-bottom:8px;color:var(--tx)">' + message + '</div>'
+    + '<div style="font-size:13px;color:var(--tx2);margin-bottom:20px;line-height:1.7">月額500円のPro版にアップグレードすると、見積書・請求書作成、マルチプラットフォーム管理など全機能が使えます。</div>'
+    + '<a href="upgrade.html" style="display:block;background:linear-gradient(135deg,var(--ac),#d4733a);color:#fff;padding:12px 20px;border-radius:30px;font-size:14px;font-weight:700;text-decoration:none;margin-bottom:10px">⭐ Pro版を見る（月額500円）</a>'
+    + '<button onclick="document.getElementById(\'' + id + '\').remove()" style="background:none;border:none;font-size:13px;color:var(--tx2);cursor:pointer;font-family:inherit">閉じる</button>'
+    + '</div></div>';
+  document.body.appendChild(el);
+}
+
+// 無料プランUI適用（ログイン後・ページ表示時に呼ぶ）
+function applyFreePlanUI() {
+  if (currentPlan === 'pro') {
+    // Pro版：全機能有効
+    var proTabs = document.querySelectorAll('.pro-only-tab');
+    proTabs.forEach(function(el) { el.style.opacity = '1'; el.style.pointerEvents = ''; });
+    return;
+  }
+  // 無料版：書類作成タブに施錠マーク追加
+  var docTabInv = document.getElementById('docTabInv');
+  var docTabEst = document.getElementById('docTabEst');
+  if (docTabInv && !docTabInv.dataset.locked) {
+    docTabInv.dataset.locked = '1';
+    docTabInv.innerHTML = '🧾 請求書 <span style="font-size:10px;opacity:.7">🔒Pro</span>';
+  }
+  if (docTabEst && !docTabEst.dataset.locked) {
+    docTabEst.dataset.locked = '1';
+    docTabEst.innerHTML = '📝 見積書 <span style="font-size:10px;opacity:.7">🔒Pro</span>';
+  }
+  // 完成品・材料ページの件数バッジを表示
+  updatePlanLimitBadge();
+}
+
+function updatePlanLimitBadge() {
+  if (currentPlan === 'pro') return;
+  var prodCount = items.filter(function(i) { return i.type === 'product'; }).length;
+  var matCount = items.filter(function(i) { return i.type === 'material'; }).length;
+  // 完成品ページのバッジ
+  var pBadge = document.getElementById('freePlanProdBadge');
+  if (pBadge) pBadge.textContent = prodCount + '/40件';
+  var mBadge = document.getElementById('freePlanMatBadge');
+  if (mBadge) mBadge.textContent = matCount + '/60件';
 }
 
 function rDash() {
@@ -3044,6 +3241,16 @@ async function recMake(memoOnly) {
   if (mkMode === 'new') {
     var name = document.getElementById('mkNName').value.trim();
     if (!name) { alert('完成品の名前を入力してください'); return; }
+    // 無料プランの件数制限チェック
+    if (currentPlan !== 'pro') {
+      var prodCount = items.filter(function(x) { return x.type === 'product'; }).length;
+      if (prodCount >= 40) {
+        if (confirm('無料プランでは完成品は40件まで登録できます（現在' + prodCount + '件）。\nPro版（月額500円）では100件まで登録できます。\nアップグレードページを開きますか？')) {
+          window.location.href = 'upgrade.html';
+        }
+        return;
+      }
+    }
     qty = parseInt(document.getElementById('mkNQty').value) || 1;
     recipe = mkRec.filter(function(r) { return r.mid && r.qty > 0; });
     var ac = recipe.reduce(function(a, r) { var m = items.find(function(x) { return x.id === r.mid; }); return a + (m ? m.mc || 0 : 0) * r.qty; }, 0);
@@ -3164,10 +3371,17 @@ async function recPurchase() {
     var nColor = document.getElementById('purNColor').value.trim();
     var nBrand = document.getElementById('purNBrand').value.trim();
     var purNMinOff = document.getElementById('purNMinMode').value === 'off';
-    // 材料の件数制限チェックにゃ
+    // 材料の件数制限チェック
     var matCount = items.filter(function(x) { return x.type === 'material'; }).length;
-    if (matCount >= 60) {
-      alert('⚠️ 材料の登録件数が上限（200件）に達しています。\n不要な材料を削除してから追加してください。');
+    var matLimit = currentPlan === 'pro' ? 200 : 60;
+    if (matCount >= matLimit) {
+      if (currentPlan !== 'pro') {
+        if (confirm('無料プランでは材料は60件まで登録できます（現在' + matCount + '件）。\nPro版（月額500円）では200件まで登録できます。\nアップグレードページを開きますか？')) {
+          window.location.href = 'upgrade.html';
+        }
+      } else {
+        alert('⚠️ 材料の登録件数が上限（200件）に達しています。\n不要な材料を削除してから追加してください。');
+      }
       return;
     }
     item = { id: uid(), type: 'material', name: name, cat: cat, unit: nUnit, stock: 0, min: purNMinOff ? null : (parseInt(document.getElementById('purNMin').value) ?? 5), sp: 0, cost: 0, mc: unit, sup: sup, fw: parseFloat(document.getElementById('purNFW').value) || 0, color: nColor, brand: nBrand, code: code, memo: '', recipe: [], photo: null };
@@ -3390,6 +3604,11 @@ async function addCustomPlatform() {
 var _platformPopupTarget = 'im'; // 'im' or 'mkN'
 
 function openPlatformPopup(target) {
+  // マルチプラットフォームはPro限定
+  if (currentPlan !== 'pro') {
+    showProOnlyOverlay('platformProOverlay', 'マルチプラットフォーム管理はPro版の機能です');
+    return;
+  }
   _platformPopupTarget = target;
   document.getElementById('popupPlatformName').value = '';
   selectPopupType('online');
@@ -4540,6 +4759,12 @@ function onInvToSelChange(val) {
 // 書類作成タブ切り替え
 // ══════════════════════════════════════════════
 function switchDocTab(tab) {
+  // 無料プランでは見積書・請求書はPro限定
+  if (currentPlan !== 'pro' && (tab === 'invoice' || tab === 'estimate')) {
+    var tabName = tab === 'invoice' ? '請求書' : '見積書';
+    showProOnlyOverlay('docProOverlay', tabName + 'の作成はPro版の機能です');
+    return;
+  }
   var tabs = ['delivery', 'invoice', 'estimate'];
   tabs.forEach(function(t) {
     var sec = document.getElementById('docSec-' + t);
@@ -5310,6 +5535,26 @@ function rAccountPg() {
     badge.style.color = 'var(--ok)';
     document.getElementById('acEmailSection').style.display = 'block';
     document.getElementById('acGoogleSection').style.display = 'none';
+  }
+  // プラン表示
+  var planBadge = document.getElementById('acPlanBadge');
+  var upgradeLink = document.getElementById('acUpgradeLink');
+  var subscriptionCard = document.getElementById('subscriptionCard');
+  var upgradeCard = document.getElementById('upgradeCard');
+  if (currentPlan === 'pro') {
+    planBadge.textContent = '⭐ Pro';
+    planBadge.style.background = 'linear-gradient(135deg,#c0622a,#e8a87c)';
+    planBadge.style.color = '#fff';
+    if (upgradeLink) upgradeLink.style.display = 'none';
+    if (subscriptionCard) subscriptionCard.style.display = 'block';
+    if (upgradeCard) upgradeCard.style.display = 'none';
+  } else {
+    planBadge.textContent = '無料';
+    planBadge.style.background = 'var(--sf2)';
+    planBadge.style.color = 'var(--tx2)';
+    if (upgradeLink) upgradeLink.style.display = 'inline';
+    if (subscriptionCard) subscriptionCard.style.display = 'none';
+    if (upgradeCard) upgradeCard.style.display = 'block';
   }
 }
 
