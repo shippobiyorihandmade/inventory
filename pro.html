@@ -2659,19 +2659,10 @@ function applyFreePlanUI() {
     docTabEst.dataset.locked = '1';
     docTabEst.innerHTML = '📝 見積書 <span style="font-size:10px;opacity:.7">🔒Pro</span>';
   }
-  // 完成品・材料ページの件数バッジを表示
-  updatePlanLimitBadge();
-}
-
-function updatePlanLimitBadge() {
-  if (currentPlan === 'pro') return;
-  var prodCount = items.filter(function(i) { return i.type === 'product'; }).length;
-  var matCount = items.filter(function(i) { return i.type === 'material'; }).length;
-  // 完成品ページのバッジ
-  var pBadge = document.getElementById('freePlanProdBadge');
-  if (pBadge) pBadge.textContent = prodCount + '/40件';
-  var mBadge = document.getElementById('freePlanMatBadge');
-  if (mBadge) mBadge.textContent = matCount + '/60件';
+  // 無料版：プラットフォームの＋追加ボタンを非表示
+  document.querySelectorAll('.ptag[onclick*="openPlatformPopup"]').forEach(function(el) {
+    el.style.display = 'none';
+  });
 }
 
 function rDash() {
@@ -3520,7 +3511,21 @@ function buildLocSelect(selectedVal) {
   }).join('');
 }
 
-function togglePtag(el) { el.classList.toggle('on'); }
+function togglePtag(el) {
+  if (currentPlan !== 'pro') {
+    // 無料プランはシングル選択（デフォルト3つのみ、1つだけ選べる）
+    var container = el.closest('[id$="Platforms"]');
+    if (container) {
+      // 既にONのものをOFFに
+      container.querySelectorAll('.ptag.on').forEach(function(t) { t.classList.remove('on'); });
+    }
+    // クリックしたのが既にONだった（→今はOFF）→ そのままでOK
+    // OFFだった → ONにする
+    if (!el.classList.contains('on')) el.classList.add('on');
+    return;
+  }
+  el.classList.toggle('on');
+}
 
 function getPlatforms(containerId) {
   return Array.from(document.querySelectorAll('#' + containerId + ' .ptag.on')).map(function(el) { return el.dataset.value; });
@@ -3534,6 +3539,8 @@ function rebuildPlatformTags(containerId, customContainerId, selectedValues, onl
   var customContainer = document.getElementById(customContainerId);
   if (!customContainer) return;
   customContainer.innerHTML = '';
+  // 無料プランはカスタムプラットフォームを表示しない
+  if (currentPlan !== 'pro') return;
   // onlineOnly=trueのときは🌐ネット販売のみ表示（委託・実店舗を除外）にゃ
   var filtered = onlineOnly
     ? customPlatforms.filter(function(p) { return p.type === 'online'; })
