@@ -744,7 +744,7 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
       </div>
     </div>
   </div>
-  <div class="card">
+  <div class="card" id="addonCard">
     <div class="ch">
       <span class="ct">🧮 原価追加項目</span>
       <button class="btn bs bsm" onclick="toggleAddonSection()">⚙️ 設定</button>
@@ -2680,6 +2680,17 @@ function applyFreePlanUI() {
   if (docTabEst && !docTabEst.dataset.locked) {
     docTabEst.dataset.locked = '1';
     docTabEst.innerHTML = '📝 見積書 <span style="font-size:10px;opacity:.7">🔒Pro</span>';
+  }
+  // 無料版：追加原価カードをPro誘導に差し替え
+  var addonCard = document.getElementById('addonCard');
+  if (addonCard) {
+    addonCard.innerHTML = '<div class="ch"><span class="ct">🧮 原価追加項目</span><span style="font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;background:linear-gradient(135deg,#c0622a,#e8a87c);color:#fff">🔒 Pro</span></div>'
+      + '<div class="cb" style="text-align:center;padding:20px 16px">'
+      + '<div style="font-size:22px;margin-bottom:8px">⭐</div>'
+      + '<div style="font-size:14px;font-weight:700;margin-bottom:6px">この機能はPro版でご利用いただけます</div>'
+      + '<div style="font-size:12px;color:var(--tx2);margin-bottom:16px;line-height:1.7">ミシン糸・梱包資材など消耗品を原価に自動加算。<br>月額500円で全機能が使えます。</div>'
+      + '<a href="upgrade.html" style="display:inline-block;background:linear-gradient(135deg,var(--ac),#d4733a);color:#fff;padding:10px 24px;border-radius:30px;font-size:13px;font-weight:700;text-decoration:none">Pro版を見る →</a>'
+      + '</div>';
   }
   // 無料版：プラットフォームの＋追加ボタンを非表示
   document.querySelectorAll('.ptag[onclick*="openPlatformPopup"]').forEach(function(el) {
