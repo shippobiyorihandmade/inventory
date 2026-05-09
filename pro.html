@@ -1885,10 +1885,19 @@ function checkConfig() {
   return true;
 }
 
+function showCheckoutSuccessToast() {
+  var el = document.createElement('div');
+  el.id = 'checkoutToast';
+  el.style.cssText = 'position:fixed;top:70px;left:50%;transform:translateX(-50%);z-index:9999;background:linear-gradient(135deg,#4a7c6f,#3a6c5f);color:#fff;padding:14px 24px;border-radius:30px;font-size:14px;font-weight:700;box-shadow:0 4px 20px rgba(0,0,0,.2);text-align:center;white-space:nowrap';
+  el.innerHTML = '🎉 アップグレード完了！プランを更新中...';
+  document.body.appendChild(el);
+}
+
 function initSupabase() {
   var params = new URLSearchParams(window.location.search);
   var tokenHash = params.get('token_hash');
   var type = params.get('type');
+  var checkoutSuccess = params.get('checkout') === 'success';
 
   sbClient = supabase.createClient(SB_URL, SB_KEY, {
     auth: {
@@ -1897,6 +1906,19 @@ function initSupabase() {
       autoRefreshToken: true
     }
   });
+
+  // 決済完了後のリダイレクト → webhookの処理を待ってプラン再チェック
+  if (checkoutSuccess) {
+    // URLからパラメータを除去
+    window.history.replaceState({}, '', window.location.pathname);
+    // 「アップグレード処理中」のトースト表示
+    showCheckoutSuccessToast();
+    // webhookの処理に数秒かかるので3秒後にリロード
+    setTimeout(function() {
+      window.location.reload();
+    }, 3000);
+    return;
+  }
 
   // token_hashを処理（メアド変更対応）
   if (tokenHash && type) {
