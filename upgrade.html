@@ -146,9 +146,8 @@ footer p{font-size:12px;opacity:.5;margin-top:16px;}
         <li class="disabled">請求書作成</li>
         <li class="disabled">マルチプラットフォーム管理</li>
         <li class="disabled">追加原価・オプション料金設定</li>
-        <li>データ移行（無料版↔Pro版）</li>
       </ul>
-      <a class="btn-free" href="index.html">無料版を使う</a>
+      <a class="btn-free" href="inventory_supabase.html">無料版を使う</a>
     </div>
 
     <!-- Pro版 -->
@@ -168,7 +167,6 @@ footer p{font-size:12px;opacity:.5;margin-top:16px;}
         <li>請求書作成</li>
         <li>マルチプラットフォーム管理</li>
         <li>追加原価・オプション料金設定</li>
-        <li>データ移行（無料版↔Pro版）</li>
       </ul>
       <button class="btn-upgrade" onclick="startCheckout()">Pro版にアップグレード →</button>
     </div>
@@ -201,7 +199,6 @@ footer p{font-size:12px;opacity:.5;margin-top:16px;}
       <tr><td>マルチプラットフォーム管理</td><td><span class="cross">—</span></td><td><span class="chk">✓</span></td></tr>
       <tr><td>追加原価設定</td><td><span class="cross">—</span></td><td><span class="chk">✓</span></td></tr>
       <tr><td>オプション料金設定</td><td><span class="cross">—</span></td><td><span class="chk">✓</span></td></tr>
-      <tr><td>データ移行（無料版↔Pro版）</td><td><span class="chk">✓</span></td><td><span class="chk">✓</span></td></tr>
     </tbody>
   </table>
 </section>
@@ -223,18 +220,13 @@ footer p{font-size:12px;opacity:.5;margin-top:16px;}
     </div>
     <div class="feature-card">
       <div class="feature-icon">📦</div>
-      <div class="feature-title">登録件数が無制限</div>
+      <div class="feature-title">登録件数が大幅アップ</div>
       <div class="feature-desc">完成品は100件、材料は200件まで登録可能。無料版（完成品40件・材料60件）より大幅に拡張されています。</div>
     </div>
     <div class="feature-card">
       <div class="feature-icon">💰</div>
       <div class="feature-title">追加原価・コスト管理</div>
       <div class="feature-desc">製作時間・梱包費・送料など、材料費以外のコストも登録して、正確な原価計算ができます。</div>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon">🔄</div>
-      <div class="feature-title">無料版からデータ移行</div>
-      <div class="feature-desc">無料版↔Pro版の間でデータを移行できます。移行コードを使った安全な仕組みで、在庫・販売履歴などを引き継げます。</div>
     </div>
     <div class="feature-card">
       <div class="feature-icon">🐾</div>
@@ -258,24 +250,12 @@ footer p{font-size:12px;opacity:.5;margin-top:16px;}
     <div class="faq-a">クレジットカード・デビットカードがご利用いただけます。決済はStripeを使用しており、カード情報は安全に管理されます。</div>
   </div>
   <div class="faq-item">
-    <div class="faq-q">無料版のデータはどうなりますか？</div>
-    <div class="faq-a">無料版のデータはPro版に移行できます。アカウント設定画面からデータ移行コードを発行して、Pro版で入力するだけで移行完了です。</div>
-  </div>
-  <div class="faq-item">
     <div class="faq-q">登録にはどのアカウントが必要ですか？</div>
     <div class="faq-a">Googleアカウント、またはメールアドレスでご登録いただけます。決済完了後すぐにPro版をご利用いただけます。</div>
   </div>
   <div class="faq-item">
     <div class="faq-q">無料版は引き続き使えますか？</div>
     <div class="faq-a">はい、無料版は引き続き無料でご利用いただけます。Pro版は無料版の上位プランで、機能が拡張されたものです。</div>
-  </div>
-  <div class="faq-item">
-    <div class="faq-q">無料版からPro版に移行する場合、何か注意することはありますか？</div>
-    <div class="faq-a">無料版とPro版のデータ移行は、<strong>同じメールアドレスで登録されたアカウント間のみ</strong>ご利用いただけます。将来的にPro版への移行をご検討の方は、無料版と同じメールアドレスでPro版にご登録ください。</div>
-  </div>
-  <div class="faq-item">
-    <div class="faq-q">データ移行で引き継げないものはありますか？</div>
-    <div class="faq-a">保管場所（無料版）・販売プラットフォーム・追加原価の設定は移行対象外です。</div>
   </div>
 </section>
 
@@ -332,20 +312,23 @@ footer p{font-size:12px;opacity:.5;margin-top:16px;}
 <!-- 利用規約・プライバシーポリシー -->
 <section id="terms" style="max-width:760px;margin:0 auto 80px;padding:0 24px">
   <div class="section-label">Terms</div>
-  <h2 class="section-title">Pro版 利用規約</h2>
+  <h2 class="section-title">ハンドメイド在庫管理アプリ 利用規約</h2>
   <div style="background:var(--sf);border:1.5px solid var(--bd);border-radius:var(--rL);padding:32px 28px;font-size:13px;color:var(--tx2);line-height:1.9">
     <h3 style="font-size:14px;font-weight:700;color:var(--tx);margin-bottom:8px">第1条（料金・請求）</h3>
-    <p style="margin-bottom:20px">Pro版の利用料金は月額500円（税込）です。毎月1日を請求サイクルの基準とし、自動更新されます。契約月は契約日から月末までの日割り料金が請求されます。翌月以降は毎月1日に500円が請求されます。解約月は日割り計算されません。</p>
-    <h3 style="font-size:14px;font-weight:700;color:var(--tx);margin-bottom:8px">第2条（解約）</h3>
-    <p style="margin-bottom:20px">解約はいつでも可能です。解約手続き完了後、次回請求日までPro版をご利用いただけます。なお、解約と同時にアカウントおよびすべてのデータが完全に削除されます。削除されたデータの復元はできません。解約前に必ずCSVエクスポートでデータのバックアップを取得することをおすすめします。</p>
-    <h3 style="font-size:14px;font-weight:700;color:var(--tx);margin-bottom:8px">第3条（領収書）</h3>
+    <p style="margin-bottom:20px">Pro版の利用料金は月額500円（税込）です。毎月1日を請求サイクルの基準とし、自動更新されます。契約月は契約日から月末までの日割り料金が請求されます。翌月以降は毎月1日に500円が請求されます。解約月は日割り計算されません。無料プランの利用料金は無料です。</p>
+    <h3 style="font-size:14px;font-weight:700;color:var(--tx);margin-bottom:8px">第2条（解約・退会）</h3>
+    <p style="margin-bottom:8px"><b>Pro版の場合：</b>解約はいつでも可能です。解約手続き完了後、次回請求日までPro版をご利用いただけます。なお、解約と同時にアカウントおよびすべてのデータが完全に削除されます。削除されたデータの復元はできません。解約前に必ずCSVエクスポートでデータのバックアップを取得することをおすすめします。</p>
+    <p style="margin-bottom:20px"><b>無料プランの場合：</b>退会はアカウント設定画面よりいつでも可能です。退会と同時にアカウントおよびすべてのデータが完全に削除されます。また、6ヶ月以上ログインがない場合、事前にメールでご案内のうえ、自動的にアカウントとデータを削除します。</p>
+    <h3 style="font-size:14px;font-weight:700;color:var(--tx);margin-bottom:8px">第3条（データ保持期間）</h3>
+    <p style="margin-bottom:20px">販売履歴・変更履歴のデータ保持期間は、無料プランは1年間、Pro版は2年間です。保持期間を超えたデータは自動的に削除されます。</p>
+    <h3 style="font-size:14px;font-weight:700;color:var(--tx);margin-bottom:8px">第4条（領収書）</h3>
     <p style="margin-bottom:20px">決済完了後、登録メールアドレスにStripeより領収書が自動送信されます。</p>
-    <h3 style="font-size:14px;font-weight:700;color:var(--tx);margin-bottom:8px">第4条（返金）</h3>
+    <h3 style="font-size:14px;font-weight:700;color:var(--tx);margin-bottom:8px">第5条（返金）</h3>
     <p style="margin-bottom:20px">決済済みの料金は原則として返金いたしません。月の途中での解約による日割り返金も行いません。</p>
-    <h3 style="font-size:14px;font-weight:700;color:var(--tx);margin-bottom:8px">第5条（サービスの変更・停止）</h3>
+    <h3 style="font-size:14px;font-weight:700;color:var(--tx);margin-bottom:8px">第6条（サービスの変更・停止）</h3>
     <p style="margin-bottom:20px">サービスの内容変更・料金改定・サービス停止を行う場合は、事前にメールまたはアプリ内でご案内します。</p>
-    <h3 style="font-size:14px;font-weight:700;color:var(--tx);margin-bottom:8px">第6条（その他）</h3>
-    <p>その他の事項については、<a href="index.html#terms" style="color:var(--ac)">しっぽ日和 利用規約</a>に準じます。</p>
+    <h3 style="font-size:14px;font-weight:700;color:var(--tx);margin-bottom:8px">第7条（その他）</h3>
+    <p>本規約に定めのない事項については、運営の判断に従うものとします。</p>
   </div>
 </section>
 
@@ -354,13 +337,17 @@ footer p{font-size:12px;opacity:.5;margin-top:16px;}
   <h2 class="section-title">プライバシーポリシー</h2>
   <div style="background:var(--sf);border:1.5px solid var(--bd);border-radius:var(--rL);padding:32px 28px;font-size:13px;color:var(--tx2);line-height:1.9">
     <h3 style="font-size:14px;font-weight:700;color:var(--tx);margin-bottom:8px">収集する情報</h3>
-    <p style="margin-bottom:20px">Pro版では、通常のサービス利用情報に加えて、決済に必要な情報（メールアドレス）をStripeに提供します。クレジットカード情報はStripeが管理し、当サービスでは保持しません。</p>
+    <p style="margin-bottom:20px">本サービスでは、メールアドレス・プロフィール情報（Googleアカウントでログインした場合はプロフィール画像も含む）、およびアプリ内で入力した在庫・販売・製作データ、アップロードした写真を収集します。Pro版では、決済に必要な情報（メールアドレス）をStripeに提供します。クレジットカード情報はStripeが管理し、当サービスでは保持しません。</p>
+    <h3 style="font-size:14px;font-weight:700;color:var(--tx);margin-bottom:8px">データ保持期間</h3>
+    <p style="margin-bottom:20px">販売履歴・変更履歴は、無料プランは1年間、Pro版は2年間保持します。保持期間を超えたデータは自動的に削除されます。</p>
+    <h3 style="font-size:14px;font-weight:700;color:var(--tx);margin-bottom:8px">非アクティブアカウントの削除</h3>
+    <p style="margin-bottom:20px">無料プランにおいて、3ヶ月以上ログインがない場合は警告メールをお送りします。6ヶ月以上ログインがない場合は、事前にメールでご案内のうえ、アカウントおよびすべての登録データを自動削除します。Pro版はこの対象外です。</p>
     <h3 style="font-size:14px;font-weight:700;color:var(--tx);margin-bottom:8px">決済サービスについて</h3>
     <p style="margin-bottom:20px">決済にはStripe（Stripe, Inc.）を使用しています。Stripeのプライバシーポリシーは<a href="https://stripe.com/jp/privacy" target="_blank" rel="noopener" style="color:var(--ac)">こちら</a>をご確認ください。</p>
     <h3 style="font-size:14px;font-weight:700;color:var(--tx);margin-bottom:8px">データの削除</h3>
-    <p style="margin-bottom:20px">解約時にアカウントおよびすべての登録データを完全に削除します。削除後のデータ復元はできません。</p>
+    <p style="margin-bottom:20px">退会・解約時にアカウントおよびすべての登録データを完全に削除します。削除後のデータ復元はできません。</p>
     <h3 style="font-size:14px;font-weight:700;color:var(--tx);margin-bottom:8px">その他</h3>
-    <p>その他の事項については、<a href="index.html#privacy" style="color:var(--ac)">しっぽ日和 プライバシーポリシー</a>に準じます。</p>
+    <p>本ポリシーは予告なく変更される場合があります。変更後のご利用をもって、変更に同意したものとみなします。</p>
   </div>
 </section>
 
