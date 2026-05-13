@@ -296,10 +296,10 @@ window.addEventListener('load', function() {
   });
 });
 
-// ── 管理者チェック（無料版のadmin_usersで確認） ──
+// ── 管理者チェック（Pro版のadmin_usersで確認） ──
 async function checkAdmin() {
-  var res = await fetch(FREE_SB_URL + '/rest/v1/admin_users?user_id=eq.' + currentUser.id + '&select=user_id', {
-    headers: { 'apikey': FREE_SB_KEY, 'Authorization': 'Bearer ' + accessToken }
+  var res = await fetch(SB_URL + '/rest/v1/admin_users?user_id=eq.' + currentUser.id + '&select=user_id', {
+    headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + accessToken }
   });
   var data = await res.json();
   if (!data || data.length === 0) {
