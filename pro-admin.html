@@ -128,6 +128,7 @@ textarea{resize:vertical;min-height:80px;}
     <div class="cb">
       <div class="stat-grid" id="statsGrid">
         <div class="stat-card"><span class="stat-num" id="statUsers">—</span><span class="stat-lbl">Proユーザー数</span></div>
+        <div class="stat-card"><span class="stat-num" id="statFreeUsers">—</span><span class="stat-lbl">無料ユーザー数</span></div>
         <div class="stat-card"><span class="stat-num" id="statWaitlist">—</span><span class="stat-lbl">事前登録者数</span></div>
         <div class="stat-card"><span class="stat-num" id="statAnn">—</span><span class="stat-lbl">お知らせ数</span></div>
         <div class="stat-card"><span class="stat-num" id="statContacts">—</span><span class="stat-lbl">問い合わせ数</span></div>
@@ -138,7 +139,7 @@ textarea{resize:vertical;min-height:80px;}
   <!-- Pro版ユーザー一覧 -->
   <div class="card">
     <div class="ch">
-      <span class="ct">💳 Pro版ユーザー一覧</span>
+      <span class="ct">👥 ユーザー一覧</span>
       <button class="btn bs bsm" onclick="loadUsers()">🔄 更新</button>
     </div>
     <div class="cb" style="padding:0 16px">
@@ -180,6 +181,38 @@ textarea{resize:vertical;min-height:80px;}
     </div>
     <div class="cb" style="padding:0 16px">
       <div id="contactList"><div class="empty">読み込み中...</div></div>
+    </div>
+  </div>
+
+  <!-- ユーザー向け一斉メール -->
+  <div class="card">
+    <div class="ch"><span class="ct">📨 ユーザーへの一斉メール送信</span></div>
+    <div class="cb">
+      <div class="fr" style="margin-bottom:8px">
+        <div>
+          <label>送信対象</label>
+          <div style="display:flex;gap:8px;margin-top:6px">
+            <label style="display:flex;align-items:center;gap:4px;font-size:13px;font-weight:400;cursor:pointer">
+              <input type="radio" name="userMailTarget" value="all" checked> 全ユーザー（Pro＋無料）
+            </label>
+            <label style="display:flex;align-items:center;gap:4px;font-size:13px;font-weight:400;cursor:pointer">
+              <input type="radio" name="userMailTarget" value="pro"> Proのみ
+            </label>
+            <label style="display:flex;align-items:center;gap:4px;font-size:13px;font-weight:400;cursor:pointer">
+              <input type="radio" name="userMailTarget" value="free"> 無料のみ
+            </label>
+          </div>
+        </div>
+      </div>
+      <div class="fr" style="margin-bottom:8px">
+        <div><label>件名</label><input type="text" id="umSubject" placeholder="例：機能追加のお知らせ"></div>
+      </div>
+      <div class="fr" style="margin-bottom:8px">
+        <div><label>本文</label><textarea id="umBody" placeholder="メール本文を入力してください" oninput="updateUmPreview()"></textarea></div>
+      </div>
+      <div style="margin-bottom:12px;padding:12px;background:var(--sf2);border-radius:8px;font-size:12px;color:var(--tx2);white-space:pre-wrap;min-height:48px" id="umPreview">本文を入力するとプレビューが表示されるにゃ</div>
+      <button class="btn bp" onclick="sendUserMail()">📨 送信する</button>
+      <div id="umSendResult" style="font-size:12px;margin-top:8px"></div>
     </div>
   </div>
 
@@ -333,13 +366,15 @@ function loadAll() { loadStats(); loadUsers(); loadAnnouncements(); loadContacts
 // ── 統計 ──
 async function loadStats() {
   try {
-    var [profiles, ann, contacts, waitlist] = await Promise.all([
-      fetch(SB_URL + '/rest/v1/pro_users?select=id&subscription_status=eq.active', { headers: sbH() }).then(r => r.json()),
+    var [proUsers, freeUsers, ann, contacts, waitlist] = await Promise.all([
+      fetch(SB_URL + '/rest/v1/pro_users?select=id&plan=eq.pro&subscription_status=in.(active,cancel_scheduled)', { headers: sbH() }).then(r => r.json()),
+      fetch(SB_URL + '/rest/v1/pro_users?select=id&plan=eq.free', { headers: sbH() }).then(r => r.json()),
       fetch(SB_URL + '/rest/v1/announcements?select=id', { headers: sbH() }).then(r => r.json()),
       fetch(SB_URL + '/rest/v1/contacts?select=id', { headers: sbH() }).then(r => r.json()),
       fetch(SB_URL + '/rest/v1/waitlist?select=id', { headers: sbH() }).then(r => r.json()),
     ]);
-    document.getElementById('statUsers').textContent = profiles.length;
+    document.getElementById('statUsers').textContent = proUsers.length;
+    document.getElementById('statFreeUsers').textContent = freeUsers.length;
     document.getElementById('statAnn').textContent = ann.length;
     document.getElementById('statContacts').textContent = contacts.length;
     document.getElementById('statWaitlist').textContent = waitlist.length;
@@ -373,9 +408,13 @@ function renderUsers() {
     var initial = (u.email || '?').charAt(0).toUpperCase();
     var d = new Date(u.created_at);
     var ds = d.getFullYear() + '/' + String(d.getMonth()+1).padStart(2,'0') + '/' + String(d.getDate()).padStart(2,'0');
-    var statusBadge = u.subscription_status === 'active'
-      ? '<span class="tag tag-pro">Pro</span>'
-      : '<span class="tag" style="background:#fde8e8;color:#c04a4a">inactive</span>';
+    var statusBadge = u.plan === 'pro' && (u.subscription_status === 'active' || u.subscription_status === 'cancel_scheduled')
+      ? '<span class="tag tag-pro">⭐ Pro</span>'
+      : u.plan === 'pro' && u.subscription_status === 'inactive'
+      ? '<span class="tag" style="background:#fde8e8;color:#c04a4a">解約済</span>'
+      : u.plan === 'pro' && u.subscription_status === 'payment_failed'
+      ? '<span class="tag" style="background:#fff3cd;color:#856404">支払失敗</span>'
+      : '<span class="tag" style="background:#e8f4e8;color:#2d7a2d">無料</span>';
     return '<div class="user-row">'
       + '<div class="user-avatar">' + initial + '</div>'
       + '<div class="user-info">'
@@ -540,6 +579,52 @@ function updatePreview() {
   if (!subject && !body) { el.style.color = 'var(--tx2)'; el.textContent = '本文を入力するとプレビューが表示されるにゃ'; return; }
   el.style.color = 'var(--tx)';
   el.textContent = '件名: ' + (subject || '（未入力）') + '\n\n' + (previewBody || '（本文未入力）');
+}
+
+// ── ユーザー向け一斉メール送信 ──
+function updateUmPreview() {
+  var body = document.getElementById('umBody').value;
+  var el = document.getElementById('umPreview');
+  if (body.trim()) {
+    el.textContent = body;
+    el.style.color = 'var(--tx)';
+  } else {
+    el.textContent = '本文を入力するとプレビューが表示されるにゃ';
+    el.style.color = 'var(--tx2)';
+  }
+}
+
+async function sendUserMail() {
+  var subject = document.getElementById('umSubject').value.trim();
+  var body = document.getElementById('umBody').value.trim();
+  var target = document.querySelector('input[name="userMailTarget"]:checked').value;
+  var res = document.getElementById('umSendResult');
+  if (!subject) { res.innerHTML = '<span style="color:var(--wn)">件名を入力してください</span>'; return; }
+  if (!body) { res.innerHTML = '<span style="color:var(--wn)">本文を入力してください</span>'; return; }
+
+  var targetLabel = target === 'pro' ? 'Proユーザーのみ' : target === 'free' ? '無料ユーザーのみ' : '全ユーザー（Pro＋無料）';
+  if (!confirm(targetLabel + 'に一斉送信しますにゃ？\n\n件名: ' + subject + '\n\n送信前にプレビューを確認してにゃ🐾')) return;
+
+  res.innerHTML = '<span style="color:var(--tx2)">⏳ 送信中... しばらく待ってにゃ</span>';
+  try {
+    var r = await fetch(SB_URL + '/functions/v1/send-pro-user-mail', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + accessToken
+      },
+      body: JSON.stringify({ subject, body, target })
+    });
+    var data = await r.json();
+    if (!r.ok) throw new Error(data.error || JSON.stringify(data));
+    res.innerHTML = '<span style="color:var(--ok)">✅ ' + data.sent + '人に送信完了したにゃ🐾</span>';
+    document.getElementById('umSubject').value = '';
+    document.getElementById('umBody').value = '';
+    document.getElementById('umPreview').textContent = '本文を入力するとプレビューが表示されるにゃ';
+    document.getElementById('umPreview').style.color = 'var(--tx2)';
+  } catch(e) {
+    res.innerHTML = '<span style="color:var(--wn)">エラー: ' + e.message + '</span>';
+  }
 }
 
 // ── 一斉メール送信 ──
