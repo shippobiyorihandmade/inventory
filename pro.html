@@ -1661,6 +1661,19 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:#faf7f3;}
     </div>
   </div>
 
+  <!-- 退会（無料プランのみ） -->
+  <div class="card" id="withdrawCard" style="display:none">
+    <div class="ch"><span class="ct">🚪 退会</span></div>
+    <div class="cb">
+      <p class="ts tm" style="margin-bottom:14px;line-height:1.7">
+        退会するとアカウントおよびすべてのデータが完全に削除されます。<br>
+        削除されたデータの復元はできません。退会前にCSVエクスポートでバックアップをお取りください。
+      </p>
+      <button class="btn" style="background:none;border:1.5px solid #c04a4a;color:#c04a4a;padding:10px 20px;border-radius:8px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer" onclick="doWithdraw()">退会する</button>
+      <div id="withdrawMsg" style="margin-top:8px;font-size:12px;display:none"></div>
+    </div>
+  </div>
+
 </div>
 
 <!-- 納品先管理モーダル -->
@@ -5557,6 +5570,36 @@ function rToolsPg() {
   // 無料ツールページは静的なので描画処理不要
 }
 
+async function doWithdraw() {
+  if (!confirm('退会するとアカウントおよびすべてのデータが完全に削除されます。\n\nこの操作は取り消せません。本当に退会しますか？')) return;
+  if (!confirm('最終確認です。\n\nすべてのデータが削除されます。退会しますか？')) return;
+
+  var btn = document.querySelector('[onclick="doWithdraw()"]');
+  var msgEl = document.getElementById('withdrawMsg');
+  if (btn) { btn.disabled = true; btn.textContent = '退会処理中...'; }
+  if (msgEl) msgEl.style.display = 'none';
+
+  try {
+    var res = await fetch(SB_URL + '/functions/v1/delete-free-account', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + accessToken
+      }
+    });
+    var data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'エラーが発生しました');
+
+    // 退会完了 → ログアウトしてトップへ
+    alert('退会が完了しました。ご利用ありがとうございました🐾');
+    await sbClient.auth.signOut();
+    window.location.href = 'upgrade.html';
+  } catch (e) {
+    if (msgEl) { msgEl.textContent = '❌ ' + e.message; msgEl.style.color = '#c04a4a'; msgEl.style.display = 'block'; }
+    if (btn) { btn.disabled = false; btn.textContent = '退会する'; }
+  }
+}
+
 function rAccountPg() {
   if (!currentUser) return;
   document.getElementById('acEmail').textContent = currentUser.email || '—';
@@ -5581,6 +5624,7 @@ function rAccountPg() {
   var upgradeLink = document.getElementById('acUpgradeLink');
   var subscriptionCard = document.getElementById('subscriptionCard');
   var upgradeCard = document.getElementById('upgradeCard');
+  var withdrawCard = document.getElementById('withdrawCard');
   if (currentPlan === 'pro') {
     planBadge.textContent = '⭐ Pro';
     planBadge.style.background = 'linear-gradient(135deg,#c0622a,#e8a87c)';
@@ -5588,6 +5632,7 @@ function rAccountPg() {
     if (upgradeLink) upgradeLink.style.display = 'none';
     if (subscriptionCard) subscriptionCard.style.display = 'block';
     if (upgradeCard) upgradeCard.style.display = 'none';
+    if (withdrawCard) withdrawCard.style.display = 'none';
   } else {
     planBadge.textContent = '無料';
     planBadge.style.background = 'var(--sf2)';
@@ -5595,6 +5640,7 @@ function rAccountPg() {
     if (upgradeLink) upgradeLink.style.display = 'inline';
     if (subscriptionCard) subscriptionCard.style.display = 'none';
     if (upgradeCard) upgradeCard.style.display = 'block';
+    if (withdrawCard) withdrawCard.style.display = 'block';
   }
 }
 

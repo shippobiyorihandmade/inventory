@@ -191,14 +191,14 @@ textarea{resize:vertical;min-height:80px;}
       <div class="fr" style="margin-bottom:8px">
         <div>
           <label>送信対象</label>
-          <div style="display:flex;gap:8px;margin-top:6px">
-            <label style="display:flex;align-items:center;gap:4px;font-size:13px;font-weight:400;cursor:pointer">
+          <div style="display:flex;gap:16px;margin-top:8px;flex-wrap:wrap">
+            <label style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:400;cursor:pointer;white-space:nowrap">
               <input type="radio" name="userMailTarget" value="all" checked> 全ユーザー（Pro＋無料）
             </label>
-            <label style="display:flex;align-items:center;gap:4px;font-size:13px;font-weight:400;cursor:pointer">
+            <label style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:400;cursor:pointer;white-space:nowrap">
               <input type="radio" name="userMailTarget" value="pro"> Proのみ
             </label>
-            <label style="display:flex;align-items:center;gap:4px;font-size:13px;font-weight:400;cursor:pointer">
+            <label style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:400;cursor:pointer;white-space:nowrap">
               <input type="radio" name="userMailTarget" value="free"> 無料のみ
             </label>
           </div>
@@ -250,15 +250,6 @@ textarea{resize:vertical;min-height:80px;}
           <span id="wlCount" style="font-size:12px;color:#7a6e60">—人に送信予定</span>
         </div>
         <div id="wlSendResult" style="font-size:12px;margin-top:10px"></div>
-      </div>
-
-      <!-- 送信ログ -->
-      <div style="margin-bottom:12px">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-          <span style="font-size:12px;font-weight:700;color:var(--tx2)">直近の送信ログ</span>
-          <button class="btn bs bsm" onclick="loadSendLogs()">🔄 更新</button>
-        </div>
-        <div id="wlLogs"><div class="empty" style="padding:12px">ログを読み込み中...</div></div>
       </div>
 
       <!-- 登録者リスト -->
@@ -361,7 +352,7 @@ function sbH() {
   return { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + accessToken, 'Content-Type': 'application/json', 'Prefer': 'return=representation' };
 }
 
-function loadAll() { loadStats(); loadUsers(); loadAnnouncements(); loadContacts(); loadWaitlist(); loadSendLogs(); }
+function loadAll() { loadStats(); loadUsers(); loadAnnouncements(); loadContacts(); loadWaitlist(); }
 
 // ── 統計 ──
 async function loadStats() {
@@ -652,7 +643,6 @@ async function sendWaitlistMail() {
     var sent = data.sent || waitlistAll.length;
     res.innerHTML = '<span style="color:var(--ok)">✅ ' + sent + '人に送信完了したにゃ🐾</span>';
     // 送信済みログ更新
-    loadSendLogs();
     loadWaitlist();
     loadStats();
     // 入力クリア
@@ -665,27 +655,7 @@ async function sendWaitlistMail() {
   }
 }
 
-// ── 送信ログ（waitlist_logsテーブル想定、なければ省略） ──
-async function loadSendLogs() {
-  var el = document.getElementById('wlLogs');
-  try {
-    var r = await fetch(SB_URL + '/rest/v1/waitlist_send_logs?select=*&order=sent_at.desc&limit=5', { headers: sbH() });
-    if (!r.ok) { el.innerHTML = '<div class="empty" style="padding:8px">ログテーブルが未設定にゃ（waitlist_send_logsを作るにゃ）</div>'; return; }
-    var list = await r.json();
-    if (!list.length) { el.innerHTML = '<div class="empty" style="padding:8px">まだ送信ログがないにゃ</div>'; return; }
-    el.innerHTML = list.map(function(l) {
-      var d = new Date(l.sent_at);
-      var ds = d.getFullYear() + '/' + String(d.getMonth()+1).padStart(2,'0') + '/' + String(d.getDate()).padStart(2,'0')
-             + ' ' + String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
-      return '<div style="padding:8px 0;border-bottom:1px solid var(--bd);font-size:12px">'
-        + '<div style="font-weight:700;margin-bottom:2px">' + l.subject + '</div>'
-        + '<div style="color:var(--tx2)">' + ds + '　' + (l.sent_count||'—') + '人に送信</div>'
-        + '</div>';
-    }).join('');
-  } catch(e) {
-    el.innerHTML = '<div class="empty" style="padding:8px">ログ取得エラー</div>';
-  }
-}
+
 </script>
 </body>
 </html>
