@@ -286,6 +286,9 @@ window.addEventListener('load', function() {
     if (session && session.user) {
       currentUser = session.user;
       accessToken = session.access_token;
+      // 必ず一度非表示にしてからチェック
+      document.getElementById('mainContent').style.display = 'none';
+      document.getElementById('forbiddenScreen').classList.remove('open');
       checkAdmin();
     } else {
       if (event !== 'INITIAL_SESSION') showLogin();
